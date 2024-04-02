@@ -223,7 +223,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         if ($user) {
             $token = hash('sha256', time() . $user->email);
-            DB::table('password_resets')->updateOrInsert(
+            DB::table('password_reset_tokens')->updateOrInsert(
                 ['email' => $user->email, 'token' => $token]
             );
 
