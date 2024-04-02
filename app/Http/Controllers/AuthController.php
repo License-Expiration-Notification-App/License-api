@@ -236,7 +236,7 @@ class AuthController extends Controller
     }
     public function confirmPasswordResetToken($token)
     {
-        $user_token = DB::table('password_resets')->where('token', $token)->first();
+        $user_token = DB::table('password_reset_tokens')->where('token', $token)->first();
         if ($user_token) {
             return response()->json(['email' => $user_token->email], 200);
         }
@@ -273,7 +273,7 @@ class AuthController extends Controller
             $user->password_status = 'custom';
             $user->password_expires_at = date('Y-m-d H:i:s', strtotime($this->todayDate . ' +90 days'));
             if ($user->save()) {
-                DB::table('password_resets')->where('email', $request->email)->delete();
+                DB::table('password_reset_tokens')->where('email', $request->email)->delete();
                 $user_password_count = UserPassword::where('user_id', $user->id)->count();
                 if ($user_password_count < 3) {
                     $user_password = new UserPassword();
