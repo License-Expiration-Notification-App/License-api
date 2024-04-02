@@ -260,15 +260,15 @@ class AuthController extends Controller
         if ($user) {
 
             $hashed_password = hash('sha256', $request->new_password);
-            if (isset($request->message) && $request->message === 'password_due_for_change') {
+            // if (isset($request->message) && $request->message === 'password_due_for_change') {
 
-                $user_password = UserPassword::where(['user_id' => $user->id, 'password' => $hashed_password])->first();
-                if ($user_password) {
-                    return response()->json([
-                        'message' => 'You have used this password in recent times. Kindly change it.'
-                    ], 401);
-                }
-            }
+            //     $user_password = UserPassword::where(['user_id' => $user->id, 'password' => $hashed_password])->first();
+            //     if ($user_password) {
+            //         return response()->json([
+            //             'message' => 'You have used this password in recent times. Kindly change it.'
+            //         ], 401);
+            //     }
+            // }
             $user->password = $request->new_password;
             $user->password_status = 'custom';
             $user->password_expires_at = date('Y-m-d H:i:s', strtotime($this->todayDate . ' +90 days'));
