@@ -197,7 +197,7 @@ class AuthController extends Controller
 
     public function confirmRegistration(Request $request)
     {
-        $hash = $request->code;
+        $hash = $request->token;
         $message = 'Invalid Activation Link';
         if ($hash != '') {
 
@@ -236,9 +236,9 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Email Not Found'], 500);
     }
-    public function confirmPasswordResetToken($token)
+    public function confirmPasswordResetToken($code)
     {
-        $token = hash('sha512', $token);
+        $token = hash('sha512', $code);
         $user_token = PasswordResetToken::where('token', $token)->first();
         if ($user_token) {
             return response()->json(['email' => $user_token->email], 200);

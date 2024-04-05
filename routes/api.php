@@ -23,7 +23,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::get('confirm-registration', [AuthController::class, 'confirmRegistration']);
     Route::post('recover-password', [AuthController::class, 'recoverPassword']);
-    Route::get('confirm-password-reset-token/{token}', [AuthController::class, 'confirmPasswordResetToken']);
+    Route::get('confirm-password-reset-token/{code}', [AuthController::class, 'confirmPasswordResetToken']);
 
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
     Route::post('other-user-login', [AuthController::class, 'otherUserLogin']);
