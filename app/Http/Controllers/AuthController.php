@@ -10,7 +10,7 @@ use App\Jobs\SendQueuedPasswordResetEmailJob;
 use App\Models\TwoFactorAuthentication;
 use App\Jobs\SendQueued2FACode;
 
-use App\Mail\PassKey;
+use App\Mail\ConfirmNewRegistration;
 use App\Mail\ResetPassword;
 use App\Models\Client;
 use App\Models\Partner;
@@ -59,10 +59,13 @@ class AuthController extends Controller
         $user = new User([
             'name'  => $request->name,
             'email' => $request->email,
-            'password' => $request->password,
+            'confirm_hash' => hashing($request->email),
         ]);
 
         if ($user->save()) {
+            // SendQueuedPasswordResetEmailJob::dispatch($user, $token);
+            Mail::to($user)->send(new ConfirmNewRegistration($user));
+
             $tokenResult = $user->createToken('Personal Access Token');
             $token = $tokenResult->plainTextToken;
 
@@ -186,32 +189,19 @@ class AuthController extends Controller
     public function confirmRegistration(Request $request)
     {
         $hash = $request->code;
-        if (isset($request->user_id) && $hash === 'admin_confirmation') {
-            $user = User::find($request->user_id);
-            $message = 'Cannot Activate User';
-            if ($user) {        //hash is confirmed and valid
-                if ($user->email_verified_at === NULL) {
-                    $user->email_verified_at = date('Y-m-d H:i:s', strtotime('now'));
-                    $user->save();
-                    $message = 'Account Activated Successfully';
-                } else {
-                    $message = 'Account Already Activated';
-                }
+        $confirm_hash = User::where(['confirm_hash' => $hash])->first();
+        $message = 'Invalid Activation Link';
+        if ($confirm_hash) {        //hash is confirmed and valid
+            if ($confirm_hash->email_verified_at === NULL) {
+                $confirm_hash->email_verified_at = date('Y-m-d H:i:s', strtotime('now'));
+                $confirm_hash->save();
+                $message = 'Account Activated Successfully';
+            } else {
+                $message = 'Account Already Activated';
             }
-        } else {
-            $confirm_hash = User::where(['confirm_hash' => $hash])->first();
-            $message = 'Invalid Activation Link';
-            if ($confirm_hash) {        //hash is confirmed and valid
-                if ($confirm_hash->email_verified_at === NULL) {
-                    $confirm_hash->email_verified_at = date('Y-m-d H:i:s', strtotime('now'));
-                    $confirm_hash->save();
-                    $message = 'Account Activated Successfully';
-                } else {
-                    $message = 'Account Already Activated';
-                }
-                //return view('auth.registration_confirmed', compact('message'));
+            //return view('auth.registration_confirmed', compact('message'));
 
-            }
+
         }
 
 
@@ -264,7 +254,7 @@ class AuthController extends Controller
             // $user->password_status = 'custom';
             // $user->password_expires_at = date('Y-m-d H:i:s', strtotime($this->todayDate . ' +90 days'));
             if ($user->save()) {
-                DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+                PasswordResetToken::where('email', $request->email)->delete();
             }
         }
 

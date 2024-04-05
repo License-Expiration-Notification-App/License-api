@@ -311,18 +311,9 @@
                                         {{ $user->name }},</span></strong></span></p>
                                 <p style="font-size: 14px; line-height: 190%;"><span
                                     style="font-size: 16px; line-height: 30.4px;">We are glad to have you
-                                    onboard. Kindly activate your account by
+                                    onboard. Kindly complete your registration by
                                     clicking or copying the link below to your
                                     browser.<br /></span></p>
-                                <p>
-                                  <span style="font-size: 14px; line-height: 25.4px;">Your
-                                    login credential is: <br />
-                                    <div style="font-family: monospace;">
-                                      Username: {{ $user->email }} <br>
-                                      Password: {{ $password }}
-                                    </div>
-                                  </span>
-                                </p>
                               </div>
 
                             </td>
@@ -370,8 +361,8 @@
 
                               <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->
                               <div>
-                                <a href="{{ env('FRONTEND_URL') }}/confirm-registration/{{ $user->confirm_hash }}"
-                                  target="_blank">{{ env('FRONTEND_URL') }}/confirm-registration/{{ $user->confirm_hash }}
+                                <a href="{{ env('FRONTEND_URL') }}/create-password/{{ $user->confirm_hash }}"
+                                  target="_blank">{{ env('FRONTEND_URL') }}/create-password/{{ $user->confirm_hash }}
                                 </a>
                                 <!--[if mso]></center></v:roundrect><![endif]-->
                               </div>

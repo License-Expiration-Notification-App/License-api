@@ -13,17 +13,15 @@ class ConfirmNewRegistration extends Mailable //implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $user; //make it public so that the view resource can access it
-    public $password;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user, $password)
+    public function __construct($user)
     {
         //
         $this->user = $user;
-        $this->password = $password;
     }
 
     /**
@@ -34,7 +32,6 @@ class ConfirmNewRegistration extends Mailable //implements ShouldQueue
     public function build()
     {
         $user = $this->user;
-        $password = $this->password;
-        return $this->view('emails.confirm_new_registration', compact('user', 'password'));
+        return $this->view('emails.confirm_new_registration', compact('user'));
     }
 }
