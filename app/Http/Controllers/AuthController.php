@@ -59,7 +59,7 @@ class AuthController extends Controller
         $user = new User([
             'name'  => $request->name,
             'email' => $request->email,
-            'confirm_hash' => hashing($request->email),
+            'confirm_hash' => hash('sha512', $request->email),
         ]);
 
         if ($user->save()) {
@@ -218,7 +218,7 @@ class AuthController extends Controller
         if ($user) {
             $token = randomNumber();
             PasswordResetToken::firstOrCreate(
-                ['email' => $user->email, 'token' => hashing($token)]
+                ['email' => $user->email, 'token' => hash('sha512', $token)]
             );
 
             // SendQueuedPasswordResetEmailJob::dispatch($user, $token);
@@ -230,7 +230,7 @@ class AuthController extends Controller
     }
     public function confirmPasswordResetToken($token)
     {
-        $token = hashing($token);
+        $token = hash('sha512', $token);
         $user_token = PasswordResetToken::where('token', $token)->first();
         if ($user_token) {
             return response()->json(['email' => $user_token->email], 200);
