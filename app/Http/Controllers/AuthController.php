@@ -189,19 +189,22 @@ class AuthController extends Controller
     public function confirmRegistration(Request $request)
     {
         $hash = $request->code;
-        $confirm_hash = User::where(['confirm_hash' => $hash])->first();
         $message = 'Invalid Activation Link';
-        if ($confirm_hash) {        //hash is confirmed and valid
-            if ($confirm_hash->email_verified_at === NULL) {
-                $confirm_hash->email_verified_at = date('Y-m-d H:i:s', strtotime('now'));
-                $confirm_hash->save();
-                $message = 'Account Activated Successfully';
-            } else {
-                $message = 'Account Already Activated';
+        if ($hash !== '') {
+
+            $confirm_hash = User::where(['confirm_hash' => $hash])->first();
+            if ($confirm_hash) {        //hash is confirmed and valid
+                if ($confirm_hash->email_verified_at === NULL) {
+                    $confirm_hash->email_verified_at = date('Y-m-d H:i:s', strtotime('now'));
+                    $confirm_hash->save();
+                    $message = 'Account Activated Successfully';
+                } else {
+                    $message = 'Account Already Activated';
+                }
+                //return view('auth.registration_confirmed', compact('message'));
+
+
             }
-            //return view('auth.registration_confirmed', compact('message'));
-
-
         }
 
 
