@@ -197,9 +197,9 @@ class AuthController extends Controller
                 if ($confirm_hash->email_verified_at === NULL) {
                     $confirm_hash->email_verified_at = date('Y-m-d H:i:s', strtotime('now'));
                     $confirm_hash->save();
-                    $message = 'Account Activated Successfully';
+                    return response()->json(['email' => $confirm_hash->email, 'message' => 'Successful'], 200);
                 } else {
-                    $message = 'Account Already Activated';
+                    return response()->json(['message' => 'Already Activated'], 405);
                 }
                 //return view('auth.registration_confirmed', compact('message'));
 
@@ -208,8 +208,7 @@ class AuthController extends Controller
         }
 
 
-
-        return $message;
+        return response()->json(['message' => 'Invalid Link'], 500);
     }
     public function recoverPassword(Request $request)
     {
