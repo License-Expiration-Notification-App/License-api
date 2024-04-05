@@ -40,6 +40,15 @@ class AuthController extends Controller
         // $this->middleware('guest')->except('logout');
         // $this->username = $this->findUsername();
     }
+    private function randomNumber()
+    {
+        $tokens = '0123456789';
+        $serial = '';
+        for ($j = 0; $j < 6; $j++) {
+            $serial .= $tokens[mt_rand(0, strlen($tokens) - 1)];
+        }
+        return $serial;
+    }
     /**
      * Create user
      *
@@ -215,7 +224,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
         if ($user) {
-            $token = randomNumber();
+            $token = $this->randomNumber();
             PasswordResetToken::firstOrCreate(
                 ['email' => $user->email, 'token' => hash('sha512', $token)]
             );
