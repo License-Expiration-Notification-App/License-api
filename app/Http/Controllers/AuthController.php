@@ -190,7 +190,7 @@ class AuthController extends Controller
     {
         $hash = $request->code;
         $message = 'Invalid Activation Link';
-        if ($hash !== '') {
+        if ($hash != '') {
 
             $confirm_hash = User::where(['confirm_hash' => $hash])->first();
             if ($confirm_hash) {        //hash is confirmed and valid
