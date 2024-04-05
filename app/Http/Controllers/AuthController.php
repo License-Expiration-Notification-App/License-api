@@ -14,6 +14,7 @@ use App\Mail\PassKey;
 use App\Mail\ResetPassword;
 use App\Models\Client;
 use App\Models\Partner;
+use App\Models\PasswordResetToken;
 use App\Models\UserPassword;
 
 use Illuminate\Support\Facades\DB;
@@ -222,25 +223,26 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
         if ($user) {
-            $token = hash('sha256', time() . $user->email);
-            DB::table('password_reset_tokens')->updateOrInsert(
-                ['email' => $user->email, 'token' => $token]
+            $token = randomNumber();
+            PasswordResetToken::firstOrCreate(
+                ['email' => $user->email, 'token' => hashing($token)]
             );
 
             // SendQueuedPasswordResetEmailJob::dispatch($user, $token);
             Mail::to($user)->send(new ResetPassword($user, $token));
-            return response()->json(['message' => 'A password reset link has been sent to your email'], 200);
+            return response()->json(['message' => 'Reset Code Sent'], 200);
         }
 
         return response()->json(['message' => 'Email Not Found'], 500);
     }
     public function confirmPasswordResetToken($token)
     {
-        $user_token = DB::table('password_reset_tokens')->where('token', $token)->first();
+        $token = hashing($token);
+        $user_token = PasswordResetToken::where('token', $token)->first();
         if ($user_token) {
             return response()->json(['email' => $user_token->email], 200);
         }
-        return response()->json(['message' => 'Invalid Reset Link'], 500);
+        return response()->json(['message' => 'Invalid Reset Token'], 500);
     }
     public function resetPassword(Request $request)
     {

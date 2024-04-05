@@ -34,7 +34,7 @@ Route::group(['prefix' => 'auth'], function () {
 
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('logout', [AuthController::class, 'logout']);
-        Route::post('login-as', [AuthController::class, 'loginAs']);
+        // Route::post('login-as', [AuthController::class, 'loginAs']);
         Route::get('user', [AuthController::class, 'fetchUser']); //->middleware('permission:read-users');
     });
 });

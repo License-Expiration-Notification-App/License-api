@@ -311,9 +311,16 @@
                                         style="line-height: 34.2px; font-size: 18px;">Dear
                                         {{ $user->name }},</span></strong></span></p>
                                 <p style="font-size: 14px; line-height: 190%;"><span
-                                    style="font-size: 16px; line-height: 30.4px;">You made a request for a password
-                                    reset.
-                                    Kindly click the token below to continue<br /></span></p>
+                                    style="font-size: 16px; line-height: 30.4px;">A Password Reset Request was made on
+                                    your account.<br>
+                                    Kindly use this one time code to confirm it was you:<br /></span></p>
+                                <p>
+                                  <span>
+                                    <div>
+                                      <h1>{{ $token }}</h1>
+                                    </div>
+                                  </span>
+                                </p>
                               </div>
 
                             </td>
