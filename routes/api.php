@@ -37,15 +37,17 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', [AuthController::class, 'logout']);
         // Route::post('login-as', [AuthController::class, 'loginAs']);
         Route::get('user', [AuthController::class, 'fetchUser']); //->middleware('permission:read-users');
+    });
+});
+Route::group(['middleware' => 'auth:sanctum'], function () {
 
-        /////////////////////CLIENTS/////////////////////////////
-        Route::group(['prefix' => 'clients'], function () {
-            Route::get('/', [ClientsController::class, 'index']);
-            Route::post('store', [ClientsController::class, 'store']);
-            Route::put('update/{client}', [ClientsController::class, 'update']);
-            Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);
-            Route::delete('delete-client-user/{user}', [ClientsController::class, 'deleteClientUser']);
-            Route::post('change-client-status', [ClientsController::class, 'toggleClientStatus']);
-        });
+    /////////////////////CLIENTS/////////////////////////////
+    Route::group(['prefix' => 'clients'], function () {
+        Route::get('/', [ClientsController::class, 'index']);
+        Route::post('store', [ClientsController::class, 'store']);
+        Route::put('update/{client}', [ClientsController::class, 'update']);
+        Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);
+        Route::delete('delete-client-user/{user}', [ClientsController::class, 'deleteClientUser']);
+        Route::post('change-client-status', [ClientsController::class, 'toggleClientStatus']);
     });
 });
