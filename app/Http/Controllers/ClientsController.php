@@ -51,6 +51,13 @@ class ClientsController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|unique:clients',
+            'admin_name' => 'required|string',
+            'admin_email' => 'required|string|unique:users',
+        ]);
+        $actor = $this->getUser();
         $name = $request->name;
         $client = Client::where('name', $name)->first();
         if (!$client) {
@@ -63,8 +70,8 @@ class ClientsController extends Controller
                 $request->client_id = $client->id;
                 $request->name = $request->admin_name;
                 $request->email = $request->admin_email;
+                $request->role = 'client';
                 $this->registerClientUser($request);
-                $actor = $this->getUser();
                 $title = "New Client Registered";
                 //log this event
                 $description = "$client->name was registered by $actor->name";
@@ -79,6 +86,11 @@ class ClientsController extends Controller
     }
     public function registerClientUser(Request $request)
     {
+        $request->validate([
+            'client_id' => 'required|integer',
+            'name' => 'required|string',
+            'email' => 'required|string|unique:users',
+        ]);
         $client = Client::find($request->client_id);
         $user_obj = new User();
         $response = $user_obj->createUser($request);

@@ -48,6 +48,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::put('update/{client}', [ClientsController::class, 'update']);
         Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);
         Route::delete('delete-client-user/{user}', [ClientsController::class, 'deleteClientUser']);
-        Route::post('change-client-status', [ClientsController::class, 'toggleClientStatus']);
+        Route::put('change-client-status/{client}', [ClientsController::class, 'toggleClientStatus']);
     });
 });

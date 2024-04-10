@@ -65,6 +65,7 @@ class AuthController extends Controller
         //     'email' => 'required|string|unique:users',
         // ]);
         $user_object = new User();
+        $request->role = 'staff';
         $response = $user_object->createUser($request);
 
         if ($response['message'] == 'success') {

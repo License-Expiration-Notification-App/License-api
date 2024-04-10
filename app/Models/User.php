@@ -28,6 +28,7 @@ class User extends Authenticatable implements LaratrustUser
         'name',
         'email',
         'confirm_hash',
+        'role',
     ];
 
     /**
@@ -92,6 +93,7 @@ class User extends Authenticatable implements LaratrustUser
             $user = new User([
                 'name'  => $request->name,
                 'email' => $request->email,
+                'role' => $request->role,
                 'confirm_hash' => hash('sha512', $request->email),
             ]);
 
