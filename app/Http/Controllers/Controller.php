@@ -103,7 +103,7 @@ class Controller extends BaseController
 
     public function setUser()
     {
-        $this->user  = Auth::user();
+        $this->user  = User::find(Auth::user()->id);
     }
 
     public function getUser()
@@ -111,17 +111,6 @@ class Controller extends BaseController
         $this->setUser();
 
         return $this->user;
-    }
-    public function setMyProjects()
-    {
-        $this->myProjects  = $this->getUser()->projects()->with('client', 'certificate', 'standard')->where([/*'year' => $this->getYear()*/])->get();
-    }
-
-    public function getMyProjects()
-    {
-        $this->setMyProjects();
-
-        return $this->myProjects;
     }
     public function setClient()
     {
@@ -136,20 +125,6 @@ class Controller extends BaseController
         $this->setClient();
 
         return $this->client;
-    }
-    public function setPartner()
-    {
-        $user  = Auth::user();
-        $partner_user = DB::table('partner_user')->where('user_id', $user->id)->first();
-        $partner_id = $partner_user->partner_id;
-        $this->partner = Partner::find($partner_id);
-    }
-
-    public function getPartner()
-    {
-        $this->setPartner();
-
-        return $this->partner;
     }
     public function getCurrency()
     {

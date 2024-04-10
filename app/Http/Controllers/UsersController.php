@@ -99,16 +99,13 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-        $request->password = $request->email;
-        $request->role = 'staff';
         $user_obj = new User();
-        $user = $user_obj->createUser($request);
-        $user->roles()->sync($request->role_id); // role id 2 is admin
-
-        // send confirmation email to user
-        //email will be sent later containing login credentials
-        // SendQueuedConfirmationEmailJob::dispatch($user);
-        return response()->json('success', 200);
+        $response = $user_obj->createUser($request);
+        if ($response['message'] == 'success') {
+            $user = $response['user'];
+            $user->roles()->sync($request->role_id);
+        }
+        return response()->json(['error' => $response['message']], 500);
     }
 
 
@@ -167,7 +164,7 @@ class UsersController extends Controller
         //
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->phone = $request->phone;
+        // $user->phone = $request->phone;
         $user->save();
 
         return response()->json([], 204);

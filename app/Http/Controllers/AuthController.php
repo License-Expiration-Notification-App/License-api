@@ -60,21 +60,15 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users',
-        ]);
+        // $request->validate([
+        //     'name' => 'required|string',
+        //     'email' => 'required|string|unique:users',
+        // ]);
+        $user_object = new User();
+        $response = $user_object->createUser($request);
 
-        $user = new User([
-            'name'  => $request->name,
-            'email' => $request->email,
-            'confirm_hash' => hash('sha512', $request->email),
-        ]);
-
-        if ($user->save()) {
-            // SendQueuedPasswordResetEmailJob::dispatch($user, $token);
-            Mail::to($user)->send(new ConfirmNewRegistration($user));
-
+        if ($response['message'] == 'success') {
+            $user = $response['user'];
             $tokenResult = $user->createToken('Personal Access Token');
             $token = $tokenResult->plainTextToken;
 
@@ -82,9 +76,8 @@ class AuthController extends Controller
                 'message' => 'Successfully created user!',
                 'accessToken' => $token,
             ], 200);
-        } else {
-            return response()->json(['error' => 'Provide proper details']);
         }
+        return response()->json(['error' => $response['message']], 500);
     }
     /**
      * Login user and create token

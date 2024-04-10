@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Client extends Model
 {
     use HasFactory, SoftDeletes;
+    protected $fillable = [
+        'name',
+        'email',
+        'description',
+    ];
     public function subsidiaries()
     {
         return $this->hasMany(Subsidiary::class);

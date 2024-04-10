@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClientsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,9 +27,9 @@ Route::group(['prefix' => 'auth'], function () {
     Route::get('confirm-password-reset-token/{code}', [AuthController::class, 'confirmPasswordResetToken']);
 
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
-    Route::post('other-user-login', [AuthController::class, 'otherUserLogin']);
-    Route::put('sent-2fa-code/{user}', [AuthController::class, 'send2FACode']);
-    Route::put('confirm-2fa-code/{user}', [AuthController::class, 'confirm2FACode']);
+    // Route::post('other-user-login', [AuthController::class, 'otherUserLogin']);
+    // Route::put('sent-2fa-code/{user}', [AuthController::class, 'send2FACode']);
+    // Route::put('confirm-2fa-code/{user}', [AuthController::class, 'confirm2FACode']);
 
     Route::post('register', [AuthController::class, 'register']);
 
@@ -36,5 +37,15 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', [AuthController::class, 'logout']);
         // Route::post('login-as', [AuthController::class, 'loginAs']);
         Route::get('user', [AuthController::class, 'fetchUser']); //->middleware('permission:read-users');
+
+        /////////////////////CLIENTS/////////////////////////////
+        Route::group(['prefix' => 'clients'], function () {
+            Route::get('/', [ClientsController::class, 'index']);
+            Route::post('store', [ClientsController::class, 'store']);
+            Route::put('update/{client}', [ClientsController::class, 'update']);
+            Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);
+            Route::delete('delete-client-user/{user}', [ClientsController::class, 'deleteClientUser']);
+            Route::post('change-client-status', [ClientsController::class, 'toggleClientStatus']);
+        });
     });
 });

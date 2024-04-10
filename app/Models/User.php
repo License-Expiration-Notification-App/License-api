@@ -10,6 +10,9 @@ use Laravel\Sanctum\HasApiTokens;
 use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Mail\ConfirmNewRegistration;
+use App\Models\UserPassword;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Authenticatable implements LaratrustUser
 {
@@ -78,23 +81,29 @@ class User extends Authenticatable implements LaratrustUser
 
         return $photo_name = $folder . '/' . $file_name;
     }
-    public function createUser($data)
+    public function createUser($request)
     {
-        $user = User::where('email', $data->email)->first();
-        if (!$user) {
-            $user = new User();
-        }
-        $user->name = $data->name;
-        $user->email = $data->email;
-        // $user->phone = $data->phone;
-        $user->password = $data->password;
-        $user->role = $data->role;
-        $user->confirm_hash = hash('sha256', time() . $data->email);
-        $user->save();
-        // $this->setUserPasswordRecord($user->id, $data->password);
-        return $user;
-    }
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|unique:users',
+        ]);
 
+        try {
+            $user = new User([
+                'name'  => $request->name,
+                'email' => $request->email,
+                'confirm_hash' => hash('sha512', $request->email),
+            ]);
+
+            if ($user->save()) {
+                // SendQueuedPasswordResetEmailJob::dispatch($user, $token);
+                Mail::to($user)->send(new ConfirmNewRegistration($user));
+                return ['message' => 'success', 'user' => $user];
+            }
+        } catch (\Throwable $th) {
+            return ['message' => $th];
+        }
+    }
     private function setUserPasswordRecord($user_id, $password)
     {
         $user_password = new UserPassword();
@@ -130,13 +139,10 @@ class User extends Authenticatable implements LaratrustUser
     }
     public function haRole($userRole)
     {
-        // foreach ($this->roles as $role) {
-        //     if ($role->hasRole($userRole)) {
-        //         return true;
-        //     }
-        // }
-        if ($this->login_as === $userRole) {
-            return true;
+        foreach ($this->roles as $role) {
+            if ($role->hasRole($userRole)) {
+                return true;
+            }
         }
         return false;
     }

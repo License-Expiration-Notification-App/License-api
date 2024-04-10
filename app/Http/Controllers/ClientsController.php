@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Jobs\SendQueuedConfirmationEmailJob;
-use App\Mail\ConfirmNewRegistration;
 use App\Models\Role;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Arr;
 
 class ClientsController extends Controller
 {
+    const ITEM_PER_PAGE = 10;
     /**
      * Display a listing of the resource.
      *
@@ -21,31 +20,27 @@ class ClientsController extends Controller
     {
         $user = $this->getUser();
         $condition = [];
-        if ($user->role === 'client') {
+        if ($user->hasRole('client') === 'client') {
             $id = $this->getClient()->id;
             $condition = ['id' => $id];
         }
-        if ($user->haRole('partner') && !$user->haRole('super')) {
-            $partner_id = $this->getPartner()->id;
-            $condition = ['partner_id' => $partner_id];
+        $searchParams = $request->all();
+        $customerQuery = Client::query();
+        $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
+        $keyword = Arr::get($searchParams, 'keyword', '');
+        $status = Arr::get($searchParams, 'status', '');
+        if (!empty($keyword)) {
+            $customerQuery->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%');
+                $q->orWhere('email', 'LIKE', '%' . $keyword . '%');
+                $q->orWhere('description', 'LIKE', '%' . $keyword . '%');
+            });
         }
-        if (isset($request->option) && $request->option === 'all') {
-            $clients = Client::where($condition)->orderBy('name')->get();
-        } else {
-
-            $clients = Client::with('users')->where($condition)->orderBy('name')->paginate($request->limit);
+        if (!empty($status)) {
+            $customerQuery->where('status',  $status);
         }
-        return response()->json(compact('clients'), 200);
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return $customerQuery->where($condition)->paginate($limit);
     }
 
     /**
@@ -56,27 +51,24 @@ class ClientsController extends Controller
      */
     public function store(Request $request)
     {
-        $user = $this->getUser();
-        if (!$user->haRole('partner')) {
-            return response()->json(['message' => 'Clients registration is restricted to Partners only'], 500);
-        }
-        $partner_id = $this->getPartner()->id;
-
-        $contact_email = $request->contact_email;
-        $client = Client::where('contact_email', $contact_email)->first();
+        $name = $request->name;
+        $client = Client::where('name', $name)->first();
         if (!$client) {
             $client = new Client();
-            $client->partner_id = $partner_id;
-            $client->name = $request->organization_name;
-            $client->contact_email = $request->contact_email;
-            $client->contact_phone = $request->contact_phone;
-            $client->contact_address = $request->contact_address;
+            $client->name = $name;
+            $client->email = $request->email;
+            // $client->phone = $request->phone;
+            $client->description = $request->contact_address;
             if ($client->save()) {
+                $request->client_id = $client->id;
+                $request->name = $request->admin_name;
+                $request->email = $request->admin_email;
+                $this->registerClientUser($request);
                 $actor = $this->getUser();
                 $title = "New Client Registered";
                 //log this event
                 $description = "$client->name was registered by $actor->name";
-                $this->auditTrailEvent($title, $description);
+                $this->auditTrailEvent($title, $description, $actor);
 
 
                 return response()->json(compact('client'), 200);
@@ -88,36 +80,17 @@ class ClientsController extends Controller
     public function registerClientUser(Request $request)
     {
         $client = Client::find($request->client_id);
-        $request->name = $request->admin_first_name . ' ' . $request->admin_last_name;
-        $request->email = $request->admin_email;
-        $request->password = $request->admin_email;
-        $request->phone = $request->admin_phone;
-        $request->role = 'client';
         $user_obj = new User();
-        $user = $user_obj->createUser($request);
-        // sync user to client
-        $client->users()->syncWithoutDetaching($user->id);
-        $role = Role::where('name', 'client')->first();
-        $user->roles()->sync($role->id); // role id 3 is client
+        $response = $user_obj->createUser($request);
+        if ($response['message'] == 'success') {
+            $user = $response['user'];
+            $client->users()->sync($user->id);
 
-        return response()->json('success', 200);
-    }
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Client  $client
-     * @return \Illuminate\Http\Response
-     */
-    public function sendLoginCredentials(User $user)
-    {
-        $password = $user->email; // randomPassword();
-        $user->password = $password;
-        $user->save();
-        //email will be sent later containing login credentials
-        // SendQueuedConfirmationEmailJob::dispatch($user, $password);
-        Mail::to($user)->send(new ConfirmNewRegistration($user, $password));
-        // \Illuminate\Support\Facades\Artisan::call('queue:work --queue=high,default');
-        return response()->json([], 204);
+            $role = Role::where('name', 'client')->first();
+            $user->roles()->sync($role->id);
+            return response()->json('success', 200);
+        }
+        return response()->json(['error' => $response['message']]);
     }
     /**
      * Update the specified resource in storage.
@@ -130,41 +103,32 @@ class ClientsController extends Controller
     {
         //
         $client->name = $request->name;
-        $client->contact_email = $request->contact_email;
-        $client->contact_phone = $request->contact_phone;
-        $client->contact_address = $request->contact_address;
+        $client->email = $request->email;
+        $client->description = $request->description;
         $client->save();
+        return response()->json(compact('client'), 200);
     }
-    public function updateClientUser(Request $request, User $user)
-    {
+    // public function updateClientUser(Request $request, User $user)
+    // {
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
-        $user->designation = $request->designation;
-        $user->save();
+    //     $user->name = $request->name;
+    //     $user->email = $request->email;
+    //     $user->save();
 
-        // $client->users()->sync($user->id);
-        // $role = Role::where('name', 'client')->first();
-        // $user->roles()->sync($role->id); // role id 3 is client
+    //     // $client->users()->sync($user->id);
+    //     // $role = Role::where('name', 'client')->first();
+    //     // $user->roles()->sync($role->id); // role id 3 is client
 
-    }
+    // }
     public function deleteClientUser(Request $request, User $user)
     {
         $actor = $this->getUser();
-        if (!$user->haRole('partner')) {
-            return response()->json(['message' => 'Clients are managed by Partners only'], 500);
-        }
         $title = "Client User Deletion";
         //log this event
         $description = "$user->name was deleted by $actor->name";
         $this->auditTrailEvent($title, $description);
         $user->forceDelete();
         return response()->json([], 204);
-        // $client->users()->sync($user->id);
-        // $role = Role::where('name', 'client')->first();
-        // $user->roles()->sync($role->id); // role id 3 is client
-
     }
 
     /**
@@ -173,10 +137,11 @@ class ClientsController extends Controller
      * @param  \App\Models\Client  $client
      * @return \Illuminate\Http\Response
      */
-    public function toggleClientSuspension(Request $request, Client $client)
+    public function toggleClientStatus(Request $request, Client $client)
     {
-        $value = $request->value;
-        $client->is_active = $value;
+        $value = $request->value; // 'Active' or 'Inactive'
+        $client->status = $value;
         $client->save();
+        return response()->json(compact('client'), 200);
     }
 }
