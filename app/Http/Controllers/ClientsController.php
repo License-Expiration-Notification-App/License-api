@@ -110,8 +110,8 @@ class ClientsController extends Controller
     public function update(Request $request, Client $client)
     {
         //
-        $client->name = $request->name;
-        $client->email = $request->email;
+        $client->company_name = $request->company_name;
+        $client->company_email = $request->company_email;
         $client->description = $request->description;
         $client->save();
         return response()->json(compact('client'), 200);
