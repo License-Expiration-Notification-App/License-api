@@ -52,22 +52,20 @@ class ClientsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:clients'
+            'company_name' => 'required|string',
+            'company_email' => 'required|string|unique:clients'
         ]);
         $actor = $this->getUser();
-        $name = $request->name;
-        $client = Client::where('name', $name)->first();
+        $name = $request->company_name;
+        $client = Client::where('company_name', $name)->first();
         if (!$client) {
             $client = new Client();
-            $client->name = $name;
-            $client->email = $request->email;
+            $client->company_name = $name;
+            $client->company_email = $request->company_email;
             // $client->phone = $request->phone;
             $client->description = $request->contact_address;
             if ($client->save()) {
                 $request->client_id = $client->id;
-                $request->name = $request->admin_name;
-                $request->email = $request->admin_email;
                 $request->role = 'client';
                 $this->registerClientUser($request);
                 $title = "New Client Registered";
