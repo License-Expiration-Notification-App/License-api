@@ -53,9 +53,7 @@ class ClientsController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'email' => 'required|string|unique:clients',
-            'admin_name' => 'required|string',
-            'admin_email' => 'required|string|unique:users',
+            'email' => 'required|string|unique:clients'
         ]);
         $actor = $this->getUser();
         $name = $request->name;
