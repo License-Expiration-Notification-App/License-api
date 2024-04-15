@@ -56,13 +56,14 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'password_status' => $this->password_status,
             'notifications' => [],
+            'role' => $this->role,
             // 'activity_logs' => $this->notifications()->orderBy('created_at', 'DESC')->get(),
-            'roles' => array_map(
-                function ($role) {
-                    return $role['name'];
-                },
-                $this->roles->toArray()
-            ),
+            // 'roles' => array_map(
+            //     function ($role) {
+            //         return $role['name'];
+            //     },
+            //     $this->roles->toArray()
+            // ),
             // 'role' => 'admin',
             'permissions' => array_map(
                 function ($permission) {
