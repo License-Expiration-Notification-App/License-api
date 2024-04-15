@@ -60,12 +60,12 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'required|string',
-        //     'email' => 'required|string|unique:users',
-        // ]);
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|unique:users',
+        ]);
         $user_object = new User();
-        $request->role = 'staff';
+        $request['role'] = 'staff';
         $response = $user_object->createUser($request);
 
         if ($response['message'] == 'success') {

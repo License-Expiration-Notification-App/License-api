@@ -84,10 +84,6 @@ class User extends Authenticatable implements LaratrustUser
     }
     public function createUser($request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users',
-        ]);
 
         try {
             $user = new User([

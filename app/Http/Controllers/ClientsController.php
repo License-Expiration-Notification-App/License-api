@@ -65,13 +65,13 @@ class ClientsController extends Controller
             // $client->phone = $request->phone;
             $client->description = $request->contact_address;
             if ($client->save()) {
-                $request->client_id = $client->id;
-                $request->role = 'client';
+                $request['client_id'] = $client->id;
+
                 $this->registerClientUser($request);
                 $title = "New Client Registered";
                 //log this event
                 $description = "$client->name was registered by $actor->name";
-                $this->auditTrailEvent($title, $description, $actor);
+                $this->auditTrailEvent($title, $description, [$actor]);
 
 
                 return response()->json(compact('client'), 200);
@@ -87,12 +87,13 @@ class ClientsController extends Controller
             'name' => 'required|string',
             'email' => 'required|string|unique:users',
         ]);
+        $request['role'] = 'client';
         $client = Client::find($request->client_id);
         $user_obj = new User();
         $response = $user_obj->createUser($request);
         if ($response['message'] == 'success') {
             $user = $response['user'];
-            $client->users()->sync($user->id);
+            $client->users()->syncWithoutDetaching($user->id);
 
             $role = Role::where('name', 'client')->first();
             $user->roles()->sync($role->id);
@@ -109,7 +110,7 @@ class ClientsController extends Controller
      */
     public function update(Request $request, Client $client)
     {
-        //
+
         $client->company_name = $request->company_name;
         $client->company_email = $request->company_email;
         $client->description = $request->description;
@@ -134,9 +135,9 @@ class ClientsController extends Controller
         $title = "Client User Deletion";
         //log this event
         $description = "$user->name was deleted by $actor->name";
-        $this->auditTrailEvent($title, $description);
+        $this->auditTrailEvent($title, $description, [$actor]);
         $user->forceDelete();
-        return response()->json([], 204);
+        return 'success';
     }
 
     /**
@@ -150,6 +151,6 @@ class ClientsController extends Controller
         $value = $request->value; // 'Active' or 'Inactive'
         $client->status = $value;
         $client->save();
-        return response()->json(compact('client'), 200);
+        return 'success';
     }
 }
