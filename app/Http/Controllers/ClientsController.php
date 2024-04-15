@@ -40,7 +40,7 @@ class ClientsController extends Controller
             $clientQuery->where('status',  $status);
         }
 
-        return $clientQuery->where($condition)->paginate($limit);
+        return $clientQuery->with('subsidiaries', 'licenses')->where($condition)->paginate($limit);
     }
     public function show(Client $client)
     {
@@ -68,7 +68,7 @@ class ClientsController extends Controller
             $client->company_name = $name;
             $client->company_email = $request->company_email;
             // $client->phone = $request->phone;
-            $client->description = $request->contact_address;
+            $client->description = $request->description;
             if ($client->save()) {
                 $request['client_id'] = $client->id;
 
