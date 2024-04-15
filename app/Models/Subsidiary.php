@@ -13,4 +13,8 @@ class Subsidiary extends Model
     {
         return $this->belongsTo(Client::class);
     }
+    public function licenses()
+    {
+        return $this->hasMany(License::class);
+    }
 }

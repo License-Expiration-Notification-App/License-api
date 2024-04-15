@@ -20,27 +20,32 @@ class ClientsController extends Controller
     {
         $user = $this->getUser();
         $condition = [];
-        if ($user->hasRole('client') === 'client') {
+        if ($user->hasRole('client')) {
             $id = $this->getClient()->id;
             $condition = ['id' => $id];
         }
         $searchParams = $request->all();
-        $customerQuery = Client::query();
+        $clientQuery = Client::query();
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $keyword = Arr::get($searchParams, 'keyword', '');
         $status = Arr::get($searchParams, 'status', '');
         if (!empty($keyword)) {
-            $customerQuery->where(function ($q) use ($keyword) {
-                $q->where('name', 'LIKE', '%' . $keyword . '%');
-                $q->orWhere('email', 'LIKE', '%' . $keyword . '%');
+            $clientQuery->where(function ($q) use ($keyword) {
+                $q->where('company_name', 'LIKE', '%' . $keyword . '%');
+                $q->orWhere('company_email', 'LIKE', '%' . $keyword . '%');
                 $q->orWhere('description', 'LIKE', '%' . $keyword . '%');
             });
         }
         if (!empty($status)) {
-            $customerQuery->where('status',  $status);
+            $clientQuery->where('status',  $status);
         }
 
-        return $customerQuery->where($condition)->paginate($limit);
+        return $clientQuery->where($condition)->paginate($limit);
+    }
+    public function show(Client $client)
+    {
+        $client = $client->with('subsidiaries', 'licenses')->find($client->id);
+        return response()->json(compact('client'), 200);
     }
 
     /**
@@ -74,7 +79,8 @@ class ClientsController extends Controller
                 $this->auditTrailEvent($title, $description, [$actor]);
 
 
-                return response()->json(compact('client'), 200);
+                return $this->show($client);
+                // response()->json(compact('client'), 200);
             }
             return response()->json(['message' => 'Unable to register'], 500);
         }
