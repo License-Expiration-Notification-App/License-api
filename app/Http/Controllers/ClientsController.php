@@ -40,7 +40,8 @@ class ClientsController extends Controller
             $clientQuery->where('status',  $status);
         }
 
-        return $clientQuery->with('subsidiaries', 'licenses')->where($condition)->paginate($limit);
+        $clients =  $clientQuery->with('subsidiaries', 'licenses')->where($condition)->paginate($limit);
+        return response()->json(compact('clients'), 200);
     }
     public function show(Client $client)
     {
