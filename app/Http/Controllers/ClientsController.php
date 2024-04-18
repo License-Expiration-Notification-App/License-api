@@ -45,7 +45,7 @@ class ClientsController extends Controller
     }
     public function show(Client $client)
     {
-        $client = $client->with('subsidiaries', 'licenses')->find($client->id);
+        $client = $client->with('users','subsidiaries', 'licenses')->find($client->id);
         return response()->json(compact('client'), 200);
     }
 
