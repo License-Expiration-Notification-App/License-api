@@ -40,15 +40,6 @@ class AuthController extends Controller
         // $this->middleware('guest')->except('logout');
         // $this->username = $this->findUsername();
     }
-    private function randomNumber()
-    {
-        $tokens = '0123456789';
-        $serial = '';
-        for ($j = 0; $j < 6; $j++) {
-            $serial .= $tokens[mt_rand(0, strlen($tokens) - 1)];
-        }
-        return $serial;
-    }
     /**
      * Create user
      *
@@ -133,6 +124,7 @@ class AuthController extends Controller
     }
     private function generateAuthorizationKey($user)
     {
+        
         $name = $user->name . ' (' . $user->email . ')';
         $title = "Log in action";
         //log this event
@@ -200,6 +192,7 @@ class AuthController extends Controller
                 if ($confirm_hash->email_verified_at === NULL) {
                     $confirm_hash->email_verified_at = date('Y-m-d H:i:s', strtotime('now'));
                     $confirm_hash->save();
+                    
                     return response()->json(['email' => $confirm_hash->email, 'message' => 'Successful'], 200);
                 } else {
                     return response()->json(['message' => 'Already Activated'], 405);
@@ -218,7 +211,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
         if ($user) {
-            $token = $this->randomNumber();
+            $token = randomNumber();
             PasswordResetToken::firstOrCreate(
                 ['email' => $user->email, 'token' => hash('sha512', $token)]
             );

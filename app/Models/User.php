@@ -137,10 +137,13 @@ class User extends Authenticatable implements LaratrustUser
     }
     public function haRole($userRole)
     {
-        foreach ($this->roles as $role) {
-            if ($role->hasRole($userRole)) {
-                return true;
-            }
+        // foreach ($this->roles as $role) {
+        //     if ($role->hasRole($userRole)) {
+        //         return true;
+        //     }
+        // }
+        if ($this->role == $userRole) {
+            return true;
         }
         return false;
     }

@@ -73,7 +73,7 @@ class Controller extends BaseController
         $this->setYear();
         return $this->this_year;
     }
-    public function setRoles()
+    private function setRoles()
     {
         $school_id = $this->getSchool()->id;
         $roles = Role::where('school_id', 0)->orWhere('school_id', $school_id)->get();
@@ -101,7 +101,7 @@ class Controller extends BaseController
         return env("APP_NAME");
     }
 
-    public function setUser()
+    private function setUser()
     {
         $this->user  = User::find(Auth::user()->id);
     }
@@ -112,12 +112,19 @@ class Controller extends BaseController
 
         return $this->user;
     }
-    public function setClient()
+    private function setClient()
     {
         $user  = Auth::user();
         $client_user = DB::table('client_user')->where('user_id', $user->id)->first();
         $client_id = $client_user->client_id;
-        $this->client = Client::find($client_id);
+        $client = Client::find($client_id);
+        $this->client = $client;
+        //// activate client if pending////////////
+        if ($client->status == 'Pending') {
+            $client->status = 'Active';
+            $client->save();
+        }
+
     }
 
     public function getClient()

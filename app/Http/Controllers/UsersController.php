@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\School;
@@ -113,6 +114,7 @@ class UsersController extends Controller
 
     public function show(User $user)
     {
+        return response()->json(compact('user'), 200);
     }
 
     public function editPhoto(Request $request)
@@ -134,22 +136,24 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function updatePhoto(Request $request)
+    public function uploadPhoto(Request $request)
     {
-
-        $folder_key = 'photo';
-        $user = User::find($request->user_id);
+        $this->validate($request, [
+            'photo' => 'required|image|mimes:jpeg,png,jpg|max:1024',
+        ]);
+        $user_id = $request->user_id;
+        $user = User::find($user_id);
         if ($request->file('photo') != null && $request->file('photo')->isValid()) {
-            $mime = $request->file('photo')->getClientMimeType();
 
-            if ($mime == 'image/png' || $mime == 'image/jpeg' || $mime == 'image/jpg' || $mime == 'image/gif') {
-                $name = 'profile_photo_user' . $user->id . '.' . $request->file('photo')->guessClientExtension();
-                $photo_name = $user->uploadFile($request, $name, $folder_key);
-                $user->photo = $photo_name;
-                $user->save();
-            }
+            $name = 'photo_'.$user_id.'_'.$request->file('photo')->hashName();
+            // $file_name = $name . "." . $request->file('file_uploaded')->extension();
+            $link = $request->file('photo')->storeAs('photo', $name, 'public');
+
+            $user->photo = $link;
+            $user->save();
+            return $this->show($user);
         }
-        return $user->photo;
+        return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg and png. It must not be more than 1MB in size'], 500);
     }
 
     /**

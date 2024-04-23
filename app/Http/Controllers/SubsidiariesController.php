@@ -21,24 +21,25 @@ class SubsidiariesController extends Controller
         $user = $this->getUser();
         $condition = [];
         if ($user->hasRole('client')) {
-            $id = $this->getSubsidiary()->id;
-            $condition = ['id' => $id];
+            $id = $this->getClient()->id;
+            $condition = ['client_id' => $id];
         }
         $searchParams = $request->all();
-        $customerQuery = Subsidiary::query();
+        $subsidiaryQuery = Subsidiary::query();
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $keyword = Arr::get($searchParams, 'keyword', '');
         $status = Arr::get($searchParams, 'status', '');
         if (!empty($keyword)) {
-            $customerQuery->where(function ($q) use ($keyword) {
+            $subsidiaryQuery->where(function ($q) use ($keyword) {
                 $q->where('name', 'LIKE', '%' . $keyword . '%');
             });
         }
         if (!empty($status)) {
-            $customerQuery->where('status',  $status);
+            $subsidiaryQuery->where('status',  $status);
         }
 
-        return $customerQuery->where($condition)->paginate($limit);
+        $subsidiries =  $subsidiaryQuery->where($condition)->paginate($limit);
+        return response()->json(compact('subsidiries'), 200);
     }
 
     public function show(Subsidiary $subsidiary)
@@ -78,7 +79,7 @@ class SubsidiariesController extends Controller
             }
             return response()->json(['message' => 'Unable to register'], 500);
         }
-        return response()->json(['message' => 'Company already exists'], 401);
+        return response()->json(['message' => 'Subsidiary already exists'], 401);
     }
     /**
      * Update the specified resource in storage.
@@ -90,7 +91,7 @@ class SubsidiariesController extends Controller
     public function update(Request $request, Subsidiary $subsidiary)
     {
 
-        $subsidiary->name = $request->company_name;
+        $subsidiary->name = $request->name;
         $subsidiary->save();
 
         return $this->show($subsidiary);
@@ -107,6 +108,6 @@ class SubsidiariesController extends Controller
         $value = $request->value; // 'Active' or 'Inactive'
         $subsidiary->status = $value;
         $subsidiary->save();
-        return 'success';
+        return $this->show($subsidiary);
     }
 }

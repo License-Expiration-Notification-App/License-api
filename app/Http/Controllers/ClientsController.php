@@ -158,6 +158,26 @@ class ClientsController extends Controller
         $value = $request->value; // 'Active' or 'Inactive'
         $client->status = $value;
         $client->save();
-        return 'success';
+        return response()->json('success');
+    }
+
+    public function uploadClientLogo(Request $request)
+    {
+        $this->validate($request, [
+            'logo' => 'required|image|mimes:jpeg,png,jpg|max:1024',
+        ]);
+        $client_id = $request->client_id;
+        $client = Client::find($client_id);
+        if ($request->file('logo') != null && $request->file('logo')->isValid()) {
+
+            $name = 'client_logo'.$client_id.'_'.$request->file('logo')->hashName();
+            // $file_name = $name . "." . $request->file('file_uploaded')->extension();
+            $link = $request->file('logo')->storeAs('client-logo', $name, 'public');
+
+            $client->logo = $link;
+            $client->save();
+            return $this->show($client);
+        }
+        return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg and png. It must not be more than 1MB in size'], 500);
     }
 }

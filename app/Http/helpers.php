@@ -238,13 +238,13 @@ function formatUniqNo($no)
 }
 function mainDomainPublicPath($folder = null)
 {
-    return "https://infoassureltd.com/" . $folder;
+    return "https://edu-drive.com/" . $folder;
 }
 
 function portalPulicPath($folder = null)
 {
-    return storage_path('app/public/' . $folder);
-    // return "/home/infoassu/api.infoassureltd.com/storage/" . $folder;
+    // return storage_path('app/public/' . $folder);
+    return "/home/edudrive/license.edu-drive.com/storage/" . $folder;
 }
 
 function folderSize($dir)

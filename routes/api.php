@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\SubsidiariesController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +43,7 @@ Route::group(['prefix' => 'auth'], function () {
 });
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
+    Route::post('upload-user-photo', [UsersController::class, 'uploadPhoto']);
     /////////////////////CLIENTS/////////////////////////////
     Route::group(['prefix' => 'clients'], function () {
         Route::get('/', [ClientsController::class, 'index']);
@@ -51,5 +54,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);
         Route::delete('delete-client-user/{user}', [ClientsController::class, 'deleteClientUser']);
         Route::put('change-client-status/{client}', [ClientsController::class, 'toggleClientStatus']);
+        Route::post('upload-client-logo', [ClientsController::class, 'uploadClientLogo']);
+    });
+    Route::group(['prefix' => 'subsidiaries'], function () {
+        Route::get('/', [SubsidiariesController::class, 'index']);
+        Route::get('show/{subsidiary}', [SubsidiariesController::class, 'show']);
+        
+        Route::post('store', [SubsidiariesController::class, 'store']);
+        Route::put('update/{subsidiary}', [SubsidiariesController::class, 'update']);
+        Route::put('change-status/{subsidiary}', [SubsidiariesController::class, 'toggleSubsidiaryStatus']);
     });
 });
