@@ -38,7 +38,7 @@ class SubsidiariesController extends Controller
             $subsidiaryQuery->where('status',  $status);
         }
 
-        $subsidiries =  $subsidiaryQuery->where($condition)->paginate($limit);
+        $subsidiries =  $subsidiaryQuery->with('client')->where($condition)->paginate($limit);
         return response()->json(compact('subsidiries'), 200);
     }
 
@@ -58,6 +58,7 @@ class SubsidiariesController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
+            'client_id' => 'required|integer',
         ]);
         $actor = $this->getUser();
         $name = $request->name;
