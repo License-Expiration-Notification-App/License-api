@@ -38,8 +38,8 @@ class SubsidiariesController extends Controller
             $subsidiaryQuery->where('status',  $status);
         }
 
-        $subsidiries =  $subsidiaryQuery->with('client')->where($condition)->paginate($limit);
-        return response()->json(compact('subsidiries'), 200);
+        $subsidiaries =  $subsidiaryQuery->with('client', 'licenses')->where($condition)->paginate($limit);
+        return response()->json(compact('subsidiaries'), 200);
     }
 
     public function show(Subsidiary $subsidiary)
