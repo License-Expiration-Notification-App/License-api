@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\LicensesController;
 use App\Http\Controllers\SubsidiariesController;
 use App\Http\Controllers\UsersController;
@@ -44,6 +45,10 @@ Route::group(['prefix' => 'auth'], function () {
 });
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
+    Route::get('fetch-states', [Controller::class, 'fetchStates']);
+    Route::get('fetch-state-lgas', [Controller::class, 'stateLGAS']);
+
+
     Route::post('upload-user-photo', [UsersController::class, 'uploadPhoto']);
     /////////////////////CLIENTS/////////////////////////////
     Route::group(['prefix' => 'clients'], function () {
@@ -67,6 +72,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::put('update/{license}', [LicensesController::class, 'update']);
         Route::post('upload-certificate', [LicensesController::class, 'uploadCertificate']);
         Route::delete('destroy/{license}', [LicensesController::class, 'destroy']);
+
+        
+        Route::get('fetch-license-types', [LicensesController::class, 'fetchLicenseTypes']);
+        Route::get('fetch-minerals', [LicensesController::class, 'fetchMinerals']);
+        Route::post('store-mineral', [LicensesController::class, 'storeMineral']);
+        // Route::post('upload-user-photo', [LicensesController::class, 'uploadPhoto']);
     });
     Route::group(['prefix' => 'subsidiaries'], function () {
         Route::get('/', [SubsidiariesController::class, 'index']);

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LocalGovernmentArea;
+use App\Models\State;
 use App\Notifications\AuditTrail;
 use App\Models\Client;
 use App\Models\Partner;
@@ -160,5 +162,19 @@ class Controller extends BaseController
         }
         $notification = new AuditTrail($title, $action);
         return Notification::send($users->unique(), $notification);
+    }
+
+    public function fetchStates()
+    {
+        $states = State::get();
+       
+        return response()->json(compact('states'));
+    }
+
+    public function stateLGAS(Request $request)
+    {
+        $lgas = LocalGovernmentArea::where('state_id', $request->state_id)->get();
+       
+        return response()->json(compact('lgas'));
     }
 }

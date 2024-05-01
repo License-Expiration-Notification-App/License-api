@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\License;
+use App\Models\LicenseType;
+use App\Models\Mineral;
 use App\Models\Subsidiary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -57,7 +59,7 @@ class LicensesController extends Controller
             $license->lga_id = $request->lga_id;
             $license->license_date = date('Y-m-d', strtotime($request->license_date));
             $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
-            $license->renewed_date = date('Y-m-d', strtotime($request->renewed_date));
+            // $license->renewed_date = date('Y-m-d', strtotime($request->renewed_date));
             if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
 
                 $name = 'cert_'.time().'_'.$request->file('certificate')->hashName();
@@ -135,5 +137,21 @@ class LicensesController extends Controller
         //
         $license->delete();
         return response()->json([], 204);
+    }
+
+    public function fetchLicenseTypes()
+    {
+        $license_types = LicenseType::get();
+        return response()->json(compact('license_types'), 200);
+    }
+    public function fetchMinerals()
+    {
+        $minerals = Mineral::get();
+        return response()->json(compact('minerals'), 200);
+    }
+    public function storeMineral(Request $request)
+    {
+        Mineral::firstOrCreate(['name' => $request->name]);
+        return $this->fetchMinerals();
     }
 }

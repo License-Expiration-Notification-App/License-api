@@ -9,4 +9,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Mineral extends Model
 {
     use HasFactory, SoftDeletes;
+    protected $fillable = ['name'];
 }
