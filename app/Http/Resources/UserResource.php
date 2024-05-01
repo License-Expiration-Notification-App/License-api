@@ -23,32 +23,15 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         // $modules = [];
-        // $partner = '';
-        // if ($this->role === 'client') {
-        //     $client_user = DB::table('client_user')->where('user_id', $this->id)->first();
-        //     $client_id = $client_user->client_id;
-        //     $client = Client::find($client_id);
-        //     $partner_id = $client->partner_id;
-        //     $activated_modules = ActivatedModule::where('partner_id', $partner_id)->where('client_ids', 'LIKE', '%' . $client_id . '%')->get();
-        //     foreach ($activated_modules as $activated_module) {
-
-        //         $modules[] = $activated_module->availableModule->slug;
-        //     }
-        //     $partner = Partner::find($partner_id);
-        // }
-        // if ($this->haRole('partner')) {
-        //     $partner_user = DB::table('partner_user')->where('user_id', $this->id)->first();
-        //     $partner_id = $partner_user->partner_id;
-        //     $partner = Partner::find($partner_id);
-        //     $activated_modules = $partner->activatedModules;
-        //     foreach ($activated_modules as $activated_module) {
-
-        //         $modules[] = $activated_module->availableModule->slug;
-        //     }
-        // }
-        // if ($this->haRole('super') || $this->haRole('admin')) {
-        //     $modules = AvailableModule::pluck('slug');
-        // }
+        $main_admin = false;
+        if ($this->role === 'client') {
+            $client_user = DB::table('client_user')->where('user_id', $this->id)->first();
+            $client_id = $client_user->client_id;
+            $client = Client::find($client_id);
+            if($client->main_admin === $this->id){
+                $main_admin = true;
+            }
+        }
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -65,7 +48,7 @@ class UserResource extends JsonResource
             //     },
             //     $this->roles->toArray()
             // ),
-            // 'role' => 'admin',
+            'is_client_main_admin' => $main_admin,
             'permissions' => array_map(
                 function ($permission) {
                     return $permission['name'];

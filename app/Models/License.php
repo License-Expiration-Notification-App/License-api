@@ -17,4 +17,24 @@ class License extends Model
     {
         return $this->belongsTo(Subsidiary::class);
     }
+    public function licenseType()
+    {
+        return $this->belongsTo(LicenseType::class);
+    }
+    public function mineral()
+    {
+        return $this->belongsTo(Mineral::class);
+    }
+    public function state()
+    {
+        return $this->belongsTo(State::class);
+    }
+    public function lga()
+    {
+        return $this->belongsTo(LocalGovernmentArea::class, 'lga_id', 'id');
+    }
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'added_by', 'id');
+    }
 }

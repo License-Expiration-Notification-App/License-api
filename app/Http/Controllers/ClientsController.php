@@ -124,18 +124,24 @@ class ClientsController extends Controller
         $client->save();
         return response()->json(compact('client'), 200);
     }
-    // public function updateClientUser(Request $request, User $user)
-    // {
+    public function updateClientUser(Request $request, User $user)
+    {
 
-    //     $user->name = $request->name;
-    //     $user->email = $request->email;
-    //     $user->save();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->save();
 
-    //     // $client->users()->sync($user->id);
-    //     // $role = Role::where('name', 'client')->first();
-    //     // $user->roles()->sync($role->id); // role id 3 is client
+        // $client->users()->sync($user->id);
+        // $role = Role::where('name', 'client')->first();
+        // $user->roles()->sync($role->id); // role id 3 is client
 
-    // }
+    }
+    public function makeClientUserMainAdmin(Request $request, Client $client)
+    {
+        $client->main_admin = $request->user_id;
+        $client->save();
+        return 'success';
+    }
     public function deleteClientUser(Request $request, User $user)
     {
         $actor = $this->getUser();

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\LicensesController;
 use App\Http\Controllers\SubsidiariesController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
@@ -51,10 +52,21 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         
         Route::post('store', [ClientsController::class, 'store']);
         Route::put('update/{client}', [ClientsController::class, 'update']);
-        Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);
+        Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);        
+        Route::put('update-client-user/{user}', [ClientsController::class, 'updateClientUser']);
+        Route::put('make-client-user-main-admin/{client}', [ClientsController::class, 'makeClientUserMainAdmin']);
         Route::delete('delete-client-user/{user}', [ClientsController::class, 'deleteClientUser']);
         Route::put('change-client-status/{client}', [ClientsController::class, 'toggleClientStatus']);
         Route::post('upload-client-logo', [ClientsController::class, 'uploadClientLogo']);
+    });
+    Route::group(['prefix' => 'licenses'], function () {
+        Route::get('/', [LicensesController::class, 'index']);
+        Route::get('show/{license}', [LicensesController::class, 'show']);
+        
+        Route::post('store', [LicensesController::class, 'store']);
+        Route::put('update/{license}', [LicensesController::class, 'update']);
+        Route::post('upload-certificate', [LicensesController::class, 'uploadCertificate']);
+        Route::delete('destroy/{license}', [LicensesController::class, 'destroy']);
     });
     Route::group(['prefix' => 'subsidiaries'], function () {
         Route::get('/', [SubsidiariesController::class, 'index']);
@@ -63,5 +75,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('store', [SubsidiariesController::class, 'store']);
         Route::put('update/{subsidiary}', [SubsidiariesController::class, 'update']);
         Route::put('change-status/{subsidiary}', [SubsidiariesController::class, 'toggleSubsidiaryStatus']);
+    });
+
+    Route::group(['prefix' => 'users'], function () {
+        Route::get('/', [UsersController::class, 'index']);
+        Route::get('show/{user}', [UsersController::class, 'show']);
     });
 });

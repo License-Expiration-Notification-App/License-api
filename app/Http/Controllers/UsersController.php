@@ -17,26 +17,10 @@ use Laracasts\Flash\Flash;
 
 class UsersController extends Controller
 {
-    public function fetchPartnerUsers()
+    public function index()
     {
-        $users = User::whereHas('roles', function ($query) {
-            $query->where('name', '=', 'partner');
-        })->orWhere('role', 'partner')->get();
+        $users = User::where('role', 'staff')->paginate(10);
         return response()->json(compact('users'), 200);
-    }
-    public function fetchStaff()
-    {
-        $user = $this->getUser();
-        $staff = [];
-        if ($user->haRole('partner')) {
-            $partner = $this->getPartner();
-            $staff = $partner->users()->with('roles', 'permissions')->get();
-        }
-        if ($user->isSuperAdmin()) {
-
-            $staff = User::with('roles', 'permissions')->where('role', 'staff')->get();
-        }
-        return response()->json(compact('staff'), 200);
     }
     public function userNotifications(Request $request)
     {
@@ -116,19 +100,6 @@ class UsersController extends Controller
     {
         return response()->json(compact('user'), 200);
     }
-
-    public function editPhoto(Request $request)
-    {
-
-        if (isset($request->user_id) && $request->user_id != '') {
-            $user_id = $request->user_id;
-            $edit_user = User::find($user_id);
-        } else {
-            $edit_user = $this->getUser();
-        }
-
-        return $this->render('core::users.edit_photo', compact('edit_user'));
-    }
     /**
      * Update the specified resource in storage.
      *
@@ -147,7 +118,7 @@ class UsersController extends Controller
 
             $name = 'photo_'.$user_id.'_'.$request->file('photo')->hashName();
             // $file_name = $name . "." . $request->file('file_uploaded')->extension();
-            $link = $request->file('photo')->storeAs('photo', $name, 'public');
+            $link = 'storage/'.$request->file('photo')->storeAs('photo', $name, 'public');
 
             $user->photo = $link;
             $user->save();
