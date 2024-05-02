@@ -82,6 +82,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::group(['prefix' => 'subsidiaries'], function () {
         Route::get('/', [SubsidiariesController::class, 'index']);
         Route::get('show/{subsidiary}', [SubsidiariesController::class, 'show']);
+        Route::get('fetch-client-subsidiaries', [SubsidiariesController::class, 'fetchClientSubsidiary']);
         
         Route::post('store', [SubsidiariesController::class, 'store']);
         Route::put('update/{subsidiary}', [SubsidiariesController::class, 'update']);

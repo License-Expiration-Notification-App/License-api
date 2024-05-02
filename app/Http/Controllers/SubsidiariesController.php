@@ -42,6 +42,11 @@ class SubsidiariesController extends Controller
         return response()->json(compact('subsidiaries'), 200);
     }
 
+    public function fetchClientSubsidiary(Request $request)
+    {
+        $subsidiaries = Subsidiary::where('client_id', $request->client_id)->get();
+        return response()->json(compact('subsidiaries'), 200);
+    }
     public function show(Subsidiary $subsidiary)
     {
         $subsidiary = $subsidiary->with('client', 'licenses')->find($subsidiary->id);
