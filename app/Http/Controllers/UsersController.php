@@ -118,9 +118,9 @@ class UsersController extends Controller
 
             $name = 'photo_'.$user_id.'_'.$request->file('photo')->hashName();
             // $file_name = $name . "." . $request->file('file_uploaded')->extension();
-            $link = 'storage/'.$request->file('photo')->storeAs('photo', $name, 'public');
+            $link = $request->file('photo')->storeAs('photo', $name, 'public');
 
-            $user->photo = $link;
+            $user->photo = 'storage/'.$link;
             $user->save();
             return $this->show($user);
         }

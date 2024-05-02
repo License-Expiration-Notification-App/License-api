@@ -87,6 +87,23 @@ class ClientsController extends Controller
         }
         return response()->json(['message' => 'Company already exists'], 401);
     }
+    
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Client  $client
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Client $client)
+    {
+
+        $client->company_name = $request->company_name;
+        $client->company_email = $request->company_email;
+        $client->description = $request->description;
+        $client->save();
+        return response()->json(compact('client'), 200);
+    }
     public function registerClientUser(Request $request)
     {
         $request->validate([
@@ -107,22 +124,6 @@ class ClientsController extends Controller
             return response()->json('success', 200);
         }
         return response()->json(['error' => $response['message']]);
-    }
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Client  $client
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Client $client)
-    {
-
-        $client->company_name = $request->company_name;
-        $client->company_email = $request->company_email;
-        $client->description = $request->description;
-        $client->save();
-        return response()->json(compact('client'), 200);
     }
     public function updateClientUser(Request $request, User $user)
     {
@@ -180,7 +181,7 @@ class ClientsController extends Controller
             // $file_name = $name . "." . $request->file('file_uploaded')->extension();
             $link = $request->file('logo')->storeAs('client-logo', $name, 'public');
 
-            $client->logo = $link;
+            $client->logo = 'storage/'.$link;
             $client->save();
             return $this->show($client);
         }
