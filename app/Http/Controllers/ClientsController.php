@@ -43,6 +43,11 @@ class ClientsController extends Controller
         $clients =  $clientQuery->with('subsidiaries', 'licenses')->where($condition)->paginate($limit);
         return response()->json(compact('clients'), 200);
     }
+    public function fetchAllClients()
+    {
+        $clients = Client::get();
+        return response()->json(compact('clients'), 200);
+    }
     public function show(Client $client)
     {
         $client = $client->with('users','subsidiaries', 'licenses')->find($client->id);
