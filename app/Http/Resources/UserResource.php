@@ -55,7 +55,7 @@ class UserResource extends JsonResource
                 },
                 $this->allPermissions()->toArray()
             ),
-            // 'photo' => $this->photo,
+            'status' => $this->status,
             // 'logo' => $this->logo,
             // 'navbar_bg' => $this->navbar_bg,
             // 'sidebar_bg' => $this->sidebar_bg,

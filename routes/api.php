@@ -94,5 +94,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::group(['prefix' => 'users'], function () {
         Route::get('/', [UsersController::class, 'index']);
         Route::get('show/{user:uuid}', [UsersController::class, 'show']);
+        Route::put('change-status/{user}', [UsersController::class, 'toggleSubsidiaryStatus']);
     });
 });

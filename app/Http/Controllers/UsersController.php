@@ -144,6 +144,13 @@ class UsersController extends Controller
 
         return response()->json([], 204);
     }
+    public function toggleSubsidiaryStatus(Request $request, User $user)
+    {
+        $value = $request->value; // 'Active' or 'Inactive'
+        $user->status = $value;
+        $user->save();
+        return $this->show($user);
+    }
 
     /**
      * Remove the specified resource from storage.

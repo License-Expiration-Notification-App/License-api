@@ -105,7 +105,12 @@ class Controller extends BaseController
 
     private function setUser()
     {
-        $this->user  = User::find(Auth::user()->id);
+        $user  = User::find(Auth::user()->id);
+        $this->user = $user;
+        if ($user->status == 'Pending') {
+            $user->status = 'Active';
+            $user->save();
+        }
     }
 
     public function getUser()
