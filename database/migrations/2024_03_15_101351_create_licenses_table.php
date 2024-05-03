@@ -12,12 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('licenses', function (Blueprint $table) {
-            $table->id();
-            $table->integer('client_id');
-            $table->integer('subsidiary_id');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('client_id')->constrained();
+            $table->foreignUuid('subsidiary_id')->constrained();
+            $table->foreignUuid('license_type_id')->constrained();
+            $table->foreignUuid('mineral_id')->constrained();
+            // $table->integer('license_type_id');
+            // $table->string('mineral');
+            // $table->integer('client_id');
+            // $table->integer('subsidiary_id');
             $table->string('license_no')->unique();
-            $table->integer('license_type_id');
-            $table->string('mineral');
             $table->integer('state_id')->nullable();
             $table->integer('lga_id')->nullable();
             $table->date('license_date')->nullable();

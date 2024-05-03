@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\Uuid;
+// use App\Traits\Uuid;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class Client extends Model
 {
-    use Uuid, HasFactory, SoftDeletes;
+    use HasUuids, HasFactory, SoftDeletes;
     protected $fillable = [
         'name',
         'email',

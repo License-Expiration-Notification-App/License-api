@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('license_types', function (Blueprint $table) {
-            $table->id();
+        Schema::create('minerals', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->timestamps();
             $table->softDeletes();
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('license_types');
+        Schema::dropIfExists('minerals');
     }
 };

@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clients', function (Blueprint $table) {
-            $table->uuid('uuid')->index();
-        });
-        Schema::table('users', function (Blueprint $table) {
-            $table->uuid('uuid')->index();
-        });
-        Schema::table('subsidiaries', function (Blueprint $table) {
-            $table->uuid('uuid')->index();
+        Schema::create('license_types', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('license_types');
     }
 };

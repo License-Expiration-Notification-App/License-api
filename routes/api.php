@@ -55,20 +55,20 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/', [ClientsController::class, 'index']);
         Route::get('fetch-all', [ClientsController::class, 'fetchAllClients']);
         
-        Route::get('show/{client:uuid}', [ClientsController::class, 'show']);
+        Route::get('show/{client}', [ClientsController::class, 'show']);
         
         Route::post('store', [ClientsController::class, 'store']);
         Route::put('update/{client}', [ClientsController::class, 'update']);
         Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);        
         Route::put('update-client-user/{user}', [ClientsController::class, 'updateClientUser']);
-        Route::put('make-client-user-main-admin/{client:uuid}', [ClientsController::class, 'makeClientUserMainAdmin']);
+        Route::put('make-client-user-main-admin/{client}', [ClientsController::class, 'makeClientUserMainAdmin']);
         Route::delete('delete-client-user/{user}', [ClientsController::class, 'deleteClientUser']);
-        Route::put('change-client-status/{client:uuid}', [ClientsController::class, 'toggleClientStatus']);
+        Route::put('change-client-status/{client}', [ClientsController::class, 'toggleClientStatus']);
         Route::post('upload-client-logo', [ClientsController::class, 'uploadClientLogo']);
     });
     Route::group(['prefix' => 'licenses'], function () {
         Route::get('/', [LicensesController::class, 'index']);
-        Route::get('show/{license:uuid}', [LicensesController::class, 'show']);
+        Route::get('show/{license}', [LicensesController::class, 'show']);
         
         Route::post('store', [LicensesController::class, 'store']);
         Route::put('update/{license}', [LicensesController::class, 'update']);
@@ -83,7 +83,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
     Route::group(['prefix' => 'subsidiaries'], function () {
         Route::get('/', [SubsidiariesController::class, 'index']);
-        Route::get('show/{subsidiary:uuid}', [SubsidiariesController::class, 'show']);
+        Route::get('show/{subsidiary}', [SubsidiariesController::class, 'show']);
         Route::get('fetch-client-subsidiaries', [SubsidiariesController::class, 'fetchClientSubsidiaries']);
         
         Route::post('store', [SubsidiariesController::class, 'store']);
@@ -93,7 +93,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::group(['prefix' => 'users'], function () {
         Route::get('/', [UsersController::class, 'index']);
-        Route::get('show/{user:uuid}', [UsersController::class, 'show']);
+        Route::get('show/{user}', [UsersController::class, 'show']);
         Route::put('change-status/{user}', [UsersController::class, 'toggleSubsidiaryStatus']);
     });
 });

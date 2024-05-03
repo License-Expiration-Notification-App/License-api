@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('minerals', function (Blueprint $table) {
-            $table->id();
+        Schema::create('subsidiaries', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('client_id')->constrained();
+            // $table->id();
+            // $table->integer('client_id');
             $table->string('name');
+            $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('minerals');
+        Schema::dropIfExists('subsidiaries');
     }
 };

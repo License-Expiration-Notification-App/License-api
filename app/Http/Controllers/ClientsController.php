@@ -112,7 +112,7 @@ class ClientsController extends Controller
     public function registerClientUser(Request $request)
     {
         $request->validate([
-            'client_id' => 'required|integer',
+            'client_id' => 'required|string',
             'name' => 'required|string',
             'email' => 'required|string|unique:users',
         ]);

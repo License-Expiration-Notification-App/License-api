@@ -13,10 +13,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Mail\ConfirmNewRegistration;
 use App\Models\UserPassword;
 use Illuminate\Support\Facades\Mail;
-use App\Traits\Uuid;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+// use App\Traits\Uuid;
 class User extends Authenticatable implements LaratrustUser
 {
-    use Uuid, HasRolesAndPermissions;
+    use HasUuids, HasRolesAndPermissions;
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**

@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('report_uploads', function (Blueprint $table) {
-            $table->id();
-            $table->integer('report_id');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('client_id')->constrained();
+            // $table->integer('report_id');
             $table->string('link');
             $table->timestamps();
         });
