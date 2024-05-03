@@ -61,9 +61,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::put('update/{client}', [ClientsController::class, 'update']);
         Route::post('register-client-user', [ClientsController::class, 'registerClientUser']);        
         Route::put('update-client-user/{user}', [ClientsController::class, 'updateClientUser']);
-        Route::put('make-client-user-main-admin/{client}', [ClientsController::class, 'makeClientUserMainAdmin']);
+        Route::put('make-client-user-main-admin/{client:uuid}', [ClientsController::class, 'makeClientUserMainAdmin']);
         Route::delete('delete-client-user/{user}', [ClientsController::class, 'deleteClientUser']);
-        Route::put('change-client-status/{client}', [ClientsController::class, 'toggleClientStatus']);
+        Route::put('change-client-status/{client:uuid}', [ClientsController::class, 'toggleClientStatus']);
         Route::post('upload-client-logo', [ClientsController::class, 'uploadClientLogo']);
     });
     Route::group(['prefix' => 'licenses'], function () {
