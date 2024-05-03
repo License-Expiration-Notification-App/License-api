@@ -146,6 +146,7 @@ class ClientsController extends Controller
     {
         $client->main_admin = $request->user_id;
         $client->save();
+        
         return 'success';
     }
     public function deleteClientUser(Request $request, User $user)
@@ -180,16 +181,19 @@ class ClientsController extends Controller
         ]);
         $client_id = $request->client_id;
         $client = Client::find($client_id);
-        if ($request->file('logo') != null && $request->file('logo')->isValid()) {
+        if ($client) {
+            if ($request->file('logo') != null && $request->file('logo')->isValid()) {
 
-            $name = 'client_logo'.$client_id.'_'.$request->file('logo')->hashName();
-            // $file_name = $name . "." . $request->file('file_uploaded')->extension();
-            $link = $request->file('logo')->storeAs('client-logo', $name, 'public');
+                $name = 'client_logo'.$client_id.'_'.$request->file('logo')->hashName();
+                // $file_name = $name . "." . $request->file('file_uploaded')->extension();
+                $link = $request->file('logo')->storeAs('client-logo', $name, 'public');
 
-            $client->logo = 'storage/'.$link;
-            $client->save();
-            return $this->show($client);
+                $client->logo = 'storage/'.$link;
+                $client->save();
+                return $this->show($client);
+            }
+            return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg and png. It must not be more than 1MB in size'], 500);
         }
-        return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg and png. It must not be more than 1MB in size'], 500);
+        return response()->json(['message' => 'Client does not exist'], 500);
     }
 }
