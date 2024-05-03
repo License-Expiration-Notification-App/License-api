@@ -144,20 +144,26 @@ class ClientsController extends Controller
     }
     public function makeClientUserMainAdmin(Request $request, Client $client)
     {
-        $client->main_admin = $request->user_id;
-        $client->save();
-        
-        return 'success';
+        if ($client) {
+            $client->main_admin = $request->user_id;
+            $client->save();
+            
+            return 'success';
+        }
+        return response()->json(['message' => 'Client does not exist'], 500);
     }
     public function deleteClientUser(Request $request, User $user)
     {
-        $actor = $this->getUser();
-        $title = "Client User Deletion";
-        //log this event
-        $description = "$user->name was deleted by $actor->name";
-        $this->auditTrailEvent($title, $description, [$actor]);
-        $user->forceDelete();
-        return 'success';
+        if ($user) {
+            $actor = $this->getUser();
+            $title = "Client User Deletion";
+            //log this event
+            $description = "$user->name was deleted by $actor->name";
+            $this->auditTrailEvent($title, $description, [$actor]);
+            $user->forceDelete();
+            return 'success';
+        }
+        return response()->json(['message' => 'User does not exist'], 500);
     }
 
     /**
@@ -168,10 +174,14 @@ class ClientsController extends Controller
      */
     public function toggleClientStatus(Request $request, Client $client)
     {
-        $value = $request->value; // 'Active' or 'Inactive'
-        $client->status = $value;
-        $client->save();
-        return response()->json('success');
+        if ($client) {
+
+            $value = $request->value; // 'Active' or 'Inactive'
+            $client->status = $value;
+            $client->save();
+            return response()->json('success');
+        }
+        return response()->json(['message' => 'Client does not exist'], 500);
     }
 
     public function uploadClientLogo(Request $request)
