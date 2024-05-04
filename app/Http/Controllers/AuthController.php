@@ -249,13 +249,16 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         if ($user) {
             $user->password = $request->new_password;
+            $user->save();
             // $user->password_status = 'custom';
             // $user->password_expires_at = date('Y-m-d H:i:s', strtotime($this->todayDate . ' +90 days'));
             if ($user->save()) {
                 PasswordResetToken::where('email', $request->email)->delete();
             }
+            
+            return 'success';
         }
 
-        return 'success';
+        return 'User Not Found';
     }
 }

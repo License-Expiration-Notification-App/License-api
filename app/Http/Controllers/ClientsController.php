@@ -114,7 +114,7 @@ class ClientsController extends Controller
         $request->validate([
             'client_id' => 'required|string',
             'name' => 'required|string',
-            'email' => 'required|string|unique:users',
+            'email' => 'required|string',
         ]);
         $request['role'] = 'client';
         $client = Client::find($request->client_id);
@@ -155,12 +155,13 @@ class ClientsController extends Controller
     public function deleteClientUser(Request $request, User $user)
     {
         if ($user) {
-            $actor = $this->getUser();
+            $actor = $this->getUser();            
+            $user->clients()->sync([]);
             $title = "Client User Deletion";
             //log this event
             $description = "$user->name was deleted by $actor->name";
             $this->auditTrailEvent($title, $description, [$actor]);
-            $user->forceDelete();
+            $user->delete();
             return 'success';
         }
         return response()->json(['message' => 'User does not exist'], 500);

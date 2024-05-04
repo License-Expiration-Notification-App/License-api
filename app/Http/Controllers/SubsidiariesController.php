@@ -63,7 +63,7 @@ class SubsidiariesController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'client_id' => 'required|integer',
+            'client_id' => 'required|string',
         ]);
         $actor = $this->getUser();
         $name = $request->name;

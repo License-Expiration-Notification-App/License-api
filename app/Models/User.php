@@ -85,15 +85,22 @@ class User extends Authenticatable implements LaratrustUser
     }
     public function createUser($request)
     {
-
+        // Check if user already exists
+        
         try {
-            $user = new User([
-                'name'  => $request->name,
-                'email' => $request->email,
-                'role' => $request->role,
-                'confirm_hash' => hash('sha512', $request->email),
-            ]);
+            $user = User::withTrashed()->where('email', $request->email)->first();
+            if($user) {
+                $user->deleted_at = NULL;
+            } else {
+                $user = new User([
+                    'name'  => $request->name,
+                    'email' => $request->email,
+                    'role' => $request->role,
+                    'confirm_hash' => hash('sha512', $request->email),
+                ]);
 
+                
+            }
             if ($user->save()) {
                 // SendQueuedPasswordResetEmailJob::dispatch($user, $token);
                 Mail::to($user)->send(new ConfirmNewRegistration($user));
