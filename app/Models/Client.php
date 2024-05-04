@@ -15,6 +15,9 @@ class Client extends Model
         'email',
         'description',
     ];
+    protected $hidden = [
+        'logo_path',
+    ];
     public function getLogoAttribute()
     {
         return $this->image_base_url.'/'.$this->logo_path;
