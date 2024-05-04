@@ -51,6 +51,14 @@ class ClientsController extends Controller
     public function show(Client $client)
     {
         $client = $client->with('users','subsidiaries', 'licenses')->find($client->id);
+        $users = $client->users;
+        foreach ($users as $user) {
+            $user->is_client_main_admin = false;
+            if ($user->id == $client->main_admin) {
+                $user->is_client_main_admin = true;
+            }
+        }
+        $client->users = $users;
         return response()->json(compact('client'), 200);
     }
 
