@@ -19,7 +19,10 @@ class User extends Authenticatable implements LaratrustUser
 {
     use HasUuids, HasRolesAndPermissions;
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-
+    public function getPhotoAttribute()
+    {
+        return $this->image_base_url.'/'.$this->photo_path;
+    }
     /**
      * The attributes that are mass assignable.
      *
@@ -90,7 +93,7 @@ class User extends Authenticatable implements LaratrustUser
         try {
             $user = User::withTrashed()->where('email', $request->email)->first();
             if($user) {
-                $user->deleted_at = NULL;
+                $user->restore();
             } else {
                 $user = new User([
                     'name'  => $request->name,
@@ -98,14 +101,16 @@ class User extends Authenticatable implements LaratrustUser
                     'role' => $request->role,
                     'confirm_hash' => hash('sha512', $request->email),
                 ]);
-
+                if ($user->save()) {
+                
+                    $user->photo = env('APP_URL').'/'.$user->photo_path;
+                    $user->save();
+                }
                 
             }
-            if ($user->save()) {
-                // SendQueuedPasswordResetEmailJob::dispatch($user, $token);
-                Mail::to($user)->send(new ConfirmNewRegistration($user));
+            Mail::to($user)->send(new ConfirmNewRegistration($user));
                 return ['message' => 'success', 'user' => $user];
-            }
+            
         } catch (\Throwable $th) {
             return ['message' => $th];
         }

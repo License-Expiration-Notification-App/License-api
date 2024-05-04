@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Role;
 use Illuminate\Support\Arr;
-
+use Illuminate\Support\Facades\Storage;
 class ClientsController extends Controller
 {
     const ITEM_PER_PAGE = 10;
@@ -84,6 +84,8 @@ class ClientsController extends Controller
             // $client->phone = $request->phone;
             $client->description = $request->description;
             if ($client->save()) {
+                $client->photo = env('APP_URL').'/'.$client->logo_path;
+                $client->save();
                 $request['client_id'] = $client->id;
 
                 $this->registerClientUser($request);
@@ -207,12 +209,18 @@ class ClientsController extends Controller
         $client = Client::find($client_id);
         if ($client) {
             if ($request->file('logo') != null && $request->file('logo')->isValid()) {
+                
+                if ($client->logo_path !== 'storage/client-logo/default.jpeg') {
+
+                    Storage::disk('public')->delete(str_replace('storage/', '', $client->logo_path));
+                }
 
                 $name = 'client_logo'.$client_id.'_'.$request->file('logo')->hashName();
                 // $file_name = $name . "." . $request->file('file_uploaded')->extension();
                 $link = $request->file('logo')->storeAs('client-logo', $name, 'public');
 
-                $client->logo = 'storage/'.$link;
+                $client->logo_path = 'storage/'.$link;
+                $client->logo = env('APP_URL').'/'.$client->logo_path;
                 $client->save();
                 return $this->show($client);
             }

@@ -151,7 +151,25 @@ class LicensesController extends Controller
     }
     public function storeMineral(Request $request)
     {
-        Mineral::firstOrCreate(['name' => $request->name]);
+        $mineral = Mineral::withTrashed()->where('name', $request->name)->first();
+        if($mineral) {
+            $mineral->restore();
+        }else {
+
+            Mineral::firstOrCreate(['name' => $request->name]);
+        }
         return $this->fetchMinerals();
+    }
+
+    public function updateMineral(Request $request, Mineral $mineral)
+    {
+        $mineral->name = $request->name;
+        $mineral->save();
+        return response()->json(compact('mineral'), 200);
+    }
+    public function deleteMineral(Mineral $mineral)
+    {
+        $mineral->delete();
+        return response()->json([], 204);
     }
 }

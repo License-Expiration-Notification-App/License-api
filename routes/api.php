@@ -79,6 +79,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('fetch-license-types', [LicensesController::class, 'fetchLicenseTypes']);
         Route::get('fetch-minerals', [LicensesController::class, 'fetchMinerals']);
         Route::post('store-mineral', [LicensesController::class, 'storeMineral']);
+        Route::put('update-mineral/{mineral}', [LicensesController::class, 'updateMineral']);
+        Route::delete('delete-mineral/{mineral}', [LicensesController::class, 'deleteMineral']);
         // Route::post('upload-user-photo', [LicensesController::class, 'uploadPhoto']);
     });
     Route::group(['prefix' => 'subsidiaries'], function () {

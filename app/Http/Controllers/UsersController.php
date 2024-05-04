@@ -13,7 +13,7 @@ use App\Models\StudentsInClass;
 use Auth;
 
 use Illuminate\Http\Request;
-use Laracasts\Flash\Flash;
+use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
 {
@@ -115,12 +115,17 @@ class UsersController extends Controller
         $user_id = $request->user_id;
         $user = User::find($user_id);
         if ($request->file('photo') != null && $request->file('photo')->isValid()) {
+            if ($user->photo_path !== 'storage/photo/default.png') {
+
+                Storage::disk('public')->delete(str_replace('storage/', '', $user->photo_path));
+            }
 
             $name = 'photo_'.$user_id.'_'.$request->file('photo')->hashName();
             // $file_name = $name . "." . $request->file('file_uploaded')->extension();
             $link = $request->file('photo')->storeAs('photo', $name, 'public');
 
-            $user->photo = 'storage/'.$link;
+            $user->photo_path = 'storage/'.$link;
+            $user->photo = env('APP_URL').'/'.$user->photo_path;
             $user->save();
             return $this->show($user);
         }
