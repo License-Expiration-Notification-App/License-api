@@ -244,7 +244,7 @@ function mainDomainPublicPath($folder = null)
 function portalPulicPath($folder = null)
 {
     // return storage_path('app/public/' . $folder);
-    return "/home/edudrive/license.edu-drive.com/storage/" . $folder;
+    return "/home/mininglm/backend.mininglmp.com/storage/" . $folder;
 }
 
 function folderSize($dir)
