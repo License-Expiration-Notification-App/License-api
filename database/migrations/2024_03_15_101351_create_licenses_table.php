@@ -29,7 +29,7 @@ return new class extends Migration
             $table->date('renewed_date')->nullable();
             $table->string('status')->nullable();
             $table->integer('added_by')->nullable();
-            $table->string('link')->nullable();
+            $table->string('certificate_link')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

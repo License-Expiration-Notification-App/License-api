@@ -118,12 +118,15 @@ class LicensesController extends Controller
         $license = License::find($license_id);
         if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
             // remove previous upload
-            Storage::disk('public')->delete(str_replace('storage/', '', $license->certificate));
+            if($license->certificate_link != NULL) {
+
+                Storage::disk('public')->delete(str_replace(env('APP_URL').'/storage/', '', $license->certificate_link));
+            }
             // upload new
             $name = 'cert_'.time().'_'.$request->file('certificate')->hashName();
             $link = $request->file('certificate')->storeAs('certificate', $name, 'public');
 
-            $license->certificate = 'storage/'.$link;
+            $license->certificate_link = env('APP_URL').'/storage/'.$link;
             $license->save();
         }
         return $this->show($license);
