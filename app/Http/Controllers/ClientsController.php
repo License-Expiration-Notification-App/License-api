@@ -130,6 +130,11 @@ class ClientsController extends Controller
         $response = $user_obj->createUser($request);
         if ($response['message'] == 'success') {
             $user = $response['user'];
+            // make this user the main admin since this is the first user added
+            if($client->main_admin == NULL) {
+                $client->main_admin = $user->id;
+                $client->save();
+            }
             $client->users()->syncWithoutDetaching($user->id);
 
             $role = Role::where('name', 'client')->first();
