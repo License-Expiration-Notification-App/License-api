@@ -95,5 +95,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/', [UsersController::class, 'index']);
         Route::get('show/{user}', [UsersController::class, 'show']);
         Route::put('change-status/{user}', [UsersController::class, 'toggleSubsidiaryStatus']);
+        Route::put('update-user/{user}', [ClientsController::class, 'updateClientUser']);
     });
 });
