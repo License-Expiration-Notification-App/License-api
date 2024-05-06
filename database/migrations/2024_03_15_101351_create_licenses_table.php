@@ -28,7 +28,7 @@ return new class extends Migration
             $table->date('expiry_date')->nullable();
             $table->date('renewed_date')->nullable();
             $table->string('status')->nullable();
-            $table->integer('added_by')->nullable();
+            $table->uuid('added_by')->nullable();
             $table->string('certificate_link')->nullable();
             $table->timestamps();
             $table->softDeletes();

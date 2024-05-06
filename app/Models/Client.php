@@ -18,10 +18,6 @@ class Client extends Model
     protected $hidden = [
         'logo_path',
     ];
-    public function getLogoAttribute()
-    {
-        return $this->image_base_url.'/'.$this->logo_path;
-    }
     public function subsidiaries()
     {
         return $this->hasMany(Subsidiary::class);

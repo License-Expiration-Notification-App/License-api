@@ -19,10 +19,6 @@ class User extends Authenticatable implements LaratrustUser
 {
     use HasUuids, HasRolesAndPermissions;
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-    public function getPhotoAttribute()
-    {
-        return $this->image_base_url.'/'.$this->photo_path;
-    }
     /**
      * The attributes that are mass assignable.
      *
