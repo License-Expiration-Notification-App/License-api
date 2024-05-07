@@ -98,14 +98,14 @@ class ClientsController extends Controller
                     $this->auditTrailEvent($title, $description, [$actor]);
 
 
-                    return $this->show($client);
+                    // return $this->show($client);
                     // response()->json(compact('client'), 200);
                 }
                 
             });
             // return response()->json(['message' => 'Unable to register'], 500);
         }
-        return response()->json(['message' => 'Company already exists'], 401);
+        return $this->show($client);
     }
     
     /**
