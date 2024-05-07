@@ -103,7 +103,7 @@ class ClientsController extends Controller
                 }
                 
             });
-            return response()->json(['message' => 'Unable to register'], 500);
+            // return response()->json(['message' => 'Unable to register'], 500);
         }
         return response()->json(['message' => 'Company already exists'], 401);
     }
