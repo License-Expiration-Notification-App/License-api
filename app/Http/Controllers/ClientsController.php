@@ -78,27 +78,27 @@ class ClientsController extends Controller
         $name = $request->company_name;
         $client = Client::where('company_name', $name)->first();
         if (!$client) {
-            DB::transaction(function () use ($request, $name){
+            $client = DB::transaction(function () use ($request, $name){
                 
                 $actor = $this->getUser();
-                $client = new Client();
-                $client->company_name = $name;
-                $client->company_email = $request->company_email;
+                $new_client = new Client();
+                $new_client->company_name = $name;
+                $new_client->company_email = $request->company_email;
                 // $client->phone = $request->phone;
-                $client->description = $request->description;
-                if ($client->save()) {
-                    $client->logo = env('APP_URL').'/'.$client->logo_path;
-                    $client->save();
-                    $request['client_id'] = $client->id;
+                $new_client->description = $request->description;
+                if ($new_client->save()) {
+                    $new_client->logo = env('APP_URL').'/'.$new_client->logo_path;
+                    $new_client->save();
+                    $request['client_id'] = $new_client->id;
 
                     $this->registerClientUser($request);
                     $title = "New Client Registered";
                     //log this event
-                    $description = "$client->name was registered by $actor->name";
+                    $description = "$new_client->name was registered by $actor->name";
                     $this->auditTrailEvent($title, $description, [$actor]);
 
 
-                    // return $this->show($client);
+                    return $new_client;
                     // response()->json(compact('client'), 200);
                 }
                 
