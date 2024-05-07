@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Role;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 class ClientsController extends Controller
 {
     const ITEM_PER_PAGE = 10;
@@ -74,30 +75,34 @@ class ClientsController extends Controller
             'company_name' => 'required|string',
             'company_email' => 'required|string|unique:clients'
         ]);
-        $actor = $this->getUser();
         $name = $request->company_name;
         $client = Client::where('company_name', $name)->first();
         if (!$client) {
-            $client = new Client();
-            $client->company_name = $name;
-            $client->company_email = $request->company_email;
-            // $client->phone = $request->phone;
-            $client->description = $request->description;
-            if ($client->save()) {
-                $client->photo = env('APP_URL').'/'.$client->logo_path;
-                $client->save();
-                $request['client_id'] = $client->id;
+            DB::transaction(function () use ($request, $name){
+                
+                $actor = $this->getUser();
+                $client = new Client();
+                $client->company_name = $name;
+                $client->company_email = $request->company_email;
+                // $client->phone = $request->phone;
+                $client->description = $request->description;
+                if ($client->save()) {
+                    $client->logo = env('APP_URL').'/'.$client->logo_path;
+                    $client->save();
+                    $request['client_id'] = $client->id;
 
-                $this->registerClientUser($request);
-                $title = "New Client Registered";
-                //log this event
-                $description = "$client->name was registered by $actor->name";
-                $this->auditTrailEvent($title, $description, [$actor]);
+                    $this->registerClientUser($request);
+                    $title = "New Client Registered";
+                    //log this event
+                    $description = "$client->name was registered by $actor->name";
+                    $this->auditTrailEvent($title, $description, [$actor]);
 
 
-                return $this->show($client);
-                // response()->json(compact('client'), 200);
-            }
+                    return $this->show($client);
+                    // response()->json(compact('client'), 200);
+                }
+                
+            });
             return response()->json(['message' => 'Unable to register'], 500);
         }
         return response()->json(['message' => 'Company already exists'], 401);

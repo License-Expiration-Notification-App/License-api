@@ -32,7 +32,7 @@ class LicensesController extends Controller
             $licenseQuery->where('license_no',  $license_no);
         }
 
-        $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'state', 'lga')->where($condition)->paginate($limit);
+        $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga')->where($condition)->paginate($limit);
         return response()->json(compact('licenses'), 200);
     }
 
