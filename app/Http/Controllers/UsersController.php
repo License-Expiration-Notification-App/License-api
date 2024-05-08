@@ -14,12 +14,26 @@ use Auth;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Arr;
 class UsersController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::where('role', 'staff')->paginate(10);
+        $searchParams = $request->all();
+        $userQuery = User::query();
+        $name = Arr::get($searchParams, 'name', '');
+        $email = Arr::get($searchParams, 'email', '');
+        $status = Arr::get($searchParams, 'status', '');
+        if (!empty($name)) {
+            $userQuery->where('name',  'LIKE', '%' . $name . '%');
+        }
+        if (!empty($email)) {
+            $userQuery->where('email',  'LIKE', '%' . $email . '%');
+        }
+        if (!empty($status)) {
+            $userQuery->where('status',  $status);
+        }
+        $users = $userQuery->where('role', 'staff')->paginate(10);
         return response()->json(compact('users'), 200);
     }
     public function userNotifications(Request $request)

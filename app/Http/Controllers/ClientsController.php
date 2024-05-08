@@ -28,14 +28,14 @@ class ClientsController extends Controller
         $searchParams = $request->all();
         $clientQuery = Client::query();
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
-        $keyword = Arr::get($searchParams, 'keyword', '');
+        $company_name = Arr::get($searchParams, 'company_name', '');
+        $company_email = Arr::get($searchParams, 'company_email', '');
         $status = Arr::get($searchParams, 'status', '');
-        if (!empty($keyword)) {
-            $clientQuery->where(function ($q) use ($keyword) {
-                $q->where('company_name', 'LIKE', '%' . $keyword . '%');
-                $q->orWhere('company_email', 'LIKE', '%' . $keyword . '%');
-                $q->orWhere('description', 'LIKE', '%' . $keyword . '%');
-            });
+        if (!empty($company_name)) {
+            $clientQuery->where('company_name',  'LIKE', '%' . $company_name . '%');
+        }
+        if (!empty($company_email)) {
+            $clientQuery->where('company_email',  'LIKE', '%' . $company_email . '%');
         }
         if (!empty($status)) {
             $clientQuery->where('status',  $status);

@@ -28,8 +28,32 @@ class LicensesController extends Controller
         $licenseQuery = License::query();
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $license_no = Arr::get($searchParams, 'license_no', '');
+        $license_type_id = Arr::get($searchParams, 'license_type_id', '');
+        $subsidiary_id = Arr::get($searchParams, 'subsidiary_id', '');
+        $mineral_id = Arr::get($searchParams, 'mineral_id', '');
+        $state_id = Arr::get($searchParams, 'state_id', '');
+        $lga_id = Arr::get($searchParams, 'lga_id', '');
+        $status = Arr::get($searchParams, 'status', '');
         if (!empty($license_no)) {
             $licenseQuery->where('license_no',  $license_no);
+        }
+        if (!empty($subsidiary_id)) {
+            $licenseQuery->where('subsidiary_id',  $subsidiary_id);
+        }
+        if (!empty($license_type_id)) {
+            $licenseQuery->where('license_type_id',  $license_type_id);
+        }
+        if (!empty($mineral_id)) {
+            $licenseQuery->where('mineral_id',  $mineral_id);
+        }
+        if (!empty($state_id)) {
+            $licenseQuery->where('state_id',  $state_id);
+        }
+        if (!empty($lga_id)) {
+            $licenseQuery->where('lga_id',  $lga_id);
+        }
+        if (!empty($status)) {
+            $licenseQuery->where('status',  $status);
         }
 
         $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga')->where($condition)->paginate($limit);
@@ -43,7 +67,14 @@ class LicensesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'license_no' => 'required|string|unique:licenses'
+            'license_no' => 'required|string|unique:licenses',
+            'client_id' => 'required|string',
+            'subsidiary_id' => 'required|string',
+            'license_type_id' => 'required|string',
+            'mineral_id' => 'required|string',
+            'state_id' => 'required|integer',
+            'lga_id' => 'required|integer',
+            
         ]);
         $actor = $this->getUser();
         $license_no = $request->license_no;
