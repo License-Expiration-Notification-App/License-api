@@ -10,6 +10,7 @@ use App\Models\Partner;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\LicenseExpiration;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -158,14 +159,23 @@ class Controller extends BaseController
     {
 
         // $user = $this->getUser();
-        $users = User::whereHas('roles', function ($query) {
-            $query->where('name', '=', 'super')
-                ->orWhere('name', '=', 'admin'); // this is the role id inside of this callback
-        })->get();
+        $users = User::where('role', 'staff')->get();
         if ($clients != null) {
             $users = $users->merge($clients);
         }
         $notification = new AuditTrail($title, $action);
+        return Notification::send($users->unique(), $notification);
+    }
+
+    public function licenseExpiration($title, $action,$status = 'Expired', $clients = null)
+    {
+
+        // $user = $this->getUser();
+        $users = User::where('role', 'staff')->get();
+        if ($clients != null) {
+            $users = $users->merge($clients);
+        }
+        $notification = new LicenseExpiration($title, $action, $status);
         return Notification::send($users->unique(), $notification);
     }
 

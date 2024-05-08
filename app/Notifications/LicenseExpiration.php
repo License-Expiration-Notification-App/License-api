@@ -7,16 +7,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class LicenseExpiration extends Notification
+class LicenseExpiration extends Notification implements ShouldQueue
 {
     use Queueable;
-
+    public $title;
+    public $description;
+    public $status;
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($title, $description, $status)
     {
         //
+        $this->title = $title;
+        $this->description = $description;
+        $this->status = $status;
     }
 
     /**
@@ -26,7 +31,7 @@ class LicenseExpiration extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database', /*'broadcast'*/];
     }
 
     /**
@@ -35,9 +40,10 @@ class LicenseExpiration extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+                    ->line($this->title)
+                    ->line($this->description)
+                    // ->action('Notification Action', url('/'))
+                    ->line('Kindly disregard this mail if it does not concern you!');
     }
 
     /**
@@ -48,7 +54,10 @@ class LicenseExpiration extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'tag' => 'License Expiration',
+            'status' => $this->status,
+            'title' => $this->title,
+            'description' => $this->description,
         ];
     }
 }

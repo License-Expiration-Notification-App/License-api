@@ -41,7 +41,7 @@ class ClientsController extends Controller
             $clientQuery->where('status',  $status);
         }
 
-        $clients =  $clientQuery->with('subsidiaries', 'licenses')->where($condition)->paginate($limit);
+        $clients =  $clientQuery->with('subsidiaries', 'licenses')->where($condition)->orderBy('company_name')->paginate($limit);
         return response()->json(compact('clients'), 200);
     }
     public function fetchAllClients()
@@ -94,7 +94,7 @@ class ClientsController extends Controller
                     $this->registerClientUser($request);
                     $title = "New Client Registered";
                     //log this event
-                    $description = "$new_client->name was registered by $actor->name";
+                    $description = "$new_client->company_name was registered by $actor->name";
                     $this->auditTrailEvent($title, $description, [$actor]);
 
 
@@ -117,15 +117,24 @@ class ClientsController extends Controller
      */
     public function update(Request $request, Client $client)
     {
+        $actor = $this->getUser();
+        $old_name = $client->company_name;
+        $old_email = $client->company_email;
 
         $client->company_name = $request->company_name;
         $client->company_email = $request->company_email;
         $client->description = $request->description;
         $client->save();
+        //log this event
+        $title = "Client Details Updated";                    
+        $description = "($old_name, $old_email) were modified to ($client->company_name, $client->company_email) by $actor->name";
+        $this->auditTrailEvent($title, $description, [$actor]);
+
         return response()->json(compact('client'), 200);
     }
     public function registerClientUser(Request $request)
     {
+        $actor = $this->getUser();
         $request->validate([
             'client_id' => 'required|string',
             'name' => 'required|string',
@@ -146,17 +155,29 @@ class ClientsController extends Controller
 
             $role = Role::where('name', 'client')->first();
             $user->roles()->sync($role->id);
+
+            // log this event
+            $title = "Client Admin Registered";                    
+            $description = "$user->name was registered as an admin for $client->company_name by $actor->name";
+            $this->auditTrailEvent($title, $description, [$actor]);
+                
             return response()->json('success', 200);
         }
         return response()->json(['error' => $response['message']]);
     }
     public function updateClientUser(Request $request, User $user)
     {
+        $actor = $this->getUser();
+        $old_name = $user->name;
+        $old_email = $user->email;
 
         $user->name = $request->name;
         $user->email = $request->email;
         $user->save();
 
+        $title = "Client Admin Updated";
+        $description = "($old_name, $old_email) were modified to ($user->name, $user->email) by $actor->name";
+        $this->auditTrailEvent($title, $description, [$actor]);
         // $client->users()->sync($user->id);
         // $role = Role::where('name', 'client')->first();
         // $user->roles()->sync($role->id); // role id 3 is client
@@ -196,10 +217,13 @@ class ClientsController extends Controller
     public function toggleClientStatus(Request $request, Client $client)
     {
         if ($client) {
-
+            $actor = $this->getUser();     
             $value = $request->value; // 'Active' or 'Inactive'
             $client->status = $value;
             $client->save();
+            $title = "Client Status Changed";
+            $description = "$client->company_name status was changed to $client->status by $actor->name";
+            $this->auditTrailEvent($title, $description, [$actor]);
             return response()->json('success');
         }
         return response()->json(['message' => 'Client does not exist'], 500);

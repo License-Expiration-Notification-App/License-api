@@ -7,16 +7,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AuditTrail extends Notification
+class AuditTrail extends Notification implements ShouldQueue
 {
     use Queueable;
-
+    public $title;
+    public $description;
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($title, $description)
     {
         //
+        $this->title = $title;
+        $this->description = $description;
     }
 
     /**
@@ -26,7 +29,7 @@ class AuditTrail extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+    return ['mail', 'database', /*'broadcast'*/];
     }
 
     /**
@@ -35,9 +38,10 @@ class AuditTrail extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+                    ->line($this->title)
+                    ->line($this->description)
+                    // ->action('Notification Action', url('/'))
+                    ->line('Kindly disregard this mail if it does not concern you!');
     }
 
     /**
@@ -49,6 +53,9 @@ class AuditTrail extends Notification
     {
         return [
             //
+            'tag' => 'Audit Trail',
+            'title' => $this->title,
+            'description' => $this->description,
         ];
     }
 }

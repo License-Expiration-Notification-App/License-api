@@ -51,6 +51,7 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
+        $actor = $this->getUser();
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|unique:users',
@@ -63,6 +64,10 @@ class AuthController extends Controller
             $user = $response['user'];
             $tokenResult = $user->createToken('Personal Access Token');
             $token = $tokenResult->plainTextToken;
+            $title = "New Registration";
+            //log this event
+            $description = "$user->name was registered by $actor->name";
+            $this->auditTrailEvent($title, $description);
 
             return response()->json([
                 'message' => 'Successfully created user!',
@@ -170,10 +175,11 @@ class AuthController extends Controller
 
         // $request->session()->invalidate();
         // $request->user()->tokens()->delete();
-
+        $actor = $request->user();
         // log this event
-        // $description = 'logged out of the portal';
-        // $this->auditTrailEvent($request, $description);
+        $title = "Logout Action Registration";
+        $description = "$actor->name logged out of the portal";
+        $this->auditTrailEvent($title, $description);
 
         $request->user()->currentAccessToken()->delete();
         return response()->json([
@@ -255,6 +261,9 @@ class AuthController extends Controller
             if ($user->save()) {
                 PasswordResetToken::where('email', $request->email)->delete();
             }
+            $title = "Password updated";
+            $description = "$user->name password was updated";
+            $this->auditTrailEvent($title, $description);
             
             return 'success';
         }

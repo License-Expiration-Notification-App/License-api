@@ -33,7 +33,7 @@ class UsersController extends Controller
         if (!empty($status)) {
             $userQuery->where('status',  $status);
         }
-        $users = $userQuery->where('role', 'staff')->paginate(10);
+        $users = $userQuery->where('role', 'staff')->orderBy('name')->paginate(10);
         return response()->json(compact('users'), 200);
     }
     public function userNotifications(Request $request)

@@ -35,9 +35,10 @@ Route::group(['prefix' => 'auth'], function () {
     // Route::put('sent-2fa-code/{user}', [AuthController::class, 'send2FACode']);
     // Route::put('confirm-2fa-code/{user}', [AuthController::class, 'confirm2FACode']);
 
-    Route::post('register', [AuthController::class, 'register']);
+    
 
     Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::post('register', [AuthController::class, 'register']);
         Route::post('logout', [AuthController::class, 'logout']);
         // Route::post('login-as', [AuthController::class, 'loginAs']);
         Route::get('user', [AuthController::class, 'fetchUser']); //->middleware('permission:read-users');
