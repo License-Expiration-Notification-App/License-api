@@ -36,12 +36,12 @@ class UsersController extends Controller
         $users = $userQuery->where('role', 'staff')->orderBy('name')->paginate(10);
         return response()->json(compact('users'), 200);
     }
-    public function userNotifications(Request $request)
+    public function auditTrail(Request $request)
     {
         $user = $this->getUser();
         // $school = $this->getSchool();
         // $sess_id = $this->getSession()->id;
-        $notifications = $user->notifications()->orderBy('created_at', 'DESC')->paginate($request->limit);
+        $notifications = $user->notifications()->where('data', 'LIKE', '%Audit Trail%')->orderBy('created_at', 'DESC')->paginate(10);
         $unread_notifications = $user->unreadNotifications()->count();
         return response()->json(compact('notifications', 'unread_notifications'), 200);
     }
