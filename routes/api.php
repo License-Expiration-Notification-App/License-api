@@ -100,6 +100,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::put('change-status/{user}', [UsersController::class, 'toggleSubsidiaryStatus']);
         Route::put('update-user/{user}', [ClientsController::class, 'updateClientUser']);
 
-        Route::get('audit-trail', [UsersController::class, 'userNotifications']);
+        Route::get('audit-trail', [UsersController::class, 'auditTrail']);
     });
 });
