@@ -29,19 +29,24 @@ class AuditTrail extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-    return ['mail', 'database', /*'broadcast'*/];
+    return [/*'mail', */'database', 'broadcast'];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable)
     {
-        return (new MailMessage)
+        try {
+            return (new MailMessage)
                     ->line($this->title)
                     ->line($this->description)
                     // ->action('Notification Action', url('/'))
                     ->line('Kindly disregard this mail if it does not concern you!');
+        } catch (\Throwable $th) {
+            return response()->json(['message',$th]);
+        }
+        
     }
 
     /**
