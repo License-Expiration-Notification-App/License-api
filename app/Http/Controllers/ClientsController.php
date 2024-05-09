@@ -54,7 +54,7 @@ class ClientsController extends Controller
             $sort_direction = 'ASC';
         }
 
-        $clients =  $clientQuery->withCount('subsidiaries', 'licenses')->where($condition)->select('clients.*')->orderBy($sort_by, $sort_direction)->paginate($limit);
+        $clients =  $clientQuery->where($condition)->select('clients.*')->withCount('subsidiaries', 'licenses')->orderBy($sort_by, $sort_direction)->paginate($limit);
         return response()->json(compact('clients'), 200);
     }
     public function fetchAllClients()
