@@ -34,7 +34,7 @@ class LicensesController extends Controller
 
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $keyword = Arr::get($searchParams, 'search', '');
-        $license_no = Arr::get($searchParams, 'license_no', '');
+        // $license_no = Arr::get($searchParams, 'license_no', '');
         $license_type_id = Arr::get($searchParams, 'license_type_id', '');
         $subsidiary_id = Arr::get($searchParams, 'subsidiary_id', '');
         $mineral_id = Arr::get($searchParams, 'mineral_id', '');
@@ -43,7 +43,7 @@ class LicensesController extends Controller
         $status = Arr::get($searchParams, 'status', '');
         $license_date = Arr::get($searchParams, 'license_date', '');
         $date_created = Arr::get($searchParams, 'date_created', '');
-        $sort_by = Arr::get($searchParams, 'sort_by', 'name');
+        $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
             $licenseQuery->where('license_no',  $keyword);
@@ -71,6 +71,12 @@ class LicensesController extends Controller
         }
         if (!empty($date_created)) {
             $licenseQuery->where('created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
+        }
+        if ($sort_by == '') {
+            $sort_by = 'license_no';
+        }
+        if ($sort_direction == '') {
+            $sort_by = 'ASC';
         }
 
         $licenses =  $licenseQuery->select('licenses.*', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->where($condition)->orderBy($sort_by, $sort_direction)->paginate($limit);
