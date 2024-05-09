@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class License extends Model
 {
     use HasUuids, HasFactory, SoftDeletes;
+    protected $hidden = [
+        'next_expiration_alert'
+    ];
     public function client()
     {
         return $this->belongsTo(Client::class);

@@ -90,6 +90,7 @@ class LicensesController extends Controller
             $license->lga_id = $request->lga_id;
             $license->license_date = date('Y-m-d', strtotime($request->license_date));
             $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
+            $license->size_of_tenement = $request->size_of_tenement;
             // $license->renewed_date = date('Y-m-d', strtotime($request->renewed_date));
             if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
 
@@ -139,6 +140,7 @@ class LicensesController extends Controller
         $license->lga_id = $request->lga_id;
         $license->license_date = date('Y-m-d', strtotime($request->license_date));
         $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
+        $license->size_of_tenement = $request->size_of_tenement;
         $license->save();
 
         return $this->show($license);
