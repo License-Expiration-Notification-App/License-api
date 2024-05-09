@@ -43,7 +43,7 @@ class UsersController extends Controller
             $sort_by = 'name';
         }
         if ($sort_direction == '') {
-            $sort_by = 'ASC';
+            $sort_direction = 'ASC';
         }
         $users = $userQuery->where('role', 'staff')->orderBy($sort_by, $sort_direction)->paginate(10);
         return response()->json(compact('users'), 200);

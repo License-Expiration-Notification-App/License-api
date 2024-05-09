@@ -76,7 +76,7 @@ class LicensesController extends Controller
             $sort_by = 'license_no';
         }
         if ($sort_direction == '') {
-            $sort_by = 'ASC';
+            $sort_direction = 'ASC';
         }
 
         $licenses =  $licenseQuery->select('licenses.*', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->where($condition)->orderBy($sort_by, $sort_direction)->paginate($limit);
