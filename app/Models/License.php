@@ -10,7 +10,10 @@ class License extends Model
 {
     use HasUuids, HasFactory, SoftDeletes;
     protected $hidden = [
-        'next_expiration_alert'
+        'one_month_before_expiration',
+        'two_weeks_before_expiration',
+        'three_days_before_expiration',
+        'expiry_alert_sent'
     ];
     public function client()
     {
