@@ -21,19 +21,25 @@ class UsersController extends Controller
     {
         $searchParams = $request->all();
         $userQuery = User::query();
-        $name = Arr::get($searchParams, 'name', '');
-        $email = Arr::get($searchParams, 'email', '');
+        $keyword = Arr::get($searchParams, 'search', '');
         $status = Arr::get($searchParams, 'status', '');
-        if (!empty($name)) {
-            $userQuery->where('name',  'LIKE', '%' . $name . '%');
+        $date_created = Arr::get($searchParams, 'date_created', '');
+        $sort_by = Arr::get($searchParams, 'sort_by', 'name');
+        $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
+
+        if (!empty($keyword)) {
+            $userQuery->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%');
+                $q->orWhere('email', 'LIKE', '%' . $keyword . '%');
+            });
         }
-        if (!empty($email)) {
-            $userQuery->where('email',  'LIKE', '%' . $email . '%');
+        if (!empty($date_created)) {
+            $userQuery->where('created_at',  'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         }
         if (!empty($status)) {
             $userQuery->where('status',  $status);
         }
-        $users = $userQuery->where('role', 'staff')->orderBy('name')->paginate(10);
+        $users = $userQuery->where('role', 'staff')->orderBy($sort_by, $sort_direction)->paginate(10);
         return response()->json(compact('users'), 200);
     }
     public function auditTrail(Request $request)

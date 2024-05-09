@@ -27,21 +27,28 @@ class ClientsController extends Controller
         }
         $searchParams = $request->all();
         $clientQuery = Client::query();
+        $clientQuery->join('subsidiaries', 'subsidiaries.client_id', '=', 'clients.id')
+        ->join('licenses', 'licenses.client_id', '=', 'clients.id');
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
-        $company_name = Arr::get($searchParams, 'company_name', '');
-        $company_email = Arr::get($searchParams, 'company_email', '');
+        $keyword = Arr::get($searchParams, 'search', '');
         $status = Arr::get($searchParams, 'status', '');
-        if (!empty($company_name)) {
-            $clientQuery->where('company_name',  'LIKE', '%' . $company_name . '%');
+        $date_created = Arr::get($searchParams, 'date_created', '');
+        $sort_by = Arr::get($searchParams, 'sort_by', 'name');
+        $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
+        if (!empty($keyword)) {
+            $clientQuery->where(function ($q) use ($keyword) {
+                $q->where('company_name', 'LIKE', '%' . $keyword . '%');
+                $q->orWhere('company_email', 'LIKE', '%' . $keyword . '%');
+            });
         }
-        if (!empty($company_email)) {
-            $clientQuery->where('company_email',  'LIKE', '%' . $company_email . '%');
+        if (!empty($date_created)) {
+            $clientQuery->where('created_at',  'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         }
         if (!empty($status)) {
             $clientQuery->where('status',  $status);
         }
 
-        $clients =  $clientQuery->with('subsidiaries', 'licenses')->where($condition)->orderBy('company_name')->paginate($limit);
+        $clients =  $clientQuery->withCount('subsidiaries', 'licenses')->where($condition)->orderBy($sort_by, $sort_direction)->paginate($limit);
         return response()->json(compact('clients'), 200);
     }
     public function fetchAllClients()

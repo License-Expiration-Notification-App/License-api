@@ -167,17 +167,6 @@ class Controller extends BaseController
         return Notification::send($users->unique(), $notification);
     }
 
-    public function licenseExpiration($title, $action,$status = 'Expired', $clients = null)
-    {
-
-        // $user = $this->getUser();
-        $users = User::where('role', 'staff')->get();
-        if ($clients != null) {
-            $users = $users->merge($clients);
-        }
-        $notification = new LicenseExpiration($title, $action, $status);
-        return Notification::send($users->unique(), $notification);
-    }
 
     public function fetchStates()
     {

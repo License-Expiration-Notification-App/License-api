@@ -26,7 +26,14 @@ class LicensesController extends Controller
         }
         $searchParams = $request->all();
         $licenseQuery = License::query();
+        $licenseQuery->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
+        ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
+        ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
+        ->join('states', 'licenses.state_id', '=', 'states.id')
+        ->join('local_government_areas', 'licenses.lga_id', '=', 'local_government_areas.id');
+
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
+        $keyword = Arr::get($searchParams, 'search', '');
         $license_no = Arr::get($searchParams, 'license_no', '');
         $license_type_id = Arr::get($searchParams, 'license_type_id', '');
         $subsidiary_id = Arr::get($searchParams, 'subsidiary_id', '');
@@ -34,8 +41,12 @@ class LicensesController extends Controller
         $state_id = Arr::get($searchParams, 'state_id', '');
         $lga_id = Arr::get($searchParams, 'lga_id', '');
         $status = Arr::get($searchParams, 'status', '');
-        if (!empty($license_no)) {
-            $licenseQuery->where('license_no',  $license_no);
+        $license_date = Arr::get($searchParams, 'license_date', '');
+        $date_created = Arr::get($searchParams, 'date_created', '');
+        $sort_by = Arr::get($searchParams, 'sort_by', 'name');
+        $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
+        if (!empty($keyword)) {
+            $licenseQuery->where('license_no',  $keyword);
         }
         if (!empty($subsidiary_id)) {
             $licenseQuery->where('subsidiary_id',  $subsidiary_id);
@@ -55,8 +66,17 @@ class LicensesController extends Controller
         if (!empty($status)) {
             $licenseQuery->where('status',  $status);
         }
+        if (!empty($license_date)) {
+            $licenseQuery->where('license_date',  'LIKE', '%' . date('Y-m-d',strtotime($license_date)) . '%');
+        }
+        if (!empty($date_created)) {
+            $licenseQuery->where('created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
+        }
 
-        $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga')->where($condition)->paginate($limit);
+        $licenses =  $licenseQuery->select('licenses.*', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->where($condition)->orderBy($sort_by, $sort_direction)->paginate($limit);
+
+
+        // $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga')->where($condition)->paginate($limit);
         return response()->json(compact('licenses'), 200);
     }
 
@@ -90,6 +110,9 @@ class LicensesController extends Controller
             $license->lga_id = $request->lga_id;
             $license->license_date = date('Y-m-d', strtotime($request->license_date));
             $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
+            $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($request->expiry_date)));
+            $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($request->expiry_date)));
+            $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($request->expiry_date)));
             $license->size_of_tenement = $request->size_of_tenement;
             // $license->renewed_date = date('Y-m-d', strtotime($request->renewed_date));
             if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
@@ -121,7 +144,13 @@ class LicensesController extends Controller
      */
     public function show(License $license)
     {
-        $license = $license->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga', 'createdBy')->find($license->id);
+        $license = $license->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
+        ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
+        ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
+        ->join('states', 'licenses.state_id', '=', 'states.id')
+        ->join('local_government_areas', 'licenses.lga_id', '=', 'local_government_areas.id')
+        ->select('licenses.*', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')
+        ->find($license->id);
         return response()->json(compact('license'), 200);
     }
 
