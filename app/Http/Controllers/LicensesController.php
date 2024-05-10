@@ -151,7 +151,8 @@ class LicensesController extends Controller
      */
     public function show(License $license)
     {
-        $license = $license->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
+        $license = $license->join('clients', 'licenses.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->join('states', 'licenses.state_id', '=', 'states.id')
