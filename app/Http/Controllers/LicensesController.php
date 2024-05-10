@@ -156,7 +156,7 @@ class LicensesController extends Controller
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->join('states', 'licenses.state_id', '=', 'states.id')
         ->join('local_government_areas', 'licenses.lga_id', '=', 'local_government_areas.id')
-        ->select('licenses.*', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')
+        ->select('licenses.*', 'clients.company_name as client', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')
         ->find($license->id);
         return response()->json(compact('license'), 200);
     }
