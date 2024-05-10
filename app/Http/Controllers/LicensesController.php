@@ -26,7 +26,8 @@ class LicensesController extends Controller
         }
         $searchParams = $request->all();
         $licenseQuery = License::query();
-        $licenseQuery->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
+        $licenseQuery->join('clients', 'licenses.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->join('states', 'licenses.state_id', '=', 'states.id')
@@ -79,7 +80,7 @@ class LicensesController extends Controller
             $sort_direction = 'ASC';
         }
 
-        $licenses =  $licenseQuery->select('licenses.*', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->where($condition)->orderBy($sort_by, $sort_direction)->paginate($limit);
+        $licenses =  $licenseQuery->select('licenses.*', 'clients.company_name as client','subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->where($condition)->orderBy($sort_by, $sort_direction)->paginate($limit);
 
 
         // $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga')->where($condition)->paginate($limit);
