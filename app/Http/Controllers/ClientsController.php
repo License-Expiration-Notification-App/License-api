@@ -27,8 +27,8 @@ class ClientsController extends Controller
         }
         $searchParams = $request->all();
         $clientQuery = Client::query();
-        $clientQuery->join('subsidiaries', 'subsidiaries.client_id', '=', 'clients.id')
-        ->join('licenses', 'licenses.client_id', '=', 'clients.id');
+        // $clientQuery->join('subsidiaries', 'subsidiaries.client_id', '=', 'clients.id')
+        // ->join('licenses', 'licenses.client_id', '=', 'clients.id');
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $keyword = Arr::get($searchParams, 'search', '');
         $status = Arr::get($searchParams, 'status', '');
