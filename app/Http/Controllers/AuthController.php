@@ -204,7 +204,7 @@ class AuthController extends Controller
                 } else if($confirm_hash->password == NULL){
                     return response()->json(['email' => $confirm_hash->email, 'status' => 'Pending'], 200);
                 }else {
-                    return response()->json(['message' => 'Already Activated'], 500);
+                    return response()->json(['message' => 'Already Activated', 'status' => 'Active'], 500);
                 }
                 //return view('auth.registration_confirmed', compact('message'));
 
