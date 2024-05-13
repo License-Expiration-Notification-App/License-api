@@ -19,11 +19,6 @@ class LicensesController extends Controller
     public function index(Request $request)
     {
         $user = $this->getUser();
-        $condition = [];
-        if ($user->hasRole('client')) {
-            $id = $this->getClient()->id;
-            $condition = ['licenses.client_id' => $id];
-        }
         $searchParams = $request->all();
         $licenseQuery = License::query();
         $licenseQuery->join('clients', 'licenses.client_id', '=', 'clients.id')
@@ -50,7 +45,11 @@ class LicensesController extends Controller
         if (!empty($keyword)) {
             $licenseQuery->where('licenses.license_no',  $keyword);
         }
-        if (!empty($client_id)) {
+        
+        if ($user->hasRole('client')) {
+            $id = $this->getClient()->id;
+            $licenseQuery->where('licenses.client_id',  $id);
+        }else if (!empty($client_id)) {
             $licenseQuery->where('licenses.client_id',  $client_id);
         }
         if (!empty($subsidiary_id)) {
@@ -84,7 +83,7 @@ class LicensesController extends Controller
             $sort_direction = 'ASC';
         }
 
-        $licenses =  $licenseQuery->select('licenses.*', 'clients.company_name as client','subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->where($condition)->orderBy($sort_by, $sort_direction)->paginate($limit);
+        $licenses =  $licenseQuery->select('licenses.*', 'clients.company_name as client','subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->orderBy($sort_by, $sort_direction)->paginate($limit);
 
 
         // $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga')->where($condition)->paginate($limit);
