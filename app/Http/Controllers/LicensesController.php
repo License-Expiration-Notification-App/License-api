@@ -37,6 +37,7 @@ class LicensesController extends Controller
         $keyword = Arr::get($searchParams, 'search', '');
         // $license_no = Arr::get($searchParams, 'license_no', '');
         $license_type_id = Arr::get($searchParams, 'license_type_id', '');
+        $client_id = Arr::get($searchParams, 'client_id', '');
         $subsidiary_id = Arr::get($searchParams, 'subsidiary_id', '');
         $mineral_id = Arr::get($searchParams, 'mineral_id', '');
         $state_id = Arr::get($searchParams, 'state_id', '');
@@ -48,6 +49,9 @@ class LicensesController extends Controller
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
             $licenseQuery->where('license_no',  $keyword);
+        }
+        if (!empty($client_id)) {
+            $licenseQuery->where('client_id',  $subsidiary_id);
         }
         if (!empty($subsidiary_id)) {
             $licenseQuery->where('subsidiary_id',  $subsidiary_id);

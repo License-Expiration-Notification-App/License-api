@@ -100,18 +100,19 @@ class ClientsController extends Controller
                 // $client->phone = $request->phone;
                 $new_client->description = $request->description;
                 if ($new_client->save()) {
-                    $new_client->logo = env('APP_URL').'/'.$new_client->logo_path;
-                    $new_client->save();
+                    $created_client = Client::find($new_client->id);
+                    $created_client->logo = env('APP_URL').'/'.$created_client->logo_path;
+                    $created_client->save();
                     $request['client_id'] = $new_client->id;
 
                     $this->registerClientUser($request);
                     $title = "New Client Registered";
                     //log this event
-                    $description = "$new_client->company_name was registered by $actor->name";
+                    $description = "<strong>$new_client->company_name</strong> was registered by <strong>$actor->name</strong>";
                     $this->auditTrailEvent($title, $description, [$actor]);
 
 
-                    return $new_client;
+                    return $created_client;
                     // response()->json(compact('client'), 200);
                 }
                 
