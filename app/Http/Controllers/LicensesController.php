@@ -22,7 +22,7 @@ class LicensesController extends Controller
         $condition = [];
         if ($user->hasRole('client')) {
             $id = $this->getClient()->id;
-            $condition = ['client_id' => $id];
+            $condition = ['licenses.client_id' => $id];
         }
         $searchParams = $request->all();
         $licenseQuery = License::query();
