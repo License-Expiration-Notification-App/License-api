@@ -99,9 +99,9 @@ class User extends Authenticatable implements LaratrustUser
                     'confirm_hash' => hash('sha512', $request->email),
                 ]);
                 if ($user->save()) {
-                
-                    $user->photo = env('APP_URL').'/'.$user->photo_path;
-                    $user->save();
+                    $new_user = User::find($user->id);
+                    $new_user->photo = env('APP_URL').'/'.$new_user->photo_path;
+                    $new_user->save();
                 }
                 
             }

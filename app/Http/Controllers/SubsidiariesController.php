@@ -29,6 +29,10 @@ class SubsidiariesController extends Controller
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $keyword = Arr::get($searchParams, 'keyword', '');
         $status = Arr::get($searchParams, 'status', '');
+        $client_id = Arr::get($searchParams, 'client_id', '');
+        if (!empty($client_id)) {
+            $subsidiaryQuery->where('client_id',  $client_id);
+        }
         if (!empty($keyword)) {
             $subsidiaryQuery->where(function ($q) use ($keyword) {
                 $q->where('name', 'LIKE', '%' . $keyword . '%');

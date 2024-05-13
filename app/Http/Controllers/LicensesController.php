@@ -48,34 +48,34 @@ class LicensesController extends Controller
         $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
-            $licenseQuery->where('license_no',  $keyword);
+            $licenseQuery->where('licenses.license_no',  $keyword);
         }
         if (!empty($client_id)) {
-            $licenseQuery->where('client_id',  $subsidiary_id);
+            $licenseQuery->where('licenses.client_id',  $client_id);
         }
         if (!empty($subsidiary_id)) {
-            $licenseQuery->where('subsidiary_id',  $subsidiary_id);
+            $licenseQuery->where('licenses.subsidiary_id',  $subsidiary_id);
         }
         if (!empty($license_type_id)) {
-            $licenseQuery->where('license_type_id',  $license_type_id);
+            $licenseQuery->where('licenses.license_type_id',  $license_type_id);
         }
         if (!empty($mineral_id)) {
-            $licenseQuery->where('mineral_id',  $mineral_id);
+            $licenseQuery->where('licenses.mineral_id',  $mineral_id);
         }
         if (!empty($state_id)) {
-            $licenseQuery->where('state_id',  $state_id);
+            $licenseQuery->where('licenses.state_id',  $state_id);
         }
         if (!empty($lga_id)) {
-            $licenseQuery->where('lga_id',  $lga_id);
+            $licenseQuery->where('licenses.lga_id',  $lga_id);
         }
         if (!empty($status)) {
-            $licenseQuery->where('status',  $status);
+            $licenseQuery->where('licenses.status',  $status);
         }
         if (!empty($license_date)) {
-            $licenseQuery->where('license_date',  'LIKE', '%' . date('Y-m-d',strtotime($license_date)) . '%');
+            $licenseQuery->where('licenses.license_date',  'LIKE', '%' . date('Y-m-d',strtotime($license_date)) . '%');
         }
         if (!empty($date_created)) {
-            $licenseQuery->where('created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
+            $licenseQuery->where('licenses.created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         }
         if ($sort_by == '') {
             $sort_by = 'license_no';
