@@ -195,12 +195,15 @@ class AuthController extends Controller
 
             $confirm_hash = User::where(['confirm_hash' => $hash])->first();
             if ($confirm_hash) {        //hash is confirmed and valid
-                if ($confirm_hash->email_verified_at === NULL) {
+                
+                if ($confirm_hash->email_verified_at == NULL) {
                     $confirm_hash->email_verified_at = date('Y-m-d H:i:s', strtotime('now'));
                     $confirm_hash->save();
                     
                     return response()->json(['email' => $confirm_hash->email, 'message' => 'Successful'], 200);
-                } else {
+                } else if($confirm_hash->password == NULL){
+                    return response()->json(['email' => $confirm_hash->email, 'status' => 'Pending'], 200);
+                }else {
                     return response()->json(['message' => 'Already Activated'], 405);
                 }
                 //return view('auth.registration_confirmed', compact('message'));
