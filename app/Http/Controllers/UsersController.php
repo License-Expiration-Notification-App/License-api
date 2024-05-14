@@ -4,16 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Models\Role;
-use App\Models\School;
-use App\Models\Staff;
-use App\Models\State;
-use App\Models\Student;
-use App\Models\StudentsInClass;
-use Auth;
+
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Carbon;
 use Illuminate\Support\Arr;
 class UsersController extends Controller
 {
@@ -51,9 +46,12 @@ class UsersController extends Controller
     public function auditTrail(Request $request)
     {
         $user = $this->getUser();
-        // $school = $this->getSchool();
-        // $sess_id = $this->getSession()->id;
-        $notifications = $user->notifications()->where('data', 'LIKE', '%Audit Trail%')->orderBy('created_at', 'DESC')->paginate(50)->groupBy('type');
+        $notifications = $user->notifications()->where('data', 'LIKE', '%Audit Trail%')->orderBy('created_at', 'DESC')->paginate(50);
+
+        $notifications->setCollection($notifications->groupBy(['created_at' =>function($item){
+            return Carbon::parse($item->created_at)->format('Y-m-d');
+        }, 'type']));
+        
         $unread_notifications = $user->unreadNotifications()->count();
         return response()->json(compact('notifications', 'unread_notifications'), 200);
     }

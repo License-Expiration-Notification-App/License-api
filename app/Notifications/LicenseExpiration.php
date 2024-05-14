@@ -44,9 +44,12 @@ class LicenseExpiration extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $body = $this->description;
+        $body = str_replace('<strong>', '', $body);
+        $body = str_replace('</strong>', '', $body);
         return (new MailMessage)
                     ->line($this->title)
-                    ->line($this->description)
+                    ->line($body)
                     // ->action('Notification Action', url('/'))
                     ->line('Kindly disregard this mail if it does not concern you!');
     }

@@ -43,7 +43,7 @@ class LicensesController extends Controller
         $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
-            $licenseQuery->where('licenses.license_no',  $keyword);
+            $licenseQuery->where('licenses.license_no',  'LIKE', '%'.$keyword.'%');
         }
         
         if ($user->hasRole('client')) {
