@@ -38,7 +38,7 @@ class AlertLicenseExpiration extends Command
     private function alertOneMonthToExpiration()
     {
         $today  = date('Y-m-d', strtotime('now'));
-        License::with('client.users')
+        License::with('client.users', 'subsidiary')
         ->where('one_month_before_expiration', $today)
         ->where('expiry_alert_sent', 'NOT LIKE', '%one month%')
         ->chunk(200, function ($licenses) {
@@ -46,9 +46,11 @@ class AlertLicenseExpiration extends Command
                 $license->expiry_alert_sent .= ',one month,';
                 $license->save();
                 $users = $license->client->users;
-                $title = "One Month License Expiration Notice";
+                $subsidiary = $license->subsidiary->name;
+                $client = $license->client->name;
+                $title = "License expires in <strong>one month</strong>";
                 //log this event
-                $action = "$license->license_no will expire on $license->expiry_date. Kindly prepare for renewal";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) will expire on <strong>$license->expiry_date.</strong>";
                 $status = 'Expire in one month';
                 $this->licenseExpiration($title, $action, $status, $users);
             }
@@ -57,17 +59,20 @@ class AlertLicenseExpiration extends Command
     private function alertTwoWeeksToExpiration()
     {
         $today  = date('Y-m-d', strtotime('now'));
-        License::with('client.users')
+        License::with('client.users','subsidiary')
         ->where('two_weeks_before_expiration', $today)
         ->where('expiry_alert_sent', 'NOT LIKE', '%two weeks%')
         ->chunk(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',two weeks,';
-                $license->save();
+                $license->save();                
                 $users = $license->client->users;
-                $title = "Two Weeks License Expiration Notice";
+                
+                $subsidiary = $license->subsidiary->name;
+                $client = $license->client->name;
+                $title = "License expires in <strong>two weeks</strong>";
                 //log this event
-                $action = "$license->license_no will expire on $license->expiry_date. Kindly initiate renewal process";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) will expire on <strong>$license->expiry_date.</strong>";
                 $status = 'Expired in two weeks';
                 $this->licenseExpiration($title, $action, $status, $users);
             }
@@ -76,7 +81,7 @@ class AlertLicenseExpiration extends Command
     private function alertThreeDaysToExpiration()
     {
         $today  = date('Y-m-d', strtotime('now'));
-        License::with('client.users')
+        License::with('client.users','subsidiary')
         ->where('three_days_before_expiration', $today)
         ->where('expiry_alert_sent', 'NOT LIKE', '%three days%')
         ->chunk(200, function ($licenses) {
@@ -84,9 +89,11 @@ class AlertLicenseExpiration extends Command
                 $license->expiry_alert_sent .= ',three days,';
                 $license->save();
                 $users = $license->client->users;
-                $title = "Three Days License Expiration Notice";
+                $subsidiary = $license->subsidiary->name;
+                $client = $license->client->name;
+                $title = "License expires in <strong>three days</strong>";
                 //log this event
-                $action = "$license->license_no will expire on $license->expiry_date. Please renew.";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) will expire on <strong>$license->expiry_date.</strong>";
                 $status = 'Expires in three days';
                 $this->licenseExpiration($title, $action, $status, $users);
             }
@@ -95,7 +102,7 @@ class AlertLicenseExpiration extends Command
     private function alertExpiration()
     {
         $today  = date('Y-m-d', strtotime('now'));
-        License::with('client.users')
+        License::with('client.users','subsidiary')
         ->where('expiry_date', '<=', $today)
         ->where('expiry_alert_sent', 'NOT LIKE', '%expired%')
         ->chunk(200, function ($licenses) {
@@ -103,9 +110,11 @@ class AlertLicenseExpiration extends Command
                 $license->expiry_alert_sent .= ',expired,';
                 $license->save();
                 $users = $license->client->users;
+                $subsidiary = $license->subsidiary->name;
+                $client = $license->client->name;
                 $title = "License Expired";
                 //log this event
-                $action = "$license->license_no expired on $license->expiry_date. Please renew.";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) has expired today.";
                 $status = 'Expired';
                 $this->licenseExpiration($title, $action, $status, $users);
             }
@@ -116,6 +125,9 @@ class AlertLicenseExpiration extends Command
      */
     public function handle()
     {
-        //
+        $this->alertExpiration();
+        $this->alertOneMonthToExpiration();
+        $this->alertTwoWeeksToExpiration();
+        $this->alertThreeDaysToExpiration();
     }
 }

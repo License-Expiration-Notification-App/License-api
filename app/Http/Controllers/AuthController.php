@@ -66,7 +66,7 @@ class AuthController extends Controller
             $token = $tokenResult->plainTextToken;
             $title = "New Registration";
             //log this event
-            $description = "$user->name was registered by $actor->name";
+            $description = "<strong>$user->name</strong> was registered by <strong>$actor->name</strong>";
             $this->auditTrailEvent($title, $description);
 
             return response()->json([
@@ -133,7 +133,7 @@ class AuthController extends Controller
         $name = $user->name . ' (' . $user->email . ')';
         $title = "Log in action";
         //log this event
-        $description = "$name logged in to the portal";
+        $description = "<strong>$name</strong> logged in to the portal";
         $this->auditTrailEvent($title, $description);
 
         $user_resource = new UserResource($user);
@@ -178,8 +178,8 @@ class AuthController extends Controller
         $actor = $request->user();
         // log this event
         $title = "Logout Action Registration";
-        $description = "$actor->name logged out of the portal";
-        $this->auditTrailEvent($title, $description);
+        $description = "<strong>$actor->name</strong> logged out of the portal";
+        $this->auditTrailEvent($title, $description, 'Authentication', 'edit');
 
         $request->user()->currentAccessToken()->delete();
         return response()->json([
@@ -265,8 +265,8 @@ class AuthController extends Controller
                 PasswordResetToken::where('email', $request->email)->delete();
             }
             $title = "Password updated";
-            $description = "$user->name password was updated";
-            $this->auditTrailEvent($title, $description);
+            $description = "<strong>$user->name</strong> password was updated";
+            $this->auditTrailEvent($title, $description, 'Authentication', 'edit');
             
             return 'success';
         }

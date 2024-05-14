@@ -53,7 +53,7 @@ class UsersController extends Controller
         $user = $this->getUser();
         // $school = $this->getSchool();
         // $sess_id = $this->getSession()->id;
-        $notifications = $user->notifications()->where('data', 'LIKE', '%Audit Trail%')->orderBy('created_at', 'DESC')->paginate(10);
+        $notifications = $user->notifications()->where('data', 'LIKE', '%Audit Trail%')->orderBy('created_at', 'DESC')->paginate(50)->groupBy('type');
         $unread_notifications = $user->unreadNotifications()->count();
         return response()->json(compact('notifications', 'unread_notifications'), 200);
     }
@@ -63,62 +63,6 @@ class UsersController extends Controller
         $user->unreadNotifications->markAsRead();
         return $this->userNotifications($request);
     }
-    public function changePassword()
-    {
-        $user = $this->getUser();
-        $user->password_status = 'default';
-        $user->save();
-        return redirect()->route('dashboard');
-    }
-    public function adminResetUserPassword(Request $request)
-    {
-        $user = User::find($request->user_id);
-        $user->password = 'password';
-        $user->password_status = 'default';
-        $user->save();
-    }
-    public function resetPassword(Request $request, User $user)
-    {
-        $confirm_password = $request->confirm_password;
-        $new_password = $request->new_password;
-
-        if ($new_password === $confirm_password) {
-            $user->password = $new_password;
-            $user->password_status = 'custom';
-
-            if ($user->save()) {
-                return response()->json(['message' => 'success'], 200);
-            }
-        }
-        return response()->json([
-            'message' => 'Password does not match'
-        ], 401);
-    }
-
-    public function approveUser(Request $request, User $user)
-    {
-        $user->is_confirmed = '1';
-        $user->save();
-        return response()->json(['message' => 'success'], 200);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $user_obj = new User();
-        $response = $user_obj->createUser($request);
-        if ($response['message'] == 'success') {
-            $user = $response['user'];
-            $user->roles()->sync($request->role_id);
-        }
-        return response()->json(['error' => $response['message']], 500);
-    }
-
 
 
 

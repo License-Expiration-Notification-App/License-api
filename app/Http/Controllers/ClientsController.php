@@ -64,7 +64,8 @@ class ClientsController extends Controller
     }
     public function show(Client $client)
     {
-        $client = $client->with('users','subsidiaries', 'licenses')->find($client->id);
+        // $client = $client->with('users','subsidiaries', 'licenses')->find($client->id);
+        $client = $client->with('users')->find($client->id);
         $users = $client->users;
         foreach ($users as $user) {
             $user->is_client_main_admin = false;
@@ -108,8 +109,8 @@ class ClientsController extends Controller
                     $this->registerClientUser($request);
                     $title = "New Client Registered";
                     //log this event
-                    $description = "<strong>$new_client->company_name</strong> was registered by <strong>$actor->name</strong>";
-                    $this->auditTrailEvent($title, $description, [$actor]);
+                    $description = "<strong>$actor->name</strong> added a new <strong>Client</client>($new_client->company_name)";
+                    $this->auditTrailEvent($title, $description, 'Client Management', 'add', [$actor]);
 
 
                     return $created_client;
@@ -141,8 +142,8 @@ class ClientsController extends Controller
         $client->save();
         //log this event
         $title = "Client Details Updated";                    
-        $description = "($old_name, $old_email) were modified to ($client->company_name, $client->company_email) by $actor->name";
-        $this->auditTrailEvent($title, $description, [$actor]);
+        $description = "<strong>($old_name, $old_email)</strong> were modified to <strong>($client->company_name, $client->company_email)</strong> by <strong>$actor->name</strong>";
+        $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
 
         return response()->json(compact('client'), 200);
     }
@@ -172,8 +173,9 @@ class ClientsController extends Controller
 
             // log this event
             $title = "Client Admin Registered";                    
-            $description = "$user->name was registered as an admin for $client->company_name by $actor->name";
-            $this->auditTrailEvent($title, $description, [$actor]);
+            $description = "<strong>$user->name</strong> was registered as an admin for <strong>$client->company_name</strong> by <strong>$actor->name</strong>";
+            $this->auditTrailEvent($title, $description, 'Client Management', 'add', [$actor]);
+            
                 
             return response()->json('success', 200);
         }
@@ -190,8 +192,8 @@ class ClientsController extends Controller
         $user->save();
 
         $title = "Client Admin Updated";
-        $description = "($old_name, $old_email) were modified to ($user->name, $user->email) by $actor->name";
-        $this->auditTrailEvent($title, $description, [$actor]);
+        $description = "<strong>($old_name, $old_email)</strong> were modified to <strong>($user->name, $user->email)</strong> by <strong>$actor->name</strong>";
+        $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
         // $client->users()->sync($user->id);
         // $role = Role::where('name', 'client')->first();
         // $user->roles()->sync($role->id); // role id 3 is client
@@ -199,10 +201,17 @@ class ClientsController extends Controller
     }
     public function makeClientUserMainAdmin(Request $request, Client $client)
     {
+        $actor = $this->getUser();
         if ($client) {
+            $user = User::find($request->user_id);
             $client->main_admin = $request->user_id;
             $client->save();
-            
+        
+            $title = "Client Admin Created";
+            //log this event
+            $description = "<strong>$user->name</strong> was made main admin for <strong>$client->company_name</strong> by <strong>($user->name)</client>";
+            $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
+
             return 'success';
         }
         return response()->json(['message' => 'Client does not exist'], 500);
@@ -215,7 +224,7 @@ class ClientsController extends Controller
             $title = "Client User Deletion";
             //log this event
             $description = "$user->name was deleted by $actor->name";
-            $this->auditTrailEvent($title, $description, [$actor]);
+            $this->auditTrailEvent($title, $description, 'Client Management', 'remove', [$actor]);
             $user->delete();
             return 'success';
         }
@@ -237,7 +246,7 @@ class ClientsController extends Controller
             $client->save();
             $title = "Client Status Changed";
             $description = "$client->company_name status was changed to $client->status by $actor->name";
-            $this->auditTrailEvent($title, $description, [$actor]);
+            $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
             return response()->json('success');
         }
         return response()->json(['message' => 'Client does not exist'], 500);

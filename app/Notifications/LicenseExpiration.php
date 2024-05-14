@@ -10,20 +10,25 @@ use Illuminate\Notifications\Notification;
 class LicenseExpiration extends Notification implements ShouldQueue
 {
     use Queueable;
-    public $title;
-    public $description;
-    public $status;
+    protected $title;
+    protected $description;
+    protected $status;
+    protected $type;
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $description, $status)
+    public function __construct($title, $description, $status, $type='License Expiration')
     {
         //
         $this->title = $title;
         $this->description = $description;
         $this->status = $status;
+        $this->type = $type;
     }
-
+    public function databaseType(object $notifiable): string
+    {
+        return $this->type;
+    }
     /**
      * Get the notification's delivery channels.
      *
@@ -31,7 +36,7 @@ class LicenseExpiration extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', /*'broadcast'*/];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**

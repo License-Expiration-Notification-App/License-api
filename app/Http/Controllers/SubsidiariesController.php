@@ -19,18 +19,16 @@ class SubsidiariesController extends Controller
     public function index(Request $request)
     {
         $user = $this->getUser();
-        $condition = [];
-        if ($user->hasRole('client')) {
-            $id = $this->getClient()->id;
-            $condition = ['client_id' => $id];
-        }
         $searchParams = $request->all();
         $subsidiaryQuery = Subsidiary::query();
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $keyword = Arr::get($searchParams, 'keyword', '');
         $status = Arr::get($searchParams, 'status', '');
         $client_id = Arr::get($searchParams, 'client_id', '');
-        if (!empty($client_id)) {
+        if ($user->hasRole('client')) {
+            $id = $this->getClient()->id;
+            $subsidiaryQuery->where('client_id',  $id);
+        }else if (!empty($client_id)) {
             $subsidiaryQuery->where('client_id',  $client_id);
         }
         if (!empty($keyword)) {
@@ -42,7 +40,7 @@ class SubsidiariesController extends Controller
             $subsidiaryQuery->where('status',  $status);
         }
 
-        $subsidiaries =  $subsidiaryQuery->with('client', 'licenses')->where($condition)->paginate($limit);
+        $subsidiaries =  $subsidiaryQuery->withCount('licenses')->paginate($limit);
         return response()->json(compact('subsidiaries'), 200);
     }
 
@@ -53,7 +51,7 @@ class SubsidiariesController extends Controller
     }
     public function show(Subsidiary $subsidiary)
     {
-        $subsidiary = $subsidiary->with('client', 'licenses')->find($subsidiary->id);
+        $subsidiary = $subsidiary/*->with('client', 'licenses')*/->find($subsidiary->id);
         return response()->json(compact('subsidiary'), 200);
     }
 
@@ -81,8 +79,8 @@ class SubsidiariesController extends Controller
                 $client = Client::find($client_id);
                 $title = "New Subsidiary Registered";
                 //log this event
-                $description = "$subsidiary->name was registered under $client->company_name by $actor->name";
-                $this->auditTrailEvent($title, $description, [$actor]);
+                $description = "<strong>$subsidiary->name</strong> was registered under $client->company_name by $actor->name";
+                $this->auditTrailEvent($title, $description, 'Subsidiary Management', 'add', [$actor]);
 
 
                 return response()->json(compact('subsidiary'), 200);
@@ -100,9 +98,14 @@ class SubsidiariesController extends Controller
      */
     public function update(Request $request, Subsidiary $subsidiary)
     {
-
+        $actor = $this->getUser();
+        $old_name = $subsidiary->name;
         $subsidiary->name = $request->name;
         $subsidiary->save();
+        $title = "Subsidiary Updated";
+                //log this event
+                $description = "$old_name was updated to under <strong>$subsidiary->name</strong> by $actor->name";
+                $this->auditTrailEvent($title, $description, 'Subsidiary Management', 'add', [$actor]);
 
         return $this->show($subsidiary);
     }

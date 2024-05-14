@@ -137,9 +137,8 @@ class LicensesController extends Controller
                 $subsidiary = Subsidiary::with('client')->find($request->subsidiary_id);
                 $title = "New License Added";
                 //log this event
-                $description = "New license was added for $subsidiary->name under " .$subsidiary->client->name . ". by $actor->name";
-                $this->auditTrailEvent($title, $description, [$actor]);
-
+                $description = "New license ($license->license_no) was added for <strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by <strong>$actor->name</strong>";
+                $this->auditTrailEvent($title, $description, 'License Management', 'add', [$actor]);
 
                 return $this->show($license);
                 // response()->json(compact('client'), 200);
@@ -149,6 +148,14 @@ class LicensesController extends Controller
         return response()->json(['message' => 'License Number already exists'], 401);
     }
 
+    public function licenseNotification(Request $request, License $license)
+    {
+        $user = $this->getUser();
+        $license_no = $license->license_no;
+        $notifications = $user->notifications()->where('data', 'LIKE', '%'.$license_no.'%')->orderBy('created_at', 'DESC')->paginate(50);
+        // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();
+        return response()->json(compact('license_notifications'), 200);
+    }
     /**
      * Display the specified resource.
      */
@@ -171,6 +178,7 @@ class LicensesController extends Controller
     public function update(Request $request, License $license)
     {
         //
+        $actor = $this->getUser();
         $license->client_id = $request->client_id;
         $license->subsidiary_id = $request->subsidiary_id; 
         $license->license_no = $request->license_no;
@@ -182,7 +190,10 @@ class LicensesController extends Controller
         $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
         $license->size_of_tenement = $request->size_of_tenement;
         $license->save();
-
+        $title = "License Updated";
+        //log this event
+        $description = "<strong>$actor->name</strong> updated ($license->license_no)";
+        $this->auditTrailEvent($title, $description, 'License Management', 'edit', [$actor]);
         return $this->show($license);
     }
     public function uploadCertificate(Request $request)
@@ -210,7 +221,12 @@ class LicensesController extends Controller
      */
     public function destroy(License $license)
     {
+        $actor = $this->getUser();
         //
+        $title = "License Deleted";
+        //log this event
+        $description = "<strong>$actor->name</strong> removed ($license->license_no)";
+        $this->auditTrailEvent($title, $description, 'License Management', 'remove', [$actor]);
         $license->delete();
         return response()->json([], 204);
     }
