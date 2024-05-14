@@ -8,7 +8,7 @@ use App\Models\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Arr;
 class UsersController extends Controller
 {
