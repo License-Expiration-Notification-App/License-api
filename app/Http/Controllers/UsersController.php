@@ -46,9 +46,25 @@ class UsersController extends Controller
     public function auditTrail(Request $request)
     {
         $user = $this->getUser();
-        $notifications = $user->notifications()->where('data', 'LIKE', '%Audit Trail%')->orderBy('created_at', 'DESC')->paginate(50);
+        $searchParams = $request->all();
+        $types = Arr::get($searchParams, 'types', []);
+        $min_date = Arr::get($searchParams, 'min_date', '');
+        $max_date = Arr::get($searchParams, 'max_date', '');
+        
+        $notificationQuery = $user->notifications()->where('data', 'LIKE', '%Audit Trail%');
 
-        $notifications->setCollection($notifications->groupBy(['created_at' =>function($item){
+        if (!empty($types)) {
+            $notificationQuery->whereIn('type', $types);
+        }
+        if (!empty($min_date)) {
+            $notificationQuery->where('created_at', '>=', $min_date);
+        }
+        if (!empty($max_date)) {
+            $notificationQuery->where('created_at', '<=', $max_date);
+        }
+        $notificationQuery->orderBy('created_at', 'DESC')->paginate(50);
+
+        $notifications = $notificationQuery->setCollection($notificationQuery->groupBy(['created_at' =>function($item){
             return Carbon::parse($item->created_at)->format('Y-m-d');
         }, 'type']));
         
