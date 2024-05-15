@@ -32,7 +32,8 @@ class ClientsController extends Controller
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $keyword = Arr::get($searchParams, 'search', '');
         $status = Arr::get($searchParams, 'status', '');
-        $date_created = Arr::get($searchParams, 'date_created', '');
+        $min_date = Arr::get($searchParams, 'min_date', '');
+        $max_date = Arr::get($searchParams, 'max_date', '');
         $sort_by = Arr::get($searchParams, 'sort_by', 'company_name');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
@@ -41,8 +42,14 @@ class ClientsController extends Controller
                 $q->orWhere('company_email', 'LIKE', '%' . $keyword . '%');
             });
         }
-        if (!empty($date_created)) {
-            $clientQuery->where('created_at',  'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
+        // if (!empty($date_created)) {
+        //     $clientQuery->where('created_at',  'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
+        // }
+        if (!empty($min_date)) {
+            $clientQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
+        }
+        if (!empty($max_date)) {
+            $clientQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
         }
         if (!empty($status)) {
             $clientQuery->where('status',  $status);
