@@ -230,7 +230,7 @@ class ClientsController extends Controller
             $user->clients()->sync([]);
             $title = "Client User Deletion";
             //log this event
-            $description = "$user->name was deleted by $actor->name";
+            $description = "<strong>$user->name</strong> was deleted by <strong>$actor->name</strong>";
             $this->auditTrailEvent($title, $description, 'Client Management', 'remove', [$actor]);
             $user->delete();
             return 'success';
@@ -252,7 +252,7 @@ class ClientsController extends Controller
             $client->status = $value;
             $client->save();
             $title = "Client Status Changed";
-            $description = "$client->company_name status was changed to $client->status by $actor->name";
+            $description = "<strong>$client->company_name</strong> status was changed to <strong>$client->status</strong> by <strong>$actor->name</strong>";
             $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
             return response()->json('success');
         }

@@ -204,7 +204,7 @@ class LicensesController extends Controller
         $license->save();
         $title = "License Updated";
         //log this event
-        $description = "<strong>$actor->name</strong> updated ($license->license_no)";
+        $description = "<strong>$actor->name</strong> updated <strong>($license->license_no)</strong>";
         $this->auditTrailEvent($title, $description, 'License Management', 'edit', [$actor]);
         return $this->show($license);
     }
@@ -237,7 +237,7 @@ class LicensesController extends Controller
         //
         $title = "License Deleted";
         //log this event
-        $description = "<strong>$actor->name</strong> removed ($license->license_no)";
+        $description = "<strong>$actor->name</strong> removed <strong>($license->license_no)</strong>";
         $this->auditTrailEvent($title, $description, 'License Management', 'remove', [$actor]);
         $license->delete();
         return response()->json([], 204);

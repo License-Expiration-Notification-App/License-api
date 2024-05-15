@@ -104,7 +104,7 @@ class SubsidiariesController extends Controller
         $subsidiary->save();
         $title = "Subsidiary Updated";
                 //log this event
-                $description = "<strong>$old_name</strong> was updated to under <strong>$subsidiary->name</strong> by $actor->name";
+                $description = "<strong>$old_name</strong> was updated to <strong>$subsidiary->name</strong> by <strong>$actor->name</strong>";
                 $this->auditTrailEvent($title, $description, 'Subsidiary Management', 'add', [$actor]);
 
         return $this->show($subsidiary);
