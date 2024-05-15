@@ -94,7 +94,8 @@ class ClientsController extends Controller
     {
         $request->validate([
             'company_name' => 'required|string',
-            'company_email' => 'required|string|unique:clients'
+            'company_email' => 'required|string|unique:clients',
+            'email' => 'required|string|unique:users',
         ]);
         $name = $request->company_name;
         $client = Client::where('company_name', $name)->first();
@@ -160,7 +161,7 @@ class ClientsController extends Controller
         $request->validate([
             'client_id' => 'required|string',
             'name' => 'required|string',
-            'email' => 'required|string',
+            'email' => 'required|string|unique:users',
         ]);
         $request['role'] = 'client';
         $client = Client::find($request->client_id);
