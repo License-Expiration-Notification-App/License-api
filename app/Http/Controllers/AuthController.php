@@ -6,14 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Resources\UserResource;
-use App\Jobs\SendQueuedPasswordResetEmailJob;
-use App\Models\TwoFactorAuthentication;
-use App\Jobs\SendQueued2FACode;
-
-use App\Mail\ConfirmNewRegistration;
 use App\Mail\ResetPassword;
-use App\Models\Client;
-use App\Models\Partner;
 use App\Models\PasswordResetToken;
 use App\Models\UserPassword;
 
