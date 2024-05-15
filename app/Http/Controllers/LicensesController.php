@@ -39,7 +39,10 @@ class LicensesController extends Controller
         $lga_id = Arr::get($searchParams, 'lga_id', '');
         $status = Arr::get($searchParams, 'status', '');
         $license_date = Arr::get($searchParams, 'license_date', '');
-        $date_created = Arr::get($searchParams, 'date_created', '');
+        $license_date = Arr::get($searchParams, 'expiry_date', '');
+        // $date_created = Arr::get($searchParams, 'date_created', '');
+        $min_date = Arr::get($searchParams, 'min_date', '');
+        $max_date = Arr::get($searchParams, 'max_date', '');
         $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
@@ -73,8 +76,17 @@ class LicensesController extends Controller
         if (!empty($license_date)) {
             $licenseQuery->where('licenses.license_date',  'LIKE', '%' . date('Y-m-d',strtotime($license_date)) . '%');
         }
-        if (!empty($date_created)) {
-            $licenseQuery->where('licenses.created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
+        if (!empty($expiry_date)) {
+            $licenseQuery->where('licenses.expiry_date',  'LIKE', '%' . date('Y-m-d',strtotime($expiry_date)) . '%');
+        }
+        // if (!empty($date_created)) {
+        //     $licenseQuery->where('licenses.created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
+        // }
+        if (!empty($min_date)) {
+            $licenseQuery->where('licenses.created_at', '>=', date('Y-m-d',strtotime($min_date)));
+        }
+        if (!empty($max_date)) {
+            $licenseQuery->where('licenses.created_at', '<=', date('Y-m-d',strtotime($max_date)));
         }
         if ($sort_by == '') {
             $sort_by = 'license_no';

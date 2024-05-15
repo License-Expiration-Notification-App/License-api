@@ -57,10 +57,10 @@ class UsersController extends Controller
             $notificationQuery->whereIn('type', $types);
         }
         if (!empty($min_date)) {
-            $notificationQuery->where('created_at', '>=', $min_date);
+            $notificationQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
         }
         if (!empty($max_date)) {
-            $notificationQuery->where('created_at', '<=', $max_date);
+            $notificationQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
         }
         $notificationQuery->orderBy('created_at', 'DESC')->paginate(50);
 
