@@ -221,7 +221,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         if ($user) {
             $token = randomNumber();
-            PasswordResetToken::firstOrCreate(
+            PasswordResetToken::updateOrInsert(
                 ['email' => $user->email, 'token' => hash('sha512', $token)]
             );
 
