@@ -24,6 +24,7 @@ class UserResource extends JsonResource
     {
         // $modules = [];
         $main_admin = false;
+        $client_id = '';
         if ($this->role === 'client') {
             $client_user = DB::table('client_user')->where('user_id', $this->id)->first();
             $client_id = $client_user->client_id;
@@ -41,6 +42,7 @@ class UserResource extends JsonResource
             'password_status' => $this->password_status,
             'notifications' => [],
             'role' => $this->role,
+            'client_id' => $client_id,
             // 'activity_logs' => $this->notifications()->orderBy('created_at', 'DESC')->get(),
             // 'roles' => array_map(
             //     function ($role) {
