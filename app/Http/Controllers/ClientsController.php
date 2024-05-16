@@ -71,6 +71,10 @@ class ClientsController extends Controller
     }
     public function show(Client $client)
     {
+        $user = $this->getUser();
+        if ($user->hasRole('client')) {
+            $client = $this->getClient();
+        }
         // $client = $client->with('users','subsidiaries', 'licenses')->find($client->id);
         $client = $client->with('users')->find($client->id);
         $users = $client->users;
