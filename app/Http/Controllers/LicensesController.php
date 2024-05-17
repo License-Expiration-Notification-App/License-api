@@ -84,10 +84,12 @@ class LicensesController extends Controller
         //     $licenseQuery->where('licenses.created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         // }
         if (!empty($min_date)) {
-            $licenseQuery->where('licenses.created_at', '>=', date('Y-m-d',strtotime($min_date)));
+            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
+            $licenseQuery->where('licenses.created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $licenseQuery->where('licenses.created_at', '<=', date('Y-m-d',strtotime($max_date)));
+            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
+            $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }
         if ($sort_by == '') {
             $sort_by = 'license_no';
@@ -177,11 +179,14 @@ class LicensesController extends Controller
             $licenseActivityQuery->where('status', $status);
         }
         if (!empty($min_date)) {
-            $licenseActivityQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
+            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
+            $licenseActivityQuery->where('created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $licenseActivityQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
+            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
+            $licenseActivityQuery->where('created_at', '<=', $max_date);
         }
+        
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
        ->where('status', '!=', 'Pending')->paginate(10);
         return response()->json(compact('activity_timeline'), 200);

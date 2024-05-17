@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Arr;
 class UsersController extends Controller
 {
+    
     public function index(Request $request)
     {
         $searchParams = $request->all();
@@ -34,10 +35,12 @@ class UsersController extends Controller
         //     $userQuery->where('created_at',  'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         // }
         if (!empty($min_date)) {
-            $userQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
+            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
+            $userQuery->where('created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $userQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
+            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
+            $userQuery->where('created_at', '<=', $max_date);
         }
         if (!empty($status)) {
             $userQuery->where('status',  $status);
@@ -66,10 +69,12 @@ class UsersController extends Controller
             $notificationQuery->whereIn('type', $types_array);
         }
         if (!empty($min_date)) {
-            $notificationQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
+            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
+            $notificationQuery->where('created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $notificationQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
+            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
+            $notificationQuery->where('created_at', '<=', $max_date);
         }
         $notifications = $notificationQuery->orderBy('created_at', 'DESC')->paginate(50);
 
@@ -93,10 +98,12 @@ class UsersController extends Controller
             $notificationQuery->where('data', 'LIKE', '%'.$info_type.'%');
         }
         if (!empty($min_date)) {
-            $notificationQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
+            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
+            $notificationQuery->where('created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $notificationQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
+            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
+            $notificationQuery->where('created_at', '<=', $max_date);
         }
         $notifications = $notificationQuery->orderBy('created_at', 'DESC')->select('data as content')->paginate(10);
         // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();

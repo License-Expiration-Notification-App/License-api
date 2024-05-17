@@ -46,10 +46,12 @@ class ClientsController extends Controller
         //     $clientQuery->where('created_at',  'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         // }
         if (!empty($min_date)) {
-            $clientQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
+            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
+            $clientQuery->where('created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $clientQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
+            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
+            $clientQuery->where('created_at', '<=', $max_date);
         }
         if (!empty($status)) {
             $clientQuery->where('status',  $status);
