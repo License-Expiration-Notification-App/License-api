@@ -62,7 +62,7 @@ class LicenseExpiration extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'tag' => 'License Expiration Notice',
+            'tag' => 'License Renewal',
             'status' => $this->status,
             'title' => $this->title,
             'description' => $this->description,

@@ -80,6 +80,28 @@ class UsersController extends Controller
         $unread_notifications = $user->unreadNotifications()->count();
         return response()->json(compact('notifications', 'unread_notifications'), 200);
     }
+    public function licenseNotifications(Request $request)
+    {
+        $searchParams = $request->all();
+        $info_type = Arr::get($searchParams, 'info_type', '');
+        $min_date = Arr::get($searchParams, 'min_date', '');
+        $max_date = Arr::get($searchParams, 'max_date', '');
+        $user = $this->getUser();
+        $notificationQuery = $user->notifications()->where('data', 'NOT LIKE', '%Audit Trail%');
+        
+        if (!empty($info_type)) {
+            $notificationQuery->where('data', 'LIKE', '%'.$info_type.'%');
+        }
+        if (!empty($min_date)) {
+            $notificationQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
+        }
+        if (!empty($max_date)) {
+            $notificationQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
+        }
+        $notifications = $notificationQuery->orderBy('created_at', 'DESC')->select('data as content')->paginate(10);
+        // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();
+        return response()->json(compact('notifications'), 200);
+    }
     public function markNotificationAsRead(Request $request)
     {
         $user = $this->getUser();

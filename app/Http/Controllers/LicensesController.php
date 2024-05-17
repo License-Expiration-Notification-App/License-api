@@ -161,14 +161,7 @@ class LicensesController extends Controller
         return response()->json(['message' => 'License Number already exists'], 401);
     }
 
-    public function licenseNotification(Request $request, License $license)
-    {
-        $user = $this->getUser();
-        $license_no = $license->license_no;
-        $notifications = $user->notifications()->where('data', 'LIKE', '%'.$license_no.'%')->orderBy('created_at', 'DESC')->paginate(50);
-        // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();
-        return response()->json(compact('license_notifications'), 200);
-    }
+    
     public function licenseActivityTimeLine(Request $request, License $license)
     {
         $searchParams = $request->all();
