@@ -46,7 +46,7 @@ class SubsidiariesController extends Controller
 
     public function fetchClientSubsidiaries(Request $request)
     {
-        $subsidiaries = Subsidiary::where('client_id', $request->client_id)->get();
+        $subsidiaries = Subsidiary::withCount('licenses')->where('client_id', $request->client_id)->paginate(10);
         return response()->json(compact('subsidiaries'), 200);
     }
     public function show(Subsidiary $subsidiary)
