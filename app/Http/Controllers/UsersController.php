@@ -63,7 +63,7 @@ class UsersController extends Controller
 
         if (!empty($types)) {
             $types_array = explode(',', $types);
-            $notificationQuery->whereIn('type', $types);
+            $notificationQuery->whereIn('type', $types_array);
         }
         if (!empty($min_date)) {
             $notificationQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
