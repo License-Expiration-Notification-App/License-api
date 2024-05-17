@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\License;
+use App\Models\LicenseActivity;
 use App\Models\LicenseType;
 use App\Models\Mineral;
 use App\Models\Subsidiary;
@@ -167,6 +168,36 @@ class LicensesController extends Controller
         $notifications = $user->notifications()->where('data', 'LIKE', '%'.$license_no.'%')->orderBy('created_at', 'DESC')->paginate(50);
         // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();
         return response()->json(compact('license_notifications'), 200);
+    }
+    public function licenseActivityTimeLine(Request $request, License $license)
+    {
+        $searchParams = $request->all();
+        $licenseActivityQuery = LicenseActivity::query();
+        $submission_type = Arr::get($searchParams, 'submission_type', '');
+        $status = Arr::get($searchParams, 'status', '');
+        $min_date = Arr::get($searchParams, 'min_date', '');
+        $max_date = Arr::get($searchParams, 'max_date', '');
+        if (!empty($submission_type)) {
+            $licenseActivityQuery->where('title', $submission_type);
+        }
+        if (!empty($status)) {
+            $licenseActivityQuery->where('status', $status);
+        }
+        if (!empty($min_date)) {
+            $licenseActivityQuery->where('created_at', '>=', date('Y-m-d',strtotime($min_date)));
+        }
+        if (!empty($max_date)) {
+            $licenseActivityQuery->where('created_at', '<=', date('Y-m-d',strtotime($max_date)));
+        }
+       $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
+       ->where('status', '!=', 'Pending')->paginate(10);
+        return response()->json(compact('activity_timeline'), 200);
+    }
+    public function licenseUpcomingActivities(Request $request, License $license)
+    {
+        $upcoming_activities = LicenseActivity::where('license_id', $license->id)
+        ->where('status', 'Pending')->paginate(10);
+        return response()->json(compact('upcoming_activities'), 200);
     }
     /**
      * Display the specified resource.

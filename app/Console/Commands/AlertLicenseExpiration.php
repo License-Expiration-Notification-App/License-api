@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\License;
+use App\Models\LicenseActivity;
 use App\Models\User;
 use App\Notifications\LicenseExpiration;
 use Illuminate\Console\Command;
@@ -44,7 +45,8 @@ class AlertLicenseExpiration extends Command
         ->chunk(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',one month,';
-                $license->save();
+                $license->save();                
+                $this->logLicenseActivity($license);
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->name;
@@ -66,6 +68,7 @@ class AlertLicenseExpiration extends Command
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',two weeks,';
                 $license->save();                
+                $this->logLicenseActivity($license);
                 $users = $license->client->users;
                 
                 $subsidiary = $license->subsidiary->name;
@@ -88,6 +91,7 @@ class AlertLicenseExpiration extends Command
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',three days,';
                 $license->save();
+                $this->logLicenseActivity($license);
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->name;
@@ -119,6 +123,18 @@ class AlertLicenseExpiration extends Command
                 $this->licenseExpiration($title, $action, $status, $users);
             }
         });
+    }
+    private function logLicenseActivity($license) {
+        LicenseActivity::updateOrInsert(
+            [
+                'license_id' => $license->id, 
+                'title' => 'License Renewal',
+                'status' => 'Pending'
+            ], 
+            [
+            'due_date', $license->expiry_date
+            ]
+        );
     }
     /**
      * Execute the console command.

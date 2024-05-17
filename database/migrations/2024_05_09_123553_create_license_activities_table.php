@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignUuid('license_id')->constrained();
             $table->string('title');
             $table->string('description');
+            $table->string('status')->default('Pending');
+            $table->date('due_date')->nullable();
             $table->foreignUuid('action_by')->references('id')->on('users')
             ->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();

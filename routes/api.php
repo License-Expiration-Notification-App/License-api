@@ -71,6 +71,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/', [LicensesController::class, 'index']);
         Route::get('show/{license}', [LicensesController::class, 'show']);
         Route::get('fetch-license-notification/{license}', [LicensesController::class, 'licenseNotification']);
+        Route::get('fetch-license-activity-timeline/{license}', [LicensesController::class, 'licenseActivityTimeLine']);
+        Route::get('fetch-license-upcoming-activites/{license}', [LicensesController::class, 'licenseUpcomingActivities']);
         
         Route::post('store', [LicensesController::class, 'store']);
         Route::put('update/{license}', [LicensesController::class, 'update']);

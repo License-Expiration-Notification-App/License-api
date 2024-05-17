@@ -55,13 +55,14 @@ class UsersController extends Controller
     {
         $user = $this->getUser();
         $searchParams = $request->all();
-        $types = Arr::get($searchParams, 'types', []);
+        $types = Arr::get($searchParams, 'types', '');
         $min_date = Arr::get($searchParams, 'min_date', '');
         $max_date = Arr::get($searchParams, 'max_date', '');
         
         $notificationQuery = $user->notifications()->where('data', 'LIKE', '%Audit Trail%');
 
         if (!empty($types)) {
+            $types_array = explode(',', $types);
             $notificationQuery->whereIn('type', $types);
         }
         if (!empty($min_date)) {
