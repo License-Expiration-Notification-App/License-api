@@ -24,7 +24,7 @@ class ReportsController extends Controller
         $today = date('Y-m-d', strtotime('now'));
         $client_id = '9bf54f1b-ddbb-4641-a21a-058e667acf0d'; //$this->getClient()->client_id; //'9bf54f1b-ddbb-4641-a21a-058e667acf0d';
         $total_subsidiaries = Subsidiary::where('client_id', $client_id)->count();
-        
+
         $total_licenses = License::where('client_id', $client_id)->count();
         
         $license_analysis = License::join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
@@ -70,7 +70,7 @@ class ReportsController extends Controller
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->where('license_activities.client_id', $client_id)
         ->where('license_activities.status', 'Pending')
-        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
+        ->select('license_activities.*', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
         ->groupBy('license_activities.due_date')
         ->get();
         
