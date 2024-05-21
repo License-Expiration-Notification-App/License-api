@@ -79,6 +79,10 @@ class ReportsController extends Controller
 
     public function adminDataAnalysisDashbord(Request $request)
     {
+        $user = $this->getUser();
+        // if($user->role != 'staff') {
+        //     return response()->json(['message' => 'You are not a super admin'], 403);
+        // }
         $today = date('Y-m-d', strtotime('now'));
         $total_clients = Client::count();
 

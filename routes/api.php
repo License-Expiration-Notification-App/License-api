@@ -70,6 +70,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
     Route::group(['prefix' => 'dashboard'], function () {
         Route::get('client', [ReportsController::class, 'clientDataAnalysisDashbord']);
+        Route::get('super-admin', [ReportsController::class, 'adminDataAnalysisDashbord']);
+        
     });
     Route::group(['prefix' => 'licenses'], function () {
         Route::get('/', [LicensesController::class, 'index']);
