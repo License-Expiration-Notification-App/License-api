@@ -183,12 +183,12 @@ class LicensesController extends Controller
             $licenseActivityQuery->where('status', $status);
         }
         if (!empty($min_date)) {
-            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
-            $licenseActivityQuery->where('created_at', '>=', $min_date);
+            $min_date = date('Y-m-d',strtotime($min_date));//.' 00.00.00';
+            $licenseActivityQuery->where('due_date', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
-            $licenseActivityQuery->where('created_at', '<=', $max_date);
+            $max_date = date('Y-m-d',strtotime($max_date));//.' 23:59:59';
+            $licenseActivityQuery->where('due_date', '<=', $max_date);
         }
         
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
