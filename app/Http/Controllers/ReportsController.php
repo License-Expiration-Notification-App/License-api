@@ -28,7 +28,8 @@ class ReportsController extends Controller
         
         $pending_activities = LicenseActivity::where('client_id', $client_id)
         ->where('status', 'Pending')
-        ->get()->groupBy('title');
+        ->select('title',\DB::raw('COUNT(*) as total'))->groupBy('title')
+        ->get();
         
         return response()->json(compact('total_subsidiaries', 'total_licenses', 'pending_activities'), 200);
     }
