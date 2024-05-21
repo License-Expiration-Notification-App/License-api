@@ -22,16 +22,23 @@ class ReportsController extends Controller
     public function clientDataAnalysisDashbord(Request $request)
     {
         // $year = date('Y', strtotime('now'));
-        $client_id = '9bf54f1b-ddbb-4641-a21a-058e667acf0d'; // $this->getClient()->client_id;
+        $client_id = $this->getClient()->client_id; //'9bf54f1b-ddbb-4641-a21a-058e667acf0d';
         $total_subsidiaries = Subsidiary::where('client_id', $client_id)->count();
         $total_licenses = License::where('client_id', $client_id)->count();
         
+        $license_analysis = License::join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
+        ->where('licenses.client_id', $client_id)
+        ->select('license_types.slug as type',\DB::raw('COUNT(*) as total'))->groupBy('license_types.slug')
+        ->get();
         $pending_activities = LicenseActivity::where('client_id', $client_id)
         ->where('status', 'Pending')
         ->select('title',\DB::raw('COUNT(*) as total'))->groupBy('title')
         ->get();
+        $total_pending_activities = LicenseActivity::where('client_id', $client_id)
+        ->where('status', 'Pending')
+        ->count();
         
-        return response()->json(compact('total_subsidiaries', 'total_licenses', 'pending_activities'), 200);
+        return response()->json(compact('total_subsidiaries', 'total_licenses', 'pending_activities', 'total_pending_activities', 'license_analysis'), 200);
     }
 
     public function adminDataAnalysisDashbord(Request $request)
