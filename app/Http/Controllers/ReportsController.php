@@ -22,7 +22,7 @@ class ReportsController extends Controller
     public function clientDataAnalysisDashbord(Request $request)
     {
         // $year = date('Y', strtotime('now'));
-        $client_id = $this->getClient()->client_id; //'9bf54f1b-ddbb-4641-a21a-058e667acf0d';
+        $client_id = '9bf54f1b-ddbb-4641-a21a-058e667acf0d'; //$this->getClient()->client_id; //'9bf54f1b-ddbb-4641-a21a-058e667acf0d';
         $total_subsidiaries = Subsidiary::where('client_id', $client_id)->count();
         $total_licenses = License::where('client_id', $client_id)->count();
         
