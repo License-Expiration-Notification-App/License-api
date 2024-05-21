@@ -76,6 +76,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('store', [LicensesController::class, 'store']);
         Route::put('update/{license}', [LicensesController::class, 'update']);
         Route::post('upload-certificate', [LicensesController::class, 'uploadCertificate']);
+        Route::post('upload-report', [LicensesController::class, 'uploadReport']);
         Route::delete('destroy/{license}', [LicensesController::class, 'destroy']);
 
         

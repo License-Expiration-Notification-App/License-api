@@ -13,12 +13,8 @@ return new class extends Migration
     {
         Schema::create('renewals', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('client_id')->constrained();
-            $table->foreignUuid('subsidiary_id')->constrained();
             $table->foreignUuid('license_id')->constrained();
-            // $table->integer('client_id');
-            // $table->integer('subsidiary_id');
-            // $table->integer('license_id');
+            $table->date('expiry_date')->nullable();
             $table->string('link')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -141,10 +141,10 @@ class UsersController extends Controller
 
                 Storage::disk('public')->delete(str_replace('storage/', '', $user->photo_path));
             }
-
-            $name = 'photo_'.$user_id.'_'.$request->file('photo')->hashName();
-            // $file_name = $name . "." . $request->file('file_uploaded')->extension();
-            $link = $request->file('photo')->storeAs('photo', $name, 'public');
+            $name = 'photo_'.$user_id.'_'.$request->file('photo')->getClientOriginalName();
+            // $name = 'photo_'.$user_id.'_'.$request->file('photo')->hashName();
+            $file_name = $name . "." . $request->file('photo')->extension();
+            $link = $request->file('photo')->storeAs('photo', $file_name, 'public');
 
             $user->photo_path = 'storage/'.$link;
             $user->photo = env('APP_URL').'/'.$user->photo_path;

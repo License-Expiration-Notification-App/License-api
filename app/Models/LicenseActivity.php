@@ -14,5 +14,7 @@ class LicenseActivity extends Model
         'description',
         'status',
         'due_date',
+        'color_code',
+        'uuid',
     ];
 }

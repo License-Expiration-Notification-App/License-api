@@ -42,7 +42,7 @@ class AlertLicenseExpiration extends Command
         License::with('client.users', 'subsidiary')
         ->where('one_month_before_expiration', $today)
         ->where('expiry_alert_sent', 'NOT LIKE', '%one month%')
-        ->chunk(200, function ($licenses) {
+        ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',one month,';
                 $license->save();                
@@ -64,7 +64,7 @@ class AlertLicenseExpiration extends Command
         License::with('client.users','subsidiary')
         ->where('two_weeks_before_expiration', $today)
         ->where('expiry_alert_sent', 'NOT LIKE', '%two weeks%')
-        ->chunk(200, function ($licenses) {
+        ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',two weeks,';
                 $license->save();                
@@ -87,7 +87,7 @@ class AlertLicenseExpiration extends Command
         License::with('client.users','subsidiary')
         ->where('three_days_before_expiration', $today)
         ->where('expiry_alert_sent', 'NOT LIKE', '%three days%')
-        ->chunk(200, function ($licenses) {
+        ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',three days,';
                 $license->save();
@@ -109,7 +109,7 @@ class AlertLicenseExpiration extends Command
         License::with('client.users','subsidiary')
         ->where('expiry_date', '<=', $today)
         ->where('expiry_alert_sent', 'NOT LIKE', '%expired%')
-        ->chunk(200, function ($licenses) {
+        ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',expired,';
                 $license->save();
@@ -128,11 +128,12 @@ class AlertLicenseExpiration extends Command
         LicenseActivity::updateOrInsert(
             [
                 'license_id' => $license->id, 
-                'title' => 'License Renewal',
-                'status' => 'Pending'
+                'title' => '<strong>License Renewal</strong>',
+                'due_date', $license->expiry_date
             ], 
             [
-            'due_date', $license->expiry_date
+            
+                'status' => 'Pending', 'color_code' => '#98A2B3'
             ]
         );
     }

@@ -7,6 +7,9 @@ use App\Models\License;
 use App\Models\LicenseActivity;
 use App\Models\LicenseType;
 use App\Models\Mineral;
+use App\Models\Renewal;
+use App\Models\Report;
+use App\Models\ReportUpload;
 use App\Models\Subsidiary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -151,6 +154,7 @@ class LicensesController extends Controller
             if ($license->save()) {
                 $subsidiary = Subsidiary::with('client')->find($request->subsidiary_id);
                 $title = "New License Added";
+
                 //log this event
                 $description = "New license ($license->license_no) was added for <strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by <strong>$actor->name</strong>";
                 $this->auditTrailEvent($title, $description, 'License Management', 'add', [$actor]);
@@ -173,7 +177,7 @@ class LicensesController extends Controller
         $min_date = Arr::get($searchParams, 'min_date', '');
         $max_date = Arr::get($searchParams, 'max_date', '');
         if (!empty($submission_type)) {
-            $licenseActivityQuery->where('title', $submission_type);
+            $licenseActivityQuery->where('title', 'LIKE', '%'. $submission_type.'%');
         }
         if (!empty($status)) {
             $licenseActivityQuery->where('status', $status);
@@ -237,25 +241,7 @@ class LicensesController extends Controller
         $this->auditTrailEvent($title, $description, 'License Management', 'edit', [$actor]);
         return $this->show($license);
     }
-    public function uploadCertificate(Request $request)
-    {
-        $license_id = $request->license_id;
-        $license = License::find($license_id);
-        if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
-            // remove previous upload
-            if($license->certificate_link != NULL) {
-
-                Storage::disk('public')->delete(str_replace(env('APP_URL').'/storage/', '', $license->certificate_link));
-            }
-            // upload new
-            $name = 'cert_'.time().'_'.$request->file('certificate')->hashName();
-            $link = $request->file('certificate')->storeAs('certificate', $name, 'public');
-
-            $license->certificate_link = env('APP_URL').'/storage/'.$link;
-            $license->save();
-        }
-        return $this->show($license);
-    }
+    
 
     /**
      * Remove the specified resource from storage.
@@ -304,5 +290,96 @@ class LicensesController extends Controller
     {
         $mineral->delete();
         return response()->json([], 204);
+    }
+    public function uploadCertificate(Request $request)
+    {
+        $license_id = $request->license_id;
+        $is_renewal = $request->is_renewal; // true or false
+        $expiry_date = NULL;
+        if(isset($request->expiry_date)) {
+            
+            $expiry_date = date('Y-m-d', strtotime($request->expiry_date));
+        }
+        $license = License::find($license_id);
+
+        if($request->hasFile('certificate_file')){
+            
+            $files = $request->file('certificate_file');
+            foreach ($files as $file) {
+                $name = $file->getClientOriginalName().'_'.time();
+                $file_name = $name . "." . $file->extension();
+                // $name = 'cert_'.time().'_'.$request->file('certificate')->hashName();
+                $link = $file->storeAs('certificate', $file_name, 'public');
+
+                $renewal = new Renewal();
+                $renewal->license_id  = $license_id;
+                $renewal->link = env('APP_URL').'/storage/'.$link;
+                $renewal->expiry_date = $expiry_date;
+                $renewal->save();
+            }
+        }        
+
+        if($is_renewal == true) {
+            $actor = $this->getUser();
+            $license->expiry_date = $expiry_date;
+            $license->save();
+            // then since we are renewing, we need to log the activity
+            LicenseActivity::updateOrInsert(
+                [
+                    'license_id' => $license_id, 
+                    'title' => '<strong>License Renewal</strong>',
+                    'status' => 'Pending',
+                ],
+                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#98A2B3']
+            );
+        }
+        // if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
+        //     // remove previous upload
+        //     // if($license->certificate_link != NULL) {
+
+        //     //     Storage::disk('public')->delete(str_replace(env('APP_URL').'/storage/', '', $license->certificate_link));
+        //     // }
+        //     // upload new
+        // }
+        // return $this->show($license);
+    }
+
+    public function uploadReport(Request $request)
+    {
+        $actor = $this->getUser();
+        $report_id = $request->uuid;
+        if($report_id != NULL) {
+            $entry_date = date('Y-m-d', strtotime('now'));
+            $report = Report::find($report_id);
+
+            $report->entry_date = $entry_date;
+            $report->status = 'Submitted';
+            $report->submitted_by = $actor->id;            
+            $report->save();
+            if($request->hasFile('report_file')){
+                
+                $files = $request->file('report_file');
+                foreach ($files as $file) {
+                    $name = $file->getClientOriginalName().'_'.time();
+                    $file_name = $name . "." . $file->extension();
+                    // $name = 'cert_'.time().'_'.$request->file('report_file')->hashName();
+                    $link = $file->storeAs('report', $file_name, 'public');
+
+                    $upload = new ReportUpload();
+                    $upload->report_id  = $report_id;
+                    $upload->link = env('APP_URL').'/storage/'.$link;
+                    $upload->save();
+                }
+            }
+
+            // log the activity
+            LicenseActivity::updateOrInsert(
+                [
+                    'uuid' => $report->id, 
+                    'title' => 'strong>'.$report->report_type.' Report</strong>',
+                ],
+                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#98A2B3']
+            );
+        }
     }
 }

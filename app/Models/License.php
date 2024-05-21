@@ -15,6 +15,14 @@ class License extends Model
         'three_days_before_expiration',
         'expiry_alert_sent'
     ];
+    public function certificates()
+    {
+        return $this->hasMany(Renewal::class, 'license_id', 'id');
+    }
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'license_id', 'id');
+    }
     public function client()
     {
         return $this->belongsTo(Client::class);

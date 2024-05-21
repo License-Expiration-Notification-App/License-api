@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class Report extends Model
 {
     use HasUuids, HasFactory, SoftDeletes;
+    protected $fillable = ['client_id','subsidiary_id','license_id','report_type','due_date'];
     public function client()
     {
         return $this->belongsTo(Client::class);
@@ -16,6 +17,10 @@ class Report extends Model
     public function subsidiary()
     {
         return $this->belongsTo(Subsidiary::class);
+    }
+    public function license()
+    {
+        return $this->belongsTo(License::class);
     }
     public function uploads()
     {
