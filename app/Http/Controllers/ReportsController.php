@@ -24,19 +24,23 @@ class ReportsController extends Controller
         $today = date('Y-m-d', strtotime('now'));
         $client_id = '9bf54f1b-ddbb-4641-a21a-058e667acf0d'; //$this->getClient()->client_id; //'9bf54f1b-ddbb-4641-a21a-058e667acf0d';
         $total_subsidiaries = Subsidiary::where('client_id', $client_id)->count();
+        
         $total_licenses = License::where('client_id', $client_id)->count();
         
         $license_analysis = License::join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->where('licenses.client_id', $client_id)
-        ->select('license_types.name as type',\DB::raw('COUNT(*) as total'))->groupBy('license_types.slug')
+        ->select('license_types.name as type',\DB::raw('COUNT(*) as total'))->groupBy('license_types.name')
         ->get();
+
         $pending_activities = LicenseActivity::where('client_id', $client_id)
         ->where('status', 'Pending')
         ->select('title',\DB::raw('COUNT(*) as total'))->groupBy('title')
         ->get();
+
         $total_pending_activities = LicenseActivity::where('client_id', $client_id)
         ->where('status', 'Pending')
         ->count();
+
         $due_license_renewals = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('clients', 'license_activities.client_id', '=', 'clients.id')
