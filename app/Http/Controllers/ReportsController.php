@@ -26,11 +26,9 @@ class ReportsController extends Controller
         $total_subsidiaries = Subsidiary::where('client_id', $client_id)->count();
         $total_licenses = License::where('client_id', $client_id)->count();
         
-        $pending_activities = LicenseActivity::groupBy('title')
-        ->where('client_id', $client_id)
-        ->where('status', 'Pending')
-        ->select(\DB::raw('COUNT(*) as total'))
-        ->get();
+        $pending_activities = LicenseActivity::where('client_id', $client_id)
+        ->where('status', 'Pending')        
+        ->get()->groupBy('title')->select(\DB::raw('COUNT(*) as total'));
         
         return response()->json(compact('total_subsidiaries', 'total_licenses', 'pending_activities'), 200);
     }
