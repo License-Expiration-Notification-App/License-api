@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Answer;
 use App\Models\Client;
+use App\Models\License;
+use App\Models\LicenseActivity;
+use App\Models\Subsidiary;
 use App\Models\Upload;
 use App\Models\Exception;
 use App\Models\Project;
@@ -17,6 +20,19 @@ class ReportsController extends Controller
 {
     
     public function clientDataAnalysisDashbord(Request $request)
+    {
+        // $year = date('Y', strtotime('now'));
+        $client_id = '9bf54f1b-ddbb-4641-a21a-058e667acf0d'; // $this->getClient()->client_id;
+        $total_subsidiaries = Subsidiary::where('client_id', $client_id)->count();
+        $total_licenses = License::where('client_id', $client_id)->count();
+        
+        $pending_activities = LicenseActivity::where('client_id', $client_id)
+        ->where('status', 'Pending')->groupBy('title')->count();
+        
+        return response()->json(compact('total_subsidiaries', 'total_licenses', 'pending_activities'), 200);
+    }
+
+    public function adminDataAnalysisDashbord(Request $request)
     {
         // $year = date('Y', strtotime('now'));
         $client = $this->getClient();

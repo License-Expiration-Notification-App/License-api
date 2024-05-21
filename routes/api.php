@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\LicensesController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SubsidiariesController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
@@ -67,6 +68,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::put('change-client-status/{client}', [ClientsController::class, 'toggleClientStatus']);
         Route::post('upload-client-logo', [ClientsController::class, 'uploadClientLogo']);
     });
+    Route::group(['prefix' => 'dashboard'], function () {
+        Route::get('client', [ReportsController::class, 'clientDataAnalysisDashbord']);
+    });
     Route::group(['prefix' => 'licenses'], function () {
         Route::get('/', [LicensesController::class, 'index']);
         Route::get('show/{license}', [LicensesController::class, 'show']);
@@ -107,4 +111,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         
         Route::get('fetch-notifications', [UsersController::class, 'licenseNotifications']);
     });
+    
+
+    
 });

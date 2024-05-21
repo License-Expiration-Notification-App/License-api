@@ -54,6 +54,7 @@ class CreateReportActivityLogs extends Command
     private function logLicenseActivity($report, $title, $desc, $date) {
         LicenseActivity::updateOrInsert(
             [
+                'client_id' => $report->client_id,
                 'uuid' => $report->id,
                 'license_id' => $report->license_id, 
                 'title' => $title,
