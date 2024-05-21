@@ -72,7 +72,7 @@ class ReportsController extends Controller
         ->where('license_activities.status', 'Pending')
         ->select('license_activities.*', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
         ->get()
-        ->groupBy('license_activities.due_date');
+        ->groupBy('due_date');
         
         return response()->json(compact('total_subsidiaries', 'total_licenses', 'pending_activities', 'total_pending_activities', 'license_analysis', 'due_license_renewals', 'due_reports', 'activity_schedules'), 200);
     }
