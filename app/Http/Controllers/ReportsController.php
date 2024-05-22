@@ -44,33 +44,36 @@ class ReportsController extends Controller
         $due_license_renewals = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('clients', 'license_activities.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->where('license_activities.client_id', $client_id)
         ->where('title', 'LIKE', '%License Renewal%')
         ->where('license_activities.status', 'Pending')
         ->where('license_activities.due_date', '<=', $today)
-        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
+        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary')
         ->get();
 
         $due_reports = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('clients', 'license_activities.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->where('license_activities.client_id', $client_id)
         ->where('title', 'LIKE', '%Report%')
         ->where('license_activities.status', 'Pending')
         ->where('license_activities.due_date', '<=', $today)
-        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
+        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary')
         ->get();
 
         
         $activity_schedules = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('clients', 'license_activities.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->where('license_activities.client_id', $client_id)
         ->where('license_activities.status', 'Pending')
-        ->select('license_activities.*', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
+        ->select('license_activities.*', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary')
         ->get()
         ->groupBy('due_date');
         
@@ -102,30 +105,33 @@ class ReportsController extends Controller
         $due_license_renewals = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('clients', 'license_activities.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->where('title', 'LIKE', '%License Renewal%')
         ->where('license_activities.status', 'Pending')
         ->where('license_activities.due_date', '<=', $today)
-        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
+        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary')
         ->get();
 
         $due_reports = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('clients', 'license_activities.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->where('title', 'LIKE', '%Report%')
         ->where('license_activities.status', 'Pending')
         ->where('license_activities.due_date', '<=', $today)
-        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
+        ->select('license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary')
         ->get();
 
         
         $activity_schedules = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
         ->join('clients', 'license_activities.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->where('license_activities.status', 'Pending')
-        ->select('license_activities.*', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral')
+        ->select('license_activities.*', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary')
         ->get()
         ->groupBy('due_date');
         
