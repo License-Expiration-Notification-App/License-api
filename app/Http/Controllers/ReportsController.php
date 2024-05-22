@@ -21,6 +21,10 @@ class ReportsController extends Controller
     
     public function clientDataAnalysisDashbord(Request $request)
     {
+        $user = $this->getUser();
+        if($user->role != 'client') {
+            return response()->json(['message' => 'You are not logged in as a client'], 403);
+        }
         $today = date('Y-m-d', strtotime('now'));
         $client_id = $this->getClient()->client_id; //'9bf54f1b-ddbb-4641-a21a-058e667acf0d';
         $total_subsidiaries = Subsidiary::where('client_id', $client_id)->count();
