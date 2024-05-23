@@ -58,7 +58,7 @@ class CreateReportActivityLogs extends Command
                 'uuid' => $report->id,
                 'license_id' => $report->license_id, 
                 'title' => $title,
-                'due_date', $date,
+                'due_date' => $date,
             ],
             ['description' =>$desc, 'status' => 'Pending', 'color_code' => '#735812']
         );

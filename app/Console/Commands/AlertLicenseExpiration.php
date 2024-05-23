@@ -144,8 +144,8 @@ class AlertLicenseExpiration extends Command
             [
                 'client_id' => $license->client_id,
                 'license_id' => $license->id, 
-                'title' => '<strong>License Renewal</strong>',
-                'due_date', $license->expiry_date
+                'title' => "<strong>License Renewal</strong>",
+                'due_date' => $license->expiry_date
             ], 
             [
             
