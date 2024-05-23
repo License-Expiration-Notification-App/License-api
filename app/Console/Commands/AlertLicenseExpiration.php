@@ -135,7 +135,7 @@ class AlertLicenseExpiration extends Command
         });
     }
     private function logLicenseActivity($license) {
-        LicenseActivity::updateOrInsert(
+        LicenseActivity::firstOrCreate(
             [
                 'client_id' => $license->client_id,
                 'license_id' => $license->id, 
