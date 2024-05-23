@@ -521,6 +521,7 @@ class LicensesController extends Controller
                 ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467']
             );
         }
+        return 'success';
         // if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
         //     // remove previous upload
         //     // if($license->certificate_link != NULL) {
@@ -572,6 +573,7 @@ class LicensesController extends Controller
                 ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467']
             );
         }
+        return 'success';
     }
     public function approveReport(Request $request, Report $report)
     {
@@ -591,6 +593,7 @@ class LicensesController extends Controller
             ],
             ['description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF']
         );
+        return 'success';
     }
     public function rejectReport(Request $request, Report $report)
     {
@@ -610,6 +613,7 @@ class LicensesController extends Controller
             ],
             ['description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318']
         );
+        return 'success';
     }
 
     public function approveLicenseRenewal(Request $request, License $license)
@@ -633,6 +637,7 @@ class LicensesController extends Controller
             ],
             ['status' => 'Approved', 'description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF']
         );
+        return 'success';
     }
     public function rejectLicenseRenewal(Request $request, License $license)
     {
@@ -655,5 +660,6 @@ class LicensesController extends Controller
             ],
             ['status' => 'Rejected', 'description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318']
         );
+        return 'success';
     }
 }
