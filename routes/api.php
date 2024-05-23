@@ -91,7 +91,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('store-mineral', [LicensesController::class, 'storeMineral']);
         Route::put('update-mineral/{mineral}', [LicensesController::class, 'updateMineral']);
         Route::delete('delete-mineral/{mineral}', [LicensesController::class, 'deleteMineral']);
-        // Route::post('upload-user-photo', [LicensesController::class, 'uploadPhoto']);
+        Route::post('upload-bulk-licenses', [LicensesController::class, 'uploadBulkLicenses']);
     });
     Route::group(['prefix' => 'subsidiaries'], function () {
         Route::get('/', [SubsidiariesController::class, 'index']);

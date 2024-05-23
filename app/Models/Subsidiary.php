@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class Subsidiary extends Model
 {
     use HasUuids ,HasFactory, SoftDeletes;
+    protected $fillable = [
+        'client_id',
+        'name'
+    ];
     public function client()
     {
         return $this->belongsTo(Client::class);

@@ -69,25 +69,16 @@ class SubsidiariesController extends Controller
         ]);
         $actor = $this->getUser();
         $name = $request->name;
-        $client_id = $request->client_id;
-        $subsidiary = Subsidiary::where(['name' => $name, 'client_id' => $client_id])->first();
-        if (!$subsidiary) {
-            $subsidiary = new Subsidiary();
-            $subsidiary->name = $name;
-            $subsidiary->client_id = $client_id;
-            if ($subsidiary->save()) {
-                $client = Client::find($client_id);
-                $title = "New Subsidiary Registered";
-                //log this event
-                $description = "<strong>$subsidiary->name</strong> was registered under $client->company_name by $actor->name";
-                $this->auditTrailEvent($title, $description, 'Subsidiary Management', 'add', [$actor]);
+        $client_id = $request->client_id;        
+        $subsidiary = Subsidiary::firstOrCreate(['name' => $name, 'client_id' => $client_id]);
+        $client = Client::find($client_id);
+        $title = "New Subsidiary Registered";
+        //log this event
+        $description = "<strong>$subsidiary->name</strong> was registered under $client->company_name by $actor->name";
+        $this->auditTrailEvent($title, $description, 'Subsidiary Management', 'add', [$actor]);
 
 
-                return response()->json(compact('subsidiary'), 200);
-            }
-            return response()->json(['message' => 'Unable to register'], 500);
-        }
-        return response()->json(['message' => 'Subsidiary already exists'], 401);
+        return response()->json(compact('subsidiary'), 200);
     }
     /**
      * Update the specified resource in storage.
