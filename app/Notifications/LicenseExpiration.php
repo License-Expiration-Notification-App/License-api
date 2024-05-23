@@ -36,7 +36,7 @@ class LicenseExpiration extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', /*'database'*/, 'broadcast'];
+        return ['mail', /*'database'*/ 'broadcast'];
     }
 
     /**
