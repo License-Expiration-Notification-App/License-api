@@ -123,8 +123,15 @@ class AlertLicenseExpiration extends Command
     }
     private function logClientExpiryActivity()
     {
-        License::where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
-        ->chunkById(200, function ($licenses) {
+        // License::where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
+        // ->chunkById(200, function ($licenses) {
+        //     foreach ($licenses as $license) {
+        //         $this->logLicenseActivity($license);
+        //         $license->expiry_alert_sent .= ',activity logged,';
+        //         $license->save();
+        //     }
+        // }, $column = 'id');
+        License::chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $this->logLicenseActivity($license);
                 $license->expiry_alert_sent .= ',activity logged,';
