@@ -26,7 +26,7 @@ class ReportsController extends Controller
             return response()->json(['message' => 'You are not logged in as a client'], 403);
         }
         $today = date('Y-m-d', strtotime('now'));
-        $client_id = $this->getClient()->client_id; //'9bf54f1b-ddbb-4641-a21a-058e667acf0d';
+        $client_id = $this->getClient()->id; //'9bf54f1b-ddbb-4641-a21a-058e667acf0d';
         $total_subsidiaries = Subsidiary::where('client_id', $client_id)->count();
 
         $total_licenses = License::where('client_id', $client_id)->count();
@@ -78,8 +78,8 @@ class ReportsController extends Controller
         ->where('license_activities.client_id', $client_id)
         ->where('license_activities.status', 'Pending')
         ->select('license_activities.*', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary')
-        ->get()
-        ->groupBy('due_date');
+        ->get();
+        // ->groupBy('due_date');
         
         return response()->json(compact('total_subsidiaries', 'total_licenses', 'pending_activities', 'total_pending_activities', 'license_analysis', 'due_license_renewals', 'due_reports', 'activity_schedules'), 200);
     }
@@ -136,8 +136,8 @@ class ReportsController extends Controller
         ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
         ->where('license_activities.status', 'Pending')
         ->select('license_activities.*', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary')
-        ->get()
-        ->groupBy('due_date');
+        ->get();
+        // ->groupBy('due_date');
         
         return response()->json(compact('total_clients', 'total_licenses', 'pending_activities', 'total_pending_activities', 'license_analysis', 'due_license_renewals', 'due_reports', 'activity_schedules'), 200);
     }
