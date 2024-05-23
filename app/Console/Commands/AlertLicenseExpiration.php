@@ -123,9 +123,7 @@ class AlertLicenseExpiration extends Command
     }
     private function logClientExpiryActivity()
     {
-        License::with('client.users','subsidiary')
-        // ->where('expiry_date', '<=', $today)
-        ->where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
+        License::where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $this->logLicenseActivity($license);
