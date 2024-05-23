@@ -55,7 +55,7 @@ class AlertLicenseExpiration extends Command
                 $status = 'Expire in one month';
                 $this->licenseExpiration($title, $action, $status, $users);
             }
-        });
+        }, $column = 'id');
     }
     private function alertTwoWeeksToExpiration()
     {
@@ -77,7 +77,7 @@ class AlertLicenseExpiration extends Command
                 $status = 'Expired in two weeks';
                 $this->licenseExpiration($title, $action, $status, $users);
             }
-        });
+        }, $column = 'id');
     }
     private function alertThreeDaysToExpiration()
     {
@@ -98,7 +98,7 @@ class AlertLicenseExpiration extends Command
                 $status = 'Expires in three days';
                 $this->licenseExpiration($title, $action, $status, $users);
             }
-        });
+        }, $column = 'id');
     }
     private function alertExpiration()
     {
@@ -119,7 +119,7 @@ class AlertLicenseExpiration extends Command
                 $status = 'Expired';
                 $this->licenseExpiration($title, $action, $status, $users);
             }
-        });
+        }, $column = 'id');
     }
     private function logClientExpiryActivity()
     {
@@ -130,7 +130,7 @@ class AlertLicenseExpiration extends Command
                 $license->expiry_alert_sent .= ',activity logged,';
                 $license->save();
             }
-        });
+        }, $column = 'id');
     }
     private function logLicenseActivity($license) {
         LicenseActivity::firstOrCreate(
@@ -152,9 +152,9 @@ class AlertLicenseExpiration extends Command
     public function handle()
     {
         $this->logClientExpiryActivity();
-        $this->alertExpiration();
-        $this->alertOneMonthToExpiration();
-        $this->alertTwoWeeksToExpiration();
-        $this->alertThreeDaysToExpiration();
+        // $this->alertExpiration();
+        // $this->alertOneMonthToExpiration();
+        // $this->alertTwoWeeksToExpiration();
+        // $this->alertThreeDaysToExpiration();
     }
 }
