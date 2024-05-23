@@ -59,7 +59,7 @@ class CreateReportActivityLogs extends Command
         });
     }
     private function logLicenseActivity($report, $title, $desc, $date) {
-        LicenseActivity::updateOrInsert(
+        LicenseActivity::firstOrCreate(
             [
                 'client_id' => $report->client_id,
                 'uuid' => $report->id,
