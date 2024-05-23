@@ -44,7 +44,7 @@ class AlertLicenseExpiration extends Command
         ->where('expiry_alert_sent', 'NOT LIKE', '%one month%')
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
-                $license->expiry_alert_sent .= ',one month,';
+                $license->expiry_alert_sent .= 'one month,';
                 $license->save();                
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
@@ -65,7 +65,7 @@ class AlertLicenseExpiration extends Command
         ->where('expiry_alert_sent', 'NOT LIKE', '%two weeks%')
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
-                $license->expiry_alert_sent .= ',two weeks,';
+                $license->expiry_alert_sent .= 'two weeks,';
                 $license->save();                
                 $users = $license->client->users;
                 
@@ -87,7 +87,7 @@ class AlertLicenseExpiration extends Command
         ->where('expiry_alert_sent', 'NOT LIKE', '%three days%')
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
-                $license->expiry_alert_sent .= ',three days,';
+                $license->expiry_alert_sent .= 'three days,';
                 $license->save();
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
@@ -108,7 +108,7 @@ class AlertLicenseExpiration extends Command
         ->where('expiry_alert_sent', 'NOT LIKE', '%expired%')
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
-                $license->expiry_alert_sent .= ',expired,';
+                $license->expiry_alert_sent .= 'expired,';
                 $license->save();
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
@@ -123,21 +123,21 @@ class AlertLicenseExpiration extends Command
     }
     private function logClientExpiryActivity()
     {
-        // License::where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
-        // ->chunkById(200, function ($licenses) {
+        License::where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
+        ->chunkById(200, function ($licenses) {
+            foreach ($licenses as $license) {
+                $this->logLicenseActivity($license);
+                $license->expiry_alert_sent .= 'activity logged,';
+                $license->save();
+            }
+        }, $column = 'id');
+        // License::chunkById(200, function ($licenses) {
         //     foreach ($licenses as $license) {
         //         $this->logLicenseActivity($license);
         //         $license->expiry_alert_sent .= ',activity logged,';
         //         $license->save();
         //     }
         // }, $column = 'id');
-        License::chunkById(200, function ($licenses) {
-            foreach ($licenses as $license) {
-                $this->logLicenseActivity($license);
-                $license->expiry_alert_sent .= ',activity logged,';
-                $license->save();
-            }
-        }, $column = 'id');
     }
     private function logLicenseActivity($license) {
         LicenseActivity::firstOrCreate(
@@ -159,9 +159,9 @@ class AlertLicenseExpiration extends Command
     public function handle()
     {
         $this->logClientExpiryActivity();
-        // $this->alertExpiration();
-        // $this->alertOneMonthToExpiration();
-        // $this->alertTwoWeeksToExpiration();
-        // $this->alertThreeDaysToExpiration();
+        $this->alertExpiration();
+        $this->alertOneMonthToExpiration();
+        $this->alertTwoWeeksToExpiration();
+        $this->alertThreeDaysToExpiration();
     }
 }
