@@ -7,23 +7,42 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class LicenseExpiration extends Notification implements ShouldQueue
+class LicenseActivityLog extends Notification implements ShouldQueue
 {
     use Queueable;
     protected $title;
     protected $description;
-    protected $status;
     protected $type;
+    protected $color_code;
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $description, $status, $type='License Renewal')
+    public function __construct($title, $description, $type='License Management', $action_type= 'add')
     {
         //
         $this->title = $title;
         $this->description = $description;
-        $this->status = $status;
         $this->type = $type;
+        $this->setColorCode($action_type);
+    }
+    private function setColorCode($type)
+    {
+        
+        switch ($type) {
+            case 'add':
+                $code = '#039855';
+                break;
+            case 'edit':
+                    $code = '#F79009';
+                    break;
+            case 'remove':
+                    $code = '#D92D20';
+                    break;
+            default:
+                $code = '#64748B';
+                break;
+        }
+        $this->color_code = $code;
     }
     public function databaseType(object $notifiable): string
     {
@@ -36,22 +55,28 @@ class LicenseExpiration extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', /*'database'*/, 'broadcast'];
+    return [/*'mail',*/'database', 'broadcast'];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable)
     {
         $body = $this->description;
         $body = str_replace('<strong>', '', $body);
         $body = str_replace('</strong>', '', $body);
-        return (new MailMessage)
+
+        try {
+            return (new MailMessage)
                     ->line($this->title)
                     ->line($body)
                     // ->action('Notification Action', url('/'))
                     ->line('Kindly disregard this mail if it does not concern you!');
+        } catch (\Throwable $th) {
+            return response()->json(['message',$th]);
+        }
+        
     }
 
     /**
@@ -62,9 +87,10 @@ class LicenseExpiration extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'status' => $this->status,
+            'tag' => 'License',
             'title' => $this->title,
             'description' => $this->description,
+            'color_code' => $this->color_code,
         ];
     }
 }

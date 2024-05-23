@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class LicenseExpiration extends Notification implements ShouldQueue
+class DueReport extends Notification implements ShouldQueue
 {
     use Queueable;
     protected $title;
@@ -17,7 +17,7 @@ class LicenseExpiration extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $description, $status, $type='License Renewal')
+    public function __construct($title, $description, $status, $type='Quarterly Report')
     {
         //
         $this->title = $title;
@@ -36,7 +36,7 @@ class LicenseExpiration extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', /*'database'*/, 'broadcast'];
+        return ['mail', /*'database', */'broadcast'];
     }
 
     /**

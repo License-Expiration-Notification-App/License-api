@@ -35,6 +35,7 @@ class UserResource extends JsonResource
                 $main_admin = true;
             }
         }
+        $notification_count = $this->unreadNotifications()->where('data', 'NOT LIKE', '%Audit Trail%')->count();
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -42,7 +43,7 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'photo' => $this->photo,
             'password_status' => $this->password_status,
-            'notifications' => [],
+            'notifications' => $notification_count,
             'role' => $this->role,
             'client_id' => $client_id,
             'client_name' => $client_name,

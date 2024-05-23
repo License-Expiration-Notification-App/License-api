@@ -10,6 +10,7 @@ use App\Models\Partner;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\LicenseActivityLog;
 use App\Notifications\LicenseExpiration;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
@@ -167,6 +168,17 @@ class Controller extends BaseController
         return Notification::send($users->unique(), $notification);
     }
 
+    public function licenseEvent($title, $action, $type='Authentication', $action_type= 'add', $clients = null)
+    {
+
+        // $user = $this->getUser();
+        $users = User::where('role', 'staff')->get();
+        if ($clients != null) {
+            $users = $users->merge($clients);
+        }
+        $notification = new LicenseActivityLog($title, $action, $type, $action_type);
+        return Notification::send($users->unique(), $notification);
+    }
 
     public function fetchStates()
     {

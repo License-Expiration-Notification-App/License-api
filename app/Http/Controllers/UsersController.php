@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Models\LicenseActivity;
 use App\Models\User;
 
 
@@ -85,7 +86,7 @@ class UsersController extends Controller
         $unread_notifications = $user->unreadNotifications()->count();
         return response()->json(compact('notifications', 'unread_notifications'), 200);
     }
-    public function licenseNotifications(Request $request)
+    public function licenseNotificationsOld(Request $request)
     {
         $searchParams = $request->all();
         $info_type = Arr::get($searchParams, 'info_type', '');
@@ -106,6 +107,35 @@ class UsersController extends Controller
             $notificationQuery->where('created_at', '<=', $max_date);
         }
         $notifications = $notificationQuery->orderBy('created_at', 'DESC')->select('data as content')->paginate(10);
+        // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();
+        return response()->json(compact('notifications'), 200);
+    }
+    public function licenseNotifications(Request $request)
+    {
+        $user = $this->getUser();
+        $searchParams = $request->all();
+        $info_type = Arr::get($searchParams, 'info_type', '');
+        $min_date = Arr::get($searchParams, 'min_date', '');
+        $max_date = Arr::get($searchParams, 'max_date', '');
+        $user = $this->getUser();
+        // $notificationQuery = $user->notifications()->where('data', 'NOT LIKE', '%Audit Trail%');
+        $notificationQuery = LicenseActivity::query();
+        if (!empty($info_type)) {
+            $notificationQuery->where('title', 'LIKE', '%'.$info_type.'%');
+        }
+        if (!empty($min_date)) {
+            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
+            $notificationQuery->where('created_at', '>=', $min_date);
+        }
+        if (!empty($max_date)) {
+            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
+            $notificationQuery->where('created_at', '<=', $max_date);
+        }
+        if ($user->role == 'client') {
+            $client_id = $this->getClient()->id;
+            $notificationQuery->where('client_id', $client_id);
+        }
+        $notifications = $notificationQuery->orderBy('created_at', 'DESC')->select('title', 'description', 'created_at')->paginate(10);
         // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();
         return response()->json(compact('notifications'), 200);
     }

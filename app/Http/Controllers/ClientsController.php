@@ -188,7 +188,7 @@ class ClientsController extends Controller
             // log this event
             $title = "Client Admin Registered";                    
             $description = "<strong>$user->name</strong> was registered as an admin for <strong>$client->company_name</strong> by <strong>$actor->name</strong>";
-            $this->auditTrailEvent($title, $description, 'Client Management', 'add', [$actor]);
+            $this->auditTrailEvent($title, $description, 'Admin Management', 'add', [$actor]);
             
                 
             return response()->json('success', 200);
@@ -207,7 +207,7 @@ class ClientsController extends Controller
 
         $title = "Client Admin Updated";
         $description = "<strong>($old_name, $old_email)</strong> were modified to <strong>($user->name, $user->email)</strong> by <strong>$actor->name</strong>";
-        $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
+        $this->auditTrailEvent($title, $description, 'Admin Management', 'edit', [$actor]);
         // $client->users()->sync($user->id);
         // $role = Role::where('name', 'client')->first();
         // $user->roles()->sync($role->id); // role id 3 is client
@@ -224,7 +224,7 @@ class ClientsController extends Controller
             $title = "Client Admin Created";
             //log this event
             $description = "<strong>$user->name</strong> was made main admin for <strong>$client->company_name</strong> by <strong>($user->name)</client>";
-            $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
+            $this->auditTrailEvent($title, $description, 'Admin Management', 'edit', [$actor]);
 
             return 'success';
         }
@@ -238,7 +238,7 @@ class ClientsController extends Controller
             $title = "Client User Deletion";
             //log this event
             $description = "<strong>$user->name</strong> was deleted by <strong>$actor->name</strong>";
-            $this->auditTrailEvent($title, $description, 'Client Management', 'remove', [$actor]);
+            $this->auditTrailEvent($title, $description, 'Admin Management', 'remove', [$actor]);
             $user->delete();
             return 'success';
         }

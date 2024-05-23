@@ -112,6 +112,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('audit-trail', [UsersController::class, 'auditTrail']);
         
         Route::get('fetch-notifications', [UsersController::class, 'licenseNotifications']);
+        Route::get('mark-notification-as-read', [UsersController::class, 'markNotificationAsRead']);
+        
     });
     
 

@@ -123,7 +123,7 @@ class AlertLicenseExpiration extends Command
     }
     private function logClientExpiryActivity()
     {
-        License::where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
+        License::with('client', 'subsidiary')->where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $this->logLicenseActivity($license);
@@ -140,16 +140,20 @@ class AlertLicenseExpiration extends Command
         // }, $column = 'id');
     }
     private function logLicenseActivity($license) {
+        $client = $license->client->company_name;
+        $subsidiary = $license->subsidiary->name;
+        $description = "<strong>$license->license_no</strong> for <strong>$subsidiary($client)</strong> requires renewal";
         LicenseActivity::firstOrCreate(
             [
                 'client_id' => $license->client_id,
-                'license_id' => $license->id, 
+                'license_id' => $license->id,
+                'uuid' => $license->id,
                 'title' => "<strong>License Renewal</strong>",
                 'due_date' => $license->expiry_date
             ], 
             [
             
-                'status' => 'Pending', 'color_code' => '#98A2B3'
+                'description' => $description, 'status' => 'Pending', 'color_code' => '#98A2B3'
             ]
         );
     }
