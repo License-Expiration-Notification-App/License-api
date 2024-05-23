@@ -46,7 +46,6 @@ class AlertLicenseExpiration extends Command
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',one month,';
                 $license->save();                
-                $this->logLicenseActivity($license);
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->name;
@@ -68,7 +67,6 @@ class AlertLicenseExpiration extends Command
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',two weeks,';
                 $license->save();                
-                $this->logLicenseActivity($license);
                 $users = $license->client->users;
                 
                 $subsidiary = $license->subsidiary->name;
@@ -91,7 +89,6 @@ class AlertLicenseExpiration extends Command
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= ',three days,';
                 $license->save();
-                $this->logLicenseActivity($license);
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->name;
@@ -124,6 +121,19 @@ class AlertLicenseExpiration extends Command
             }
         });
     }
+    private function logClientExpiryActivity()
+    {
+        License::with('client.users','subsidiary')
+        // ->where('expiry_date', '<=', $today)
+        ->where('expiry_alert_sent', 'NOT LIKE', '%activity logged%')
+        ->chunkById(200, function ($licenses) {
+            foreach ($licenses as $license) {
+                $this->logLicenseActivity($license);
+                $license->expiry_alert_sent .= ',activity logged,';
+                $license->save();
+            }
+        });
+    }
     private function logLicenseActivity($license) {
         LicenseActivity::updateOrInsert(
             [
@@ -143,6 +153,7 @@ class AlertLicenseExpiration extends Command
      */
     public function handle()
     {
+        $this->logClientExpiryActivity();
         $this->alertExpiration();
         $this->alertOneMonthToExpiration();
         $this->alertTwoWeeksToExpiration();
