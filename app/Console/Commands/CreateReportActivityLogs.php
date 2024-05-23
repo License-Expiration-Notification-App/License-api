@@ -28,8 +28,7 @@ class CreateReportActivityLogs extends Command
 
     private function dueYearlyReport()
     {
-        Report::with('client.users', 'subsidiary')
-        ->where('report_type', 'yearly')
+        Report::where('report_type', 'Yearly')
         ->where('entry_date', NULL)
         ->chunk(200, function ($reports) {
             foreach ($reports as $report) {
@@ -40,8 +39,7 @@ class CreateReportActivityLogs extends Command
     }
     private function dueQuarterlyReport()
     {
-        Report::with('client.users', 'subsidiary')
-        ->where('report_type', 'quarterly')
+        Report::where('report_type', 'Quarterly')
         ->where('entry_date', NULL)
         ->chunk(200, function ($reports) {
             foreach ($reports as $report) {          
