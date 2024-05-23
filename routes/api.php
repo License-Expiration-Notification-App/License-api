@@ -85,7 +85,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('upload-report', [LicensesController::class, 'uploadReport']);
         Route::delete('destroy/{license}', [LicensesController::class, 'destroy']);
 
-        
+        Route::put('approve-report/{report}', [LicensesController::class, 'approveReport']);
+        Route::put('reject-report/{report}', [LicensesController::class, 'rejectReport']);
+        Route::put('approve-license-renewal/{license}', [LicensesController::class, 'approveLicenseRenewal']);
+        Route::put('reject-license-renewal/{license}', [LicensesController::class, 'rejectLicenseRenewal']);
+
         Route::get('fetch-license-types', [LicensesController::class, 'fetchLicenseTypes']);
         Route::get('fetch-minerals', [LicensesController::class, 'fetchMinerals']);
         Route::post('store-mineral', [LicensesController::class, 'storeMineral']);

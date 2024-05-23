@@ -53,7 +53,7 @@ class LicenseReporting extends Command
                         'client_id' => $license->client_id, 
                         'subsidiary_id' => $license->subsidiary_id,
                         'license_id' => $license->id,
-                        'report_type' => 'Yearly',
+                        'report_type' => 'Annual',
                         'due_date' => date('Y-m-d' ,strtotime(($due_date))),
                     ],
                 );

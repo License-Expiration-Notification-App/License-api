@@ -28,7 +28,7 @@ class CreateReportActivityLogs extends Command
 
     private function dueYearlyReport()
     {
-        Report::with('client', 'license', 'subsidiary')->where('report_type', 'Yearly')
+        Report::with('client', 'license', 'subsidiary')->where('report_type', 'Annual')
         ->where('entry_date', NULL)
         ->chunk(200, function ($reports) {
             foreach ($reports as $report) {
@@ -67,7 +67,7 @@ class CreateReportActivityLogs extends Command
                 'title' => $title,
                 'due_date' => $date,
             ],
-            ['description' =>$desc, 'status' => 'Pending', 'color_code' => '#735812']
+            ['description' =>$desc, 'status' => 'Pending', 'color_code' => '#735812', 'type' => 'report']
         );
     }
     /**

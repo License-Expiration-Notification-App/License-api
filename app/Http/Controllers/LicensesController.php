@@ -358,12 +358,29 @@ class LicensesController extends Controller
         
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
        ->where('status', '!=', 'Pending')->paginate(10);
+       foreach($activity_timeline as $time_line) {
+        $type = $time_line->type;
+        if ($type == 'renewal') {
+            $renewals = Renewal::where('license_id', $time_line->license_id)->select('link', 'status')->get();
+            $time_line->uploads = $renewals;
+        }
+        if ($type == 'report') {
+            $reports = Report::join('uploads', 'uploads.report_id', 'reports.id')
+            ->where([
+                    'client_id' => $time_line->client_id,
+                    'license_id' => $time_line->license_id,
+                    'due_date' => $time_line->due_date,
+                ],
+            )->select('link', 'status')->get();
+            $time_line->uploads = $reports;
+        }
+       }
         return response()->json(compact('activity_timeline'), 200);
     }
     public function licenseUpcomingActivities(Request $request, License $license)
     {
         $upcoming_activities = LicenseActivity::where('license_id', $license->id)
-        ->where('status', 'Pending')->paginate(10);
+        ->where('status', 'Pending')->select('id', 'uuid', 'title', 'due_date')->paginate(10);
         return response()->json(compact('upcoming_activities'), 200);
     }
     /**
@@ -458,6 +475,7 @@ class LicensesController extends Controller
     }
     public function uploadCertificate(Request $request)
     {
+        $actor = $this->getUser();
         $license_id = $request->license_id;
         $is_renewal = $request->is_renewal; // true or false
         $expiry_date = NULL;
@@ -480,6 +498,8 @@ class LicensesController extends Controller
                 $renewal->license_id  = $license_id;
                 $renewal->link = env('APP_URL').'/storage/'.$link;
                 $renewal->expiry_date = $expiry_date;
+                $renewal->status = 'Submitted';
+                $renewal->submitted_by = $actor->id;      
                 $renewal->save();
             }
         }        
@@ -491,11 +511,13 @@ class LicensesController extends Controller
             // then since we are renewing, we need to log the activity
             LicenseActivity::updateOrInsert(
                 [
-                    'license_id' => $license_id, 
+                    'license_id' => $license_id,
+                    'uuid' => $license_id,
                     'title' => '<strong>License Renewal</strong>',
-                    'status' => 'Pending',
+                    'due_date' => $license->expiry_date,
+                    
                 ],
-                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#98A2B3']
+                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467']
             );
         }
         // if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
@@ -542,9 +564,85 @@ class LicensesController extends Controller
                 [
                     'uuid' => $report->id, 
                     'title' => 'strong>'.$report->report_type.' Report</strong>',
+                    'due_date' => $report->due_date,
                 ],
-                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#98A2B3']
+                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467']
             );
         }
+    }
+    public function approveReport(Request $request, Report $report)
+    {
+        $actor = $this->getUser();
+        $report->status = 'Approved';
+        $report->approved_by = $actor->id;            
+        $report->save();
+
+        LicenseActivity::updateOrInsert(
+            [
+                'uuid' => $report->id, 
+                'title' => 'strong>'.$report->report_type.' Report</strong>',
+                'status' => 'Approved',
+                'due_date' => $report->due_date,
+            ],
+            ['description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF']
+        );
+    }
+    public function rejectReport(Request $request, Report $report)
+    {
+        $actor = $this->getUser();
+        $report->status = 'Rejected';
+        $report->rejected_by = $actor->id;            
+        $report->save();
+
+        LicenseActivity::updateOrInsert(
+            [
+                'uuid' => $report->id, 
+                'title' => 'strong>'.$report->report_type.' Report</strong>',
+                'status' => 'Rejected',
+                'due_date' => $report->due_date,
+            ],
+            ['description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318']
+        );
+    }
+
+    public function approveLicenseRenewal(Request $request, License $license)
+    {
+        $actor = $this->getUser();
+        
+        $renewals = Renewal::where('license_id', $license->id)->get();
+        foreach ($renewals as $renewal) {
+            $renewal->status = 'Approved';
+            $renewal->approved_by = $actor->id;            
+            $renewal->save();
+        }
+        LicenseActivity::updateOrInsert(
+            [
+                'uuid' => $license->id, 
+                'title' => '<strong>License Renewal</strong>',
+                'status' => 'Approved',
+                'due_date' => $license->expiry_date,
+            ],
+            ['status' => 'Approved', 'description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF']
+        );
+    }
+    public function rejectLicenseRenewal(Request $request, License $license)
+    {
+        $actor = $this->getUser();
+        
+        $renewals = Renewal::where('license_id', $license->id)->get();
+        foreach ($renewals as $renewal) {
+            $renewal->status = 'Rejected';
+            $renewal->approved_by = $actor->id;            
+            $renewal->save();
+        }
+        LicenseActivity::updateOrInsert(
+            [
+                'uuid' => $license->id, 
+                'title' => '<strong>License Renewal</strong>',
+                'status' => 'Rejected',
+                'due_date' => $license->expiry_date,
+            ],
+            ['status' => 'Rejected', 'description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318']
+        );
     }
 }
