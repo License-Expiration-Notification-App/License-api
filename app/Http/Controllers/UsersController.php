@@ -124,12 +124,12 @@ class UsersController extends Controller
             $notificationQuery->where('title', 'LIKE', '%'.$info_type.'%');
         }
         if (!empty($min_date)) {
-            $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
-            $notificationQuery->where('created_at', '>=', $min_date);
+            $min_date = date('Y-m-d',strtotime($min_date));//.' 00.00.00';
+            $notificationQuery->where('due_date', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
-            $notificationQuery->where('created_at', '<=', $max_date);
+            $max_date = date('Y-m-d',strtotime($max_date));//.' 23:59:59';
+            $notificationQuery->where('due_date', '<=', $max_date);
         }
         if ($user->role == 'client') {
             $client_id = $this->getClient()->id;
