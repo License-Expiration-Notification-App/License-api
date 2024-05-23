@@ -509,7 +509,7 @@ class LicensesController extends Controller
             $license->expiry_date = $expiry_date;
             $license->save();
             // then since we are renewing, we need to log the activity
-            LicenseActivity::updateOrInsert(
+            LicenseActivity::firstOrCreate(
                 [
                     'license_id' => $license_id,
                     'uuid' => $license_id,
@@ -560,7 +560,7 @@ class LicensesController extends Controller
             }
 
             // log the activity
-            LicenseActivity::updateOrInsert(
+            LicenseActivity::firstOrCreate(
                 [
                     'uuid' => $report->id, 
                     'title' => 'strong>'.$report->report_type.' Report</strong>',
@@ -577,7 +577,7 @@ class LicensesController extends Controller
         $report->approved_by = $actor->id;            
         $report->save();
 
-        LicenseActivity::updateOrInsert(
+        LicenseActivity::firstOrCreate(
             [
                 'uuid' => $report->id, 
                 'title' => 'strong>'.$report->report_type.' Report</strong>',
@@ -594,7 +594,7 @@ class LicensesController extends Controller
         $report->rejected_by = $actor->id;            
         $report->save();
 
-        LicenseActivity::updateOrInsert(
+        LicenseActivity::firstOrCreate(
             [
                 'uuid' => $report->id, 
                 'title' => 'strong>'.$report->report_type.' Report</strong>',
@@ -615,7 +615,7 @@ class LicensesController extends Controller
             $renewal->approved_by = $actor->id;            
             $renewal->save();
         }
-        LicenseActivity::updateOrInsert(
+        LicenseActivity::firstOrCreate(
             [
                 'uuid' => $license->id, 
                 'title' => '<strong>License Renewal</strong>',
@@ -635,7 +635,7 @@ class LicensesController extends Controller
             $renewal->approved_by = $actor->id;            
             $renewal->save();
         }
-        LicenseActivity::updateOrInsert(
+        LicenseActivity::firstOrCreate(
             [
                 'uuid' => $license->id, 
                 'title' => '<strong>License Renewal</strong>',
