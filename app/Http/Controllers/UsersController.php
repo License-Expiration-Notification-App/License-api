@@ -135,7 +135,7 @@ class UsersController extends Controller
             $client_id = $this->getClient()->id;
             $notificationQuery->where('client_id', $client_id);
         }
-        $notifications = $notificationQuery->orderBy('created_at', 'DESC')->select('title', 'description', 'created_at')->paginate(10);
+        $notifications = $notificationQuery->orderBy('due_date', 'ASC')->select('title', 'description', 'created_at')->paginate(10);
         // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();
         return response()->json(compact('notifications'), 200);
     }
