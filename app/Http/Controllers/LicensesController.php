@@ -512,6 +512,7 @@ class LicensesController extends Controller
             LicenseActivity::firstOrCreate(
                 [
                     'license_id' => $license_id,
+                    'client_id' => $license->client_id,
                     'uuid' => $license_id,
                     'title' => '<strong>License Renewal</strong>',
                     'due_date' => $license->expiry_date,
@@ -562,7 +563,9 @@ class LicensesController extends Controller
             // log the activity
             LicenseActivity::firstOrCreate(
                 [
-                    'uuid' => $report->id, 
+                    'uuid' => $report->id,
+                    'client_id' => $report->client_id,
+                    'license_id' => $report->license_id,
                     'title' => 'strong>'.$report->report_type.' Report</strong>',
                     'due_date' => $report->due_date,
                 ],
@@ -579,7 +582,9 @@ class LicensesController extends Controller
 
         LicenseActivity::firstOrCreate(
             [
-                'uuid' => $report->id, 
+                'uuid' => $report->id,
+                'client_id' => $report->client_id,
+                'license_id' => $report->license_id,
                 'title' => 'strong>'.$report->report_type.' Report</strong>',
                 'status' => 'Approved',
                 'due_date' => $report->due_date,
@@ -596,7 +601,9 @@ class LicensesController extends Controller
 
         LicenseActivity::firstOrCreate(
             [
-                'uuid' => $report->id, 
+                'uuid' => $report->id,
+                'client_id' => $report->client_id,
+                'license_id' => $report->license_id,
                 'title' => 'strong>'.$report->report_type.' Report</strong>',
                 'status' => 'Rejected',
                 'due_date' => $report->due_date,
@@ -617,7 +624,9 @@ class LicensesController extends Controller
         }
         LicenseActivity::firstOrCreate(
             [
-                'uuid' => $license->id, 
+                'uuid' => $license->id,
+                'client_id' => $license->client_id,
+                'license_id' => $license->id,
                 'title' => '<strong>License Renewal</strong>',
                 'status' => 'Approved',
                 'due_date' => $license->expiry_date,
@@ -637,7 +646,9 @@ class LicensesController extends Controller
         }
         LicenseActivity::firstOrCreate(
             [
-                'uuid' => $license->id, 
+                'uuid' => $license->id,
+                'client_id' => $license->client_id,
+                'license_id' => $license->id,
                 'title' => '<strong>License Renewal</strong>',
                 'status' => 'Rejected',
                 'due_date' => $license->expiry_date,
