@@ -48,7 +48,7 @@ class AlertLicenseExpiration extends Command
                 $license->save();                
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
-                $client = $license->client->name;
+                $client = $license->client->company_name;
                 $title = "License expires in <strong>one month</strong>";
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) will expire on <strong>$license->expiry_date.</strong>";
@@ -70,7 +70,7 @@ class AlertLicenseExpiration extends Command
                 $users = $license->client->users;
                 
                 $subsidiary = $license->subsidiary->name;
-                $client = $license->client->name;
+                $client = $license->client->company_name;
                 $title = "License expires in <strong>two weeks</strong>";
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) will expire on <strong>$license->expiry_date.</strong>";
@@ -91,7 +91,7 @@ class AlertLicenseExpiration extends Command
                 $license->save();
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
-                $client = $license->client->name;
+                $client = $license->client->company_name;
                 $title = "License expires in <strong>three days</strong>";
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) will expire on <strong>$license->expiry_date.</strong>";
@@ -112,7 +112,7 @@ class AlertLicenseExpiration extends Command
                 $license->save();
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
-                $client = $license->client->name;
+                $client = $license->client->company_name;
                 $title = "License Expired";
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) has expired today.";
