@@ -371,7 +371,7 @@ class LicensesController extends Controller
         }
         
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
-       ->where('status', '!=', 'Pending')->get();
+       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'updated_at as action_date', 'status', 'type', 'color_code', 'due_date', 'uuid')->get();
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
         if ($type == 'License Renewal') {
