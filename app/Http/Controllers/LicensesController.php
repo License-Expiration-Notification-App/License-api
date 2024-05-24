@@ -280,7 +280,11 @@ class LicensesController extends Controller
                         $issues_observed[] = "Invalid LGA on row #$line. Please check the spelling of $lga.";
                         $unsaved_data[] = "Invalid LGA on row #$line. Please check the spelling of $lga.";
                     }
-
+                    $license = License::where('license_no', $license_no)->first();
+                    if ($license) {
+                        $issues_observed[] = "Duplicate License Number: $license_no on row #$line.";
+                        $unsaved_data[] = "Duplicate License Number: $license_no on row #$line.";
+                    }
 
                     $licence_no_array = explode(' ',$license_no);
                     $license_type_slug = strtoupper(end($licence_no_array));
@@ -301,7 +305,7 @@ class LicensesController extends Controller
                     // create the subsidiary if it does not exist
                     $subsidiary = Subsidiary::firstOrCreate(['name' => $company, 'client_id' => $client_id]);
 
-                    $license = License::where('license_no', $license_no)->first();
+                    
                     if (!$license) {
                         $license = new License();
                         $license->client_id = $client_id;
