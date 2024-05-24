@@ -253,25 +253,31 @@ class LicensesController extends Controller
                     }
                     if($exp_date == 'LICENCE IN PROGRESS' || $exp_date == NULL) {
                         $issues_observed[] = 'Invalid EXPIRY DATE on row #'.$line;
+                        $unsaved_data[] = 'Invalid EXPIRY DATE on row #'.$line;
                     }
                     if($lic_date == 'LICENCE IN PROGRESS' || $lic_date == NULL) {
                         $issues_observed[] = 'Invalid ISSUE DATE on row #'.$line;
+                        $unsaved_data[] = 'Invalid ISSUE DATE on row #'.$line;
                     }
                     if($mineral == NULL) {
                         $issues_observed[] = 'MINERAL field should not be empty on row #'.$line;
+                        $unsaved_data[] = 'MINERAL field should not be empty on row #'.$line;
                     }
                     if($license_no == NULL) {
                         $issues_observed[] = 'LICENSE NUMBER field should not be empty on row #'.$line;
+                        $unsaved_data[] = 'LICENSE NUMBER field should not be empty on row #'.$line;
                     }
                     
                     // check for correct state spelling
                     $state_data = State::where('name', ucwords($state))->first();
                     if (!$state_data) {
                         $issues_observed[] = "Invalid State on row #$line. Please check the spelling of $state.";
+                        $unsaved_data[] = "Invalid State on row #$line. Please check the spelling of $state.";
                     }
                     $lga_data = LocalGovernmentArea::where('name', ucwords($lga))->first();
                     if (!$lga_data) {
                         $issues_observed[] = "Invalid LGA on row #$line. Please check the spelling of $lga.";
+                        $unsaved_data[] = "Invalid LGA on row #$line. Please check the spelling of $lga.";
                     }
 
 
@@ -281,7 +287,7 @@ class LicensesController extends Controller
                     $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
                     $license_date = date('Y-m-d', strtotime($this->formatDate($lic_date)));
                     if(count($issues_observed) > 0) {
-                        $unsaved_data[] = $issues_observed;                    
+                        // $unsaved_data = $issues_observed;                    
                         $line++;
                         continue;
                     }
