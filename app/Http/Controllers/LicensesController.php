@@ -215,12 +215,13 @@ class LicensesController extends Controller
     {
         set_time_limit(0);
         ini_set('memory_limit', '1024M');
+        
+        $request->validate([
+            'bulk_licenses_file' => 'required|mimes:csv',
+        ]);
         try {
             $actor = $this->getUser();
             $client_id = $request->client_id;
-            $request->validate([
-                'bulk_licenses_file' => 'required|mimes:csv',
-            ]);
             $file = $request->file('bulk_licenses_file');
             $csvAsArray = array_map('str_getcsv', file($file));
             $header = array_shift($csvAsArray);
