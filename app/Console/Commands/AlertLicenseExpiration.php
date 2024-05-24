@@ -113,6 +113,7 @@ class AlertLicenseExpiration extends Command
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'expired,';
+                $license->status = 'Expired';
                 $license->save();
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
