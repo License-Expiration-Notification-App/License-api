@@ -215,123 +215,131 @@ class LicensesController extends Controller
     {
         set_time_limit(0);
         ini_set('memory_limit', '1024M');
-        $actor = $this->getUser();
-        $client_id = $request->client_id;
-        $request->validate([
-            'bulk_licenses_file' => 'required|mimes:csv',
-        ]);
-        $file = $request->file('bulk_licenses_file');
-        $csvAsArray = array_map('str_getcsv', file($file));
-        $header = array_shift($csvAsArray);
-        $issues = $this->missingHeaders($header);
-        if(count($issues) > 0) {
-            return response()->json($issues, 500);
-        }  
-        $csv    = array();
-        foreach($csvAsArray as $row) {
-            $csv[] = array_combine($header, $row);
-        }
-        
-        $unsaved_data = [];
-        $line = 2;
-        foreach($csv as $csvRow) {
-            // try {
-                $issues_observed = [];          
-                $company = trim($csvRow['COMPANY NAME']);                
-                $mineral = ucwords(trim($csvRow['MINERAL'])); 
-                $license_no = trim($csvRow['LICENSE NUMBER']);
-                $exp_date = strtoupper(trim($csvRow['EXPIRY DATE']));                
-                $lic_date = trim($csvRow['ISSUE DATE']);
-                $state = trim($csvRow['STATE']);
-                $lga = trim($csvRow['LGA']);                
-                $size_of_tenement = trim($csvRow['TENEMENT SIZE']);
-                //code...
-                if($company == NULL || $company == 'COMPANY NAME') {
-                    // $unsaved_data['Invalid Row on row #'.$line] = $csvRow;                    
-                    // $line++;
-                    continue;
-                }
-                if($exp_date == 'LICENCE IN PROGRESS' || $exp_date == NULL) {
-                    $issues_observed[] = 'Invalid EXPIRY DATE on row #'.$line;
-                }
-                if($lic_date == 'LICENCE IN PROGRESS' || $lic_date == NULL) {
-                    $issues_observed[] = 'Invalid ISSUE DATE on row #'.$line;
-                }
-                if($mineral == NULL) {
-                    $issues_observed[] = 'MINERAL field should not be empty on row #'.$line;
-                }
-                if($license_no == NULL) {
-                    $issues_observed[] = 'LICENSE NUMBER field should not be empty on row #'.$line;
-                }
+        try {
+            $actor = $this->getUser();
+            $client_id = $request->client_id;
+            $request->validate([
+                'bulk_licenses_file' => 'required|mimes:csv',
+            ]);
+            $file = $request->file('bulk_licenses_file');
+            $csvAsArray = array_map('str_getcsv', file($file));
+            $header = array_shift($csvAsArray);
+            $issues = $this->missingHeaders($header);
+            if(count($issues) > 0) {
+                return response()->json($issues, 500);
+            }  
+            $csv    = array();
+            foreach($csvAsArray as $row) {
+                $csv[] = array_combine($header, $row);
+            }
+            $unsaved_data = [];
+            $line = 2;
+            foreach($csv as $csvRow) {
                 
-                // check for correct state spelling
-                $state_data = State::where('name', ucwords($state))->first();
-                if (!$state_data) {
-                    $issues_observed[] = "Invalid State on row #$line. Please check the spelling of $state.";
-                }
-                $lga_data = LocalGovernmentArea::where('name', ucwords($lga))->first();
-                if (!$lga_data) {
-                    $issues_observed[] = "Invalid LGA on row #$line. Please check the spelling of $lga.";
-                }
-
-
-                $licence_no_array = explode(' ',$license_no);
-                $license_type_slug = strtoupper(end($licence_no_array));
-                $status = trim($csvRow['STATUS']);
-                $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
-                $license_date = date('Y-m-d', strtotime($this->formatDate($lic_date)));
-                if(count($issues_observed) > 0) {
-                    $unsaved_data[] = ['issues' => $issues_observed, 'affected_row' => $csvRow, 'implication' => 'This row was skipped. Solve the issues and try again' ];                    
-                    $line++;
-                    continue;
-                }
-
-                // all issues are picked out. Now let's populate the DB
-                // let's store the mineral incase it does not exist;
-                $db_mineral = Mineral::firstOrCreate(['name' => $mineral]);
-                // let's fetch the license type from the slug;
-                $license_type = LicenseType::where('slug', $license_type_slug)->first();
-                // create the subsidiary if it does not exist
-                $subsidiary = Subsidiary::firstOrCreate(['name' => $company, 'client_id' => $client_id]);
-
-                $license = License::where('license_no', $license_no)->first();
-                if (!$license) {
-                    $license = new License();
-                    $license->client_id = $client_id;
-                    $license->subsidiary_id = $subsidiary->id;
-                    $license->license_no = $license_no;
-                    $license->license_type_id = $license_type->id;
-                    $license->mineral_id = $db_mineral->id;
-                    $license->state_id = $state_data->id;
-                    $license->lga_id = $lga_data->id;
-                    $license->license_date = $license_date;
-                    $license->expiry_date = $expiry_date;
-                    $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->expiry_date)));
-                    $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->expiry_date)));
-                    $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->expiry_date)));
-                    $license->size_of_tenement = $size_of_tenement;
-                    $license->license_status = $status;
-                    // $license->renewed_date = date('Y-m-d', strtotime($request->renewed_date));
-                    
-                    $license->added_by = $actor->id;
-                    if ($license->save()) {
-                        $subsidiary = Subsidiary::with('client')->find($license->subsidiary_id);
-                        $title = "New License Added";
-
-                        //log this event
-                        $description = "New license ($license->license_no) was added for <strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by <strong>$actor->name</strong>";
-                        $this->licenseEvent($title, $description, 'License Management', 'add', [$actor]);
-
-                        // return $this->show($license);
-                        // response()->json(compact('client'), 200);
+                    $issues_observed = [];          
+                    $company = trim($csvRow['COMPANY NAME']);                
+                    $mineral = ucwords(trim($csvRow['MINERAL'])); 
+                    $license_no = trim($csvRow['LICENSE NUMBER']);
+                    $exp_date = strtoupper(trim($csvRow['EXPIRY DATE']));                
+                    $lic_date = trim($csvRow['ISSUE DATE']);
+                    $state = trim($csvRow['STATE']);
+                    $lga = trim($csvRow['LGA']);                
+                    $size_of_tenement = trim($csvRow['TENEMENT SIZE']);
+                    //code...
+                    if($company == NULL || $company == 'COMPANY NAME') {
+                        // $unsaved_data['Invalid Row on row #'.$line] = $csvRow;                    
+                        // $line++;
+                        continue;
                     }
-                }
-            // } catch (\Throwable $th) {
-            //     $unsaved_data[] = $csvRow;
-            // }
-                $line++;
+                    if($exp_date == 'LICENCE IN PROGRESS' || $exp_date == NULL) {
+                        $issues_observed[] = 'Invalid EXPIRY DATE on row #'.$line;
+                    }
+                    if($lic_date == 'LICENCE IN PROGRESS' || $lic_date == NULL) {
+                        $issues_observed[] = 'Invalid ISSUE DATE on row #'.$line;
+                    }
+                    if($mineral == NULL) {
+                        $issues_observed[] = 'MINERAL field should not be empty on row #'.$line;
+                    }
+                    if($license_no == NULL) {
+                        $issues_observed[] = 'LICENSE NUMBER field should not be empty on row #'.$line;
+                    }
+                    
+                    // check for correct state spelling
+                    $state_data = State::where('name', ucwords($state))->first();
+                    if (!$state_data) {
+                        $issues_observed[] = "Invalid State on row #$line. Please check the spelling of $state.";
+                    }
+                    $lga_data = LocalGovernmentArea::where('name', ucwords($lga))->first();
+                    if (!$lga_data) {
+                        $issues_observed[] = "Invalid LGA on row #$line. Please check the spelling of $lga.";
+                    }
+
+
+                    $licence_no_array = explode(' ',$license_no);
+                    $license_type_slug = strtoupper(end($licence_no_array));
+                    $status = trim($csvRow['STATUS']);
+                    $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
+                    $license_date = date('Y-m-d', strtotime($this->formatDate($lic_date)));
+                    if(count($issues_observed) > 0) {
+                        $unsaved_data[] = ['issues' => $issues_observed, 'affected_row' => $csvRow, 'implication' => 'This row was skipped. Solve the issues and try again' ];                    
+                        $line++;
+                        continue;
+                    }
+
+                    // all issues are picked out. Now let's populate the DB
+                    // let's store the mineral incase it does not exist;
+                    $db_mineral = Mineral::firstOrCreate(['name' => $mineral]);
+                    // let's fetch the license type from the slug;
+                    $license_type = LicenseType::where('slug', $license_type_slug)->first();
+                    // create the subsidiary if it does not exist
+                    $subsidiary = Subsidiary::firstOrCreate(['name' => $company, 'client_id' => $client_id]);
+
+                    $license = License::where('license_no', $license_no)->first();
+                    if (!$license) {
+                        $license = new License();
+                        $license->client_id = $client_id;
+                        $license->subsidiary_id = $subsidiary->id;
+                        $license->license_no = $license_no;
+                        $license->license_type_id = $license_type->id;
+                        $license->mineral_id = $db_mineral->id;
+                        $license->state_id = $state_data->id;
+                        $license->lga_id = $lga_data->id;
+                        $license->license_date = $license_date;
+                        $license->expiry_date = $expiry_date;
+                        $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->expiry_date)));
+                        $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->expiry_date)));
+                        $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->expiry_date)));
+                        $license->size_of_tenement = $size_of_tenement;
+                        $license->license_status = $status;
+                        // $license->renewed_date = date('Y-m-d', strtotime($request->renewed_date));
+                        
+                        $license->added_by = $actor->id;
+                        if ($license->save()) {
+                            $subsidiary = Subsidiary::with('client')->find($license->subsidiary_id);
+                            $title = "New License Added";
+
+                            //log this event
+                            $description = "New license ($license->license_no) was added for <strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by <strong>$actor->name</strong>";
+                            $this->licenseEvent($title, $description, 'License Management', 'add', [$actor]);
+
+                            // return $this->show($license);
+                            // response()->json(compact('client'), 200);
+                        }
+                    }
+                    $line++;
+            }
+            if(count($unsaved_data)) {
+                return response()->json(['error' => $unsaved_data], 500);
+            }
+            
+            ini_set('memory_limit', '128M');
+            return 'success';
+        
+        } catch (\Throwable $th) {
+            
+            ini_set('memory_limit', '128M');
+            return response()->json(['error' =>'Please upload a valid, non-empty .csv file'], 500);
         }
-        return $unsaved_data;
     }
     public function licenseActivityTimeLine(Request $request, License $license)
     {
