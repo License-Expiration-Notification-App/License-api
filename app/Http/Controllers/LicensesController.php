@@ -37,8 +37,8 @@ class LicensesController extends Controller
         if(!in_array('MINERAL', $header)) {
             $missing_headers[] = 'A compulsory column header: MINERAL is missing. Please add a column header name titled: MINERAL to the csv file';
         }  
-        if(!in_array('COMPANY NAME', $header)) {
-            $missing_headers[] = 'A compulsory column header: COMPANY NAME is missing. Please add a column header name titled: COMPANY NAME to the csv file';
+        if(!in_array('SUBSIDIARY NAME', $header)) {
+            $missing_headers[] = 'A compulsory column header: SUBSIDIARY NAME is missing. Please add a column header name titled: SUBSIDIARY NAME to the csv file';
         }  
         if(!in_array('LICENSE NUMBER', $header)) {
             $missing_headers[] = 'A compulsory column header: LICENSE NUMBER is missing. Please add a column header name titled: LICENSE NUMBER to the csv file';
@@ -238,7 +238,7 @@ class LicensesController extends Controller
             foreach($csv as $csvRow) {
                 
                     $issues_observed = [];          
-                    $company = trim($csvRow['COMPANY NAME']);                
+                    $company = trim($csvRow['SUBSIDIARY NAME']);                
                     $mineral = ucwords(trim($csvRow['MINERAL'])); 
                     $license_no = trim($csvRow['LICENSE NUMBER']);
                     $exp_date = strtoupper(trim($csvRow['EXPIRY DATE']));                
@@ -247,7 +247,7 @@ class LicensesController extends Controller
                     $lga = trim($csvRow['LGA']);                
                     $size_of_tenement = trim($csvRow['TENEMENT SIZE']);
                     //code...
-                    if($company == NULL || $company == 'COMPANY NAME') {
+                    if($company == NULL || $company == 'SUBSIDIARY NAME') {
                         // $unsaved_data['Invalid Row on row #'.$line] = $csvRow;                    
                         // $line++;
                         continue;
