@@ -47,10 +47,10 @@ class UsersController extends Controller
             $userQuery->where('status',  $status);
         }
         if ($sort_by == '') {
-            $sort_by = 'name';
+            $sort_by = 'created_at';
         }
         if ($sort_direction == '') {
-            $sort_direction = 'ASC';
+            $sort_direction = 'DESC';
         }
         $users = $userQuery->where('role', 'staff')->orderBy($sort_by, $sort_direction)->paginate(10);
         return response()->json(compact('users'), 200);

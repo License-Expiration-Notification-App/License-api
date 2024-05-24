@@ -57,7 +57,7 @@ class ClientsController extends Controller
             $clientQuery->where('status',  $status);
         }
         if ($sort_by == '' || $sort_by == 'license_no') {
-            $sort_by = 'company_name';
+            $sort_by = 'created_at';
         }
         if ($sort_direction == '') {
             $sort_direction = 'DESC';

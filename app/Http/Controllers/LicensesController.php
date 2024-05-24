@@ -94,7 +94,35 @@ class LicensesController extends Controller
         $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
-            $licenseQuery->where('licenses.license_no',  'LIKE', '%'.$keyword.'%');
+            $licenseQuery->where(function ($q) use ($keyword) {
+                $q->where('licenses.license_no',  'LIKE', '%'.$keyword.'%')
+                ->orWhereHas('client', function ($q) use ($keyword) {
+                    $q->where('company_name', 'LIKE', '%' . $keyword . '%');
+                })->orWhereHas('subsidiary', function ($q) use ($keyword) {
+                    $q->where('name', 'LIKE', '%' . $keyword . '%');
+                })->orWhereHas('licenseType', function ($q) use ($keyword) {
+                    $q->where('name', 'LIKE', '%' . $keyword . '%');
+                    $q->orWhere('slug', 'LIKE', '%' . $keyword . '%');
+                })->orWhereHas('mineral', function ($q) use ($keyword) {
+                    $q->where('name', 'LIKE', '%' . $keyword . '%');
+                })->orWhereHas('state', function ($q) use ($keyword) {
+                    $q->where('name', 'LIKE', '%' . $keyword . '%');
+                })->orWhereHas('lga', function ($q) use ($keyword) {
+                    $q->where('name', 'LIKE', '%' . $keyword . '%');
+                });
+            });
+          
+            // $licenseQuery->where(function ($q) use ($keyword) {
+            //     $q->where('name', 'LIKE', '%' . $keyword . '%');
+            //     $q->orWhere('email', 'LIKE', '%' . $keyword . '%');
+            //     $q->orWhere('phone', 'LIKE', '%' . $keyword . '%');
+            //     $q->orWhere('address', 'LIKE', '%' . $keyword . '%');
+            //     $q->orWhereIn('id', function ($query) use ($keyword) {
+            //         $query->select('user_id')->from('customers');
+            //         $query->where('type', 'LIKE', '%' . $keyword . '%');
+            //         $query->orWhere('team', 'LIKE', '%' . $keyword . '%');
+            //     });
+            // });
         }
         
         if ($user->hasRole('client')) {
@@ -139,10 +167,10 @@ class LicensesController extends Controller
             $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }
         if ($sort_by == '') {
-            $sort_by = 'license_no';
+            $sort_by = 'licenses.created_at';
         }
         if ($sort_direction == '') {
-            $sort_direction = 'ASC';
+            $sort_direction = 'DESC';
         }
 
         $licenses =  $licenseQuery->select('licenses.*', 'clients.company_name as client','subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->orderBy($sort_by, $sort_direction)->paginate($limit);
@@ -243,6 +271,7 @@ class LicensesController extends Controller
                 $csv[] = array_combine($header, $row);
             }
             $unsaved_data = [];
+            $saved_data = [];
             $line = 2;
             foreach($csv as $csvRow) {
                 
@@ -289,11 +318,11 @@ class LicensesController extends Controller
                         $issues_observed[] = "Invalid LGA on row #$line. Please check the spelling of $lga.";
                         $unsaved_data[] = "Invalid LGA on row #$line. Please check the spelling of $lga.";
                     }
-                    $license = License::where('license_no', $license_no)->first();
-                    if ($license) {
-                        $issues_observed[] = "Duplicate License Number: $license_no on row #$line. This license number has been registered already";
-                        $unsaved_data[] = "Duplicate License Number: $license_no on row #$line. This license number has been registered already";
-                    }
+                    // $license = License::where('license_no', $license_no)->first();
+                    // if ($license) {
+                    //     $issues_observed[] = "Duplicate License Number: $license_no on row #$line. This license number has been registered already";
+                    //     $unsaved_data[] = "Duplicate License Number: $license_no on row #$line. This license number has been registered already";
+                    // }
 
                     $licence_no_array = explode(' ',$license_no);
                     $license_type_slug = strtoupper(end($licence_no_array));
@@ -314,7 +343,7 @@ class LicensesController extends Controller
                     // create the subsidiary if it does not exist
                     $subsidiary = Subsidiary::firstOrCreate(['name' => $company, 'client_id' => $client_id]);
 
-                    
+                    $license = License::where('license_no', $license_no)->first();
                     if (!$license) {
                         $license = new License();
                         $license->client_id = $client_id;
@@ -347,6 +376,7 @@ class LicensesController extends Controller
                         }
                         $license->added_by = $actor->id;
                         if ($license->save()) {
+                            $saved_data[] = "License Number: $license_no on row #$line is successfully saved.";
                             $subsidiary = Subsidiary::with('client')->find($license->subsidiary_id);
                             $title = "New License Added";
 
@@ -361,7 +391,7 @@ class LicensesController extends Controller
                     $line++;
             }
             if(count($unsaved_data)) {
-                return response()->json(['error' => $unsaved_data], 500);
+                return response()->json(['error' => $unsaved_data, 'saved_data' => $saved_data], 500);
             }
             
             ini_set('memory_limit', '128M');
