@@ -201,7 +201,7 @@ class LicensesController extends Controller
 
                 //log this event
                 $description = "New license ($license->license_no) was added for <strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by <strong>$actor->name</strong>";
-                $this->LicenseActivityLog($title, $description, 'License Management', 'add', [$actor]);
+                $this->licenseEvent($title, $description, 'License Management', 'add', [$actor]);
 
                 return $this->show($license);
                 // response()->json(compact('client'), 200);
@@ -320,7 +320,7 @@ class LicensesController extends Controller
 
                         //log this event
                         $description = "New license ($license->license_no) was added for <strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by <strong>$actor->name</strong>";
-                        $this->LicenseActivityLog($title, $description, 'License Management', 'add', [$actor]);
+                        $this->licenseEvent($title, $description, 'License Management', 'add', [$actor]);
 
                         // return $this->show($license);
                         // response()->json(compact('client'), 200);
@@ -420,7 +420,7 @@ class LicensesController extends Controller
         $title = "License Updated";
         //log this event
         $description = "<strong>$actor->name</strong> updated <strong>($license->license_no)</strong>";
-        $this->LicenseActivityLog($title, $description, 'License Management', 'edit', [$actor]);
+        $this->licenseEvent($title, $description, 'License Management', 'edit', [$actor]);
         return $this->show($license);
     }
     
@@ -435,7 +435,7 @@ class LicensesController extends Controller
         $title = "License Deleted";
         //log this event
         $description = "<strong>$actor->name</strong> removed <strong>($license->license_no)</strong>";
-        $this->LicenseActivityLog($title, $description, 'License Management', 'remove', [$actor]);
+        $this->licenseEvent($title, $description, 'License Management', 'remove', [$actor]);
         $license->delete();
         return response()->json([], 204);
     }
