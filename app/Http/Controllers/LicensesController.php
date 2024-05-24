@@ -182,7 +182,7 @@ class LicensesController extends Controller
             $license->lga_id = $request->lga_id;
             $license->license_date = date('Y-m-d', strtotime($request->license_date));
 
-            $license->expiry_date = date('Y-m-d', strtotime('+3 years', $request->license_date));
+            $license->expiry_date = date('Y-m-d', strtotime('+3 years', strtotime($license->license_date)));
             
             $license->renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($license->expiry_date)));
 
@@ -326,7 +326,7 @@ class LicensesController extends Controller
                         $license->lga_id = $lga_data->id;
                         $license->license_date = $license_date;
 
-                        $license->expiry_date = date('Y-m-d', strtotime('+3 years', $license->license_date));
+                        $license->expiry_date = date('Y-m-d', strtotime('+3 years', strtotime($license->license_date)));
             
                         $license->renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($license->expiry_date)));
 
@@ -450,7 +450,7 @@ class LicensesController extends Controller
         $license->state_id = $request->state_id;
         $license->lga_id = $request->lga_id;
         $license->license_date = date('Y-m-d', strtotime($request->license_date));
-        $license->expiry_date = date('Y-m-d', strtotime('+3 years', $license->license_date));
+        $license->expiry_date = date('Y-m-d', strtotime('+3 years', strtotime($license->license_date)));
             
         $license->renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($license->expiry_date)));
 

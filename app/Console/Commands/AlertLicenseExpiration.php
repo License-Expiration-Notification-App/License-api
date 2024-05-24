@@ -192,7 +192,7 @@ class AlertLicenseExpiration extends Command
      */
     public function handle()
     {
-        $this->logClientExpiryActivity();
+        // $this->logClientExpiryActivity();
         $this->alertExpiration();
         $this->alertOneMonthToExpiration();
         $this->alertTwoWeeksToExpiration();
