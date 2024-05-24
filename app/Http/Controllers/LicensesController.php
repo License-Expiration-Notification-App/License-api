@@ -217,7 +217,7 @@ class LicensesController extends Controller
         ini_set('memory_limit', '1024M');
         
         $request->validate([
-            'bulk_licenses_file' => 'required|mimes:csv',
+            'bulk_licenses_file' => 'required|mimes:csv,txt',
         ]);
         try {
             $actor = $this->getUser();
