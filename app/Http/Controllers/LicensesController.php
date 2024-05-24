@@ -356,7 +356,7 @@ class LicensesController extends Controller
         $min_date = Arr::get($searchParams, 'min_date', '');
         $max_date = Arr::get($searchParams, 'max_date', '');
         if (!empty($submission_type)) {
-            $licenseActivityQuery->where('title', 'LIKE', '%'. $submission_type.'%');
+            $licenseActivityQuery->where('type', 'LIKE', '%'. $submission_type.'%');
         }
         if (!empty($status)) {
             $licenseActivityQuery->where('status', $status);
@@ -380,12 +380,7 @@ class LicensesController extends Controller
         }
         if ($type == 'Annual Report' || $type == 'Quarterly Report') {
             $reports = Report::join('uploads', 'uploads.report_id', 'reports.id')
-            ->where([
-                    'client_id' => $time_line->client_id,
-                    'license_id' => $time_line->license_id,
-                    'due_date' => $time_line->due_date,
-                ],
-            )->select('link', 'status')->get();
+            ->where('id', $time_line->uuid)->select('link', 'status')->get();
             $time_line->uploads = $reports;
         }
        }
