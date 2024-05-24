@@ -60,7 +60,7 @@ class ClientsController extends Controller
             $sort_by = 'company_name';
         }
         if ($sort_direction == '') {
-            $sort_direction = 'ASC';
+            $sort_direction = 'DESC';
         }
 
         $clients =  $clientQuery->where($condition)->select('clients.*')->withCount('subsidiaries', 'licenses')->orderBy($sort_by, $sort_direction)->paginate($limit);

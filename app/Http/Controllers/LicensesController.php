@@ -181,11 +181,20 @@ class LicensesController extends Controller
             $license->state_id = $request->state_id;
             $license->lga_id = $request->lga_id;
             $license->license_date = date('Y-m-d', strtotime($request->license_date));
-            $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
-            $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($request->expiry_date)));
-            $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($request->expiry_date)));
-            $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($request->expiry_date)));
+
+            $license->expiry_date = date('Y-m-d', strtotime('+3 years', $request->license_date));
+            
+            $license->renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($license->expiry_date)));
+
+            $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->renewal_date)));
+            $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->renewal_date)));
+            $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->renewal_date)));
             $license->size_of_tenement = $request->size_of_tenement;
+            $today = date('Y-m-d', strtotime('now'));
+            $license->status = 'Active';
+            if ($license->expiry_date <= $today) {
+                $license->status = 'Expired';
+            }
             // $license->renewed_date = date('Y-m-d', strtotime($request->renewed_date));
             if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
 
@@ -316,14 +325,26 @@ class LicensesController extends Controller
                         $license->state_id = $state_data->id;
                         $license->lga_id = $lga_data->id;
                         $license->license_date = $license_date;
-                        $license->expiry_date = $expiry_date;
-                        $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->expiry_date)));
-                        $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->expiry_date)));
-                        $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->expiry_date)));
+
+                        $license->expiry_date = date('Y-m-d', strtotime('+3 years', $license->license_date));
+            
+                        $license->renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($license->expiry_date)));
+
+                        $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->renewal_date)));
+                        $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->renewal_date)));
+                        $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->renewal_date)));
+                        // $license->expiry_date = $expiry_date;
+                        // $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->expiry_date)));
+                        // $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->expiry_date)));
+                        // $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->expiry_date)));
                         $license->size_of_tenement = $size_of_tenement;
                         $license->license_status = $status;
                         // $license->renewed_date = date('Y-m-d', strtotime($request->renewed_date));
-                        
+                        $today = date('Y-m-d', strtotime('now'));
+                        $license->status = 'Active';
+                        if ($license->expiry_date <= $today) {
+                            $license->status = 'Expired';
+                        }
                         $license->added_by = $actor->id;
                         if ($license->save()) {
                             $subsidiary = Subsidiary::with('client')->find($license->subsidiary_id);
@@ -419,6 +440,7 @@ class LicensesController extends Controller
     public function update(Request $request, License $license)
     {
         //
+
         $actor = $this->getUser();
         $license->client_id = $request->client_id;
         $license->subsidiary_id = $request->subsidiary_id; 
@@ -428,8 +450,22 @@ class LicensesController extends Controller
         $license->state_id = $request->state_id;
         $license->lga_id = $request->lga_id;
         $license->license_date = date('Y-m-d', strtotime($request->license_date));
-        $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
+        $license->expiry_date = date('Y-m-d', strtotime('+3 years', $license->license_date));
+            
+        $license->renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($license->expiry_date)));
+
+        $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->renewal_date)));
+        $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->renewal_date)));
+        $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->renewal_date)));
+
+        // $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
         $license->size_of_tenement = $request->size_of_tenement;
+        $license->expiry_alert_sent = NULL;
+        $today = date('Y-m-d', strtotime('now'));
+        $license->status = 'Active';
+        if ($license->expiry_date <= $today) {
+            $license->status = 'Expired';
+        }
         $license->save();
         $title = "License Updated";
         //log this event
