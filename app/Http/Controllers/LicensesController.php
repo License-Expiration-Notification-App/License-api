@@ -360,11 +360,11 @@ class LicensesController extends Controller
        ->where('status', '!=', 'Pending')->paginate(10);
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
-        if ($type == 'renewal') {
+        if ($type == 'License Renewal') {
             $renewals = Renewal::where('license_id', $time_line->license_id)->select('link', 'status')->get();
             $time_line->uploads = $renewals;
         }
-        if ($type == 'report') {
+        if ($type == 'Annual Report' || $type == 'Quarterly Report') {
             $reports = Report::join('uploads', 'uploads.report_id', 'reports.id')
             ->where([
                     'client_id' => $time_line->client_id,
@@ -518,7 +518,7 @@ class LicensesController extends Controller
                     'due_date' => $license->expiry_date,
                     
                 ],
-                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467']
+                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal']
             );
         }
         return 'success';
@@ -570,7 +570,7 @@ class LicensesController extends Controller
                     'title' => 'strong>'.$report->report_type.' Report</strong>',
                     'due_date' => $report->due_date,
                 ],
-                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467']
+                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status']
             );
         }
         return 'success';
@@ -591,7 +591,7 @@ class LicensesController extends Controller
                 'status' => 'Approved',
                 'due_date' => $report->due_date,
             ],
-            ['description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF']
+            ['description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'Report Status']
         );
         return 'success';
     }
@@ -611,7 +611,7 @@ class LicensesController extends Controller
                 'status' => 'Rejected',
                 'due_date' => $report->due_date,
             ],
-            ['description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318']
+            ['description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Report Status']
         );
         return 'success';
     }
@@ -635,7 +635,7 @@ class LicensesController extends Controller
                 'status' => 'Approved',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Approved', 'description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF']
+            ['status' => 'Approved', 'description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'License Renewal']
         );
         return 'success';
     }
@@ -658,7 +658,7 @@ class LicensesController extends Controller
                 'status' => 'Rejected',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Rejected', 'description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318']
+            ['status' => 'Rejected', 'description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'License Renewal']
         );
         return 'success';
     }

@@ -121,7 +121,7 @@ class UsersController extends Controller
         // $notificationQuery = $user->notifications()->where('data', 'NOT LIKE', '%Audit Trail%');
         $notificationQuery = LicenseActivity::query();
         if (!empty($info_type)) {
-            $notificationQuery->where('title', 'LIKE', '%'.$info_type.'%');
+            $notificationQuery->where('type', 'LIKE', '%'.$info_type.'%');
         }
         if (!empty($min_date)) {
             $min_date = date('Y-m-d',strtotime($min_date));//.' 00.00.00';
@@ -135,7 +135,7 @@ class UsersController extends Controller
             $client_id = $this->getClient()->id;
             $notificationQuery->where('client_id', $client_id);
         }
-        $notifications = $notificationQuery->orderBy('due_date', 'ASC')->select('title', 'description', 'color_code', 'created_at')->paginate(10);
+        $notifications = $notificationQuery->orderBy('due_date', 'ASC')->select('title', 'description', 'color_code', 'uuid', 'type', 'created_at')->paginate(10);
         // $unread_notifications = $user->unreadNotifications()->where('data', 'LIKE', '%'.$license_no.'%')->count();
         return response()->json(compact('notifications'), 200);
     }

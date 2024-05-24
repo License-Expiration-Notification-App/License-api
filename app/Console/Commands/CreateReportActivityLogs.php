@@ -38,7 +38,7 @@ class CreateReportActivityLogs extends Command
 
                 $description = "<strong>$license->license_no</strong> annual report for <strong>$subsidiary($client)</strong> is due on <strong>$report->due_date</strong>";
                 $year = date('Y', strtotime($report->due_date));
-                $this->logLicenseActivity($report, "<strong>Annual Report for $year</strong>", $description, $report->due_date);
+                $this->logLicenseActivity($report, "<strong>Annual Report for $year</strong>", $description, $report->due_date, 'Annual Report');
             }
         });
     }
@@ -54,11 +54,11 @@ class CreateReportActivityLogs extends Command
 
                 $description = "<strong>$license->license_no</strong> quarterly report for <strong>$subsidiary($client)</strong> is due on <strong>$report->due_date</strong>";
                 $month = date('F', strtotime($report->due_date));
-                $this->logLicenseActivity($report, "<strong>Quarterly Report for $month</strong>", $description, $report->due_date);
+                $this->logLicenseActivity($report, "<strong>Quarterly Report for $month</strong>", $description, $report->due_date, 'Quarterly Report');
             }
         });
     }
-    private function logLicenseActivity($report, $title, $desc, $date) {
+    private function logLicenseActivity($report, $title, $desc, $date, $type) {
         LicenseActivity::firstOrCreate(
             [
                 'client_id' => $report->client_id,
@@ -67,7 +67,7 @@ class CreateReportActivityLogs extends Command
                 'title' => $title,
                 'due_date' => $date,
             ],
-            ['description' =>$desc, 'status' => 'Pending', 'color_code' => '#735812', 'type' => 'report']
+            ['description' =>$desc, 'status' => 'Pending', 'color_code' => '#735812', 'type' => $type]
         );
     }
     /**

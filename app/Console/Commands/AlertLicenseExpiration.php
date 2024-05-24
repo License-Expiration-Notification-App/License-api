@@ -159,7 +159,7 @@ class AlertLicenseExpiration extends Command
             ], 
             [
             
-                'description' => $description, 'status' => 'Pending', 'color_code' => '#98A2B3', 'type' => 'renewal'
+                'description' => $description, 'status' => 'Pending', 'color_code' => '#98A2B3', 'type' => 'License Renewal'
             ]
         );
     }
