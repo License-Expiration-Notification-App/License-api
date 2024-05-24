@@ -38,7 +38,7 @@ class ReportsController extends Controller
 
         $pending_activities = LicenseActivity::where('client_id', $client_id)
         ->where('status', 'Pending')
-        ->select('title',\DB::raw('COUNT(*) as total'), 'type')->groupBy('title')
+        ->select('title', 'type', \DB::raw('COUNT(*) as total'))->groupBy('title')
         ->get();
 
         $total_pending_activities = LicenseActivity::where('client_id', $client_id)
@@ -100,7 +100,7 @@ class ReportsController extends Controller
         ->get();
 
         $pending_activities = LicenseActivity::where('status', 'Pending')
-        ->select('title',\DB::raw('COUNT(*) as total'), 'type')->groupBy('title')
+        ->select('title', 'type', \DB::raw('COUNT(*) as total'))->groupBy('title')
         ->get();
 
         $total_pending_activities = LicenseActivity::where('status', 'Pending')
