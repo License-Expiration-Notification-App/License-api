@@ -281,7 +281,7 @@ class LicensesController extends Controller
                     $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
                     $license_date = date('Y-m-d', strtotime($this->formatDate($lic_date)));
                     if(count($issues_observed) > 0) {
-                        $unsaved_data[] = ['issues' => $issues_observed, 'affected_row' => $csvRow, 'implication' => 'This row was skipped. Solve the issues and try again' ];                    
+                        $unsaved_data[] = $issues_observed;                    
                         $line++;
                         continue;
                     }
