@@ -160,11 +160,11 @@ class LicensesController extends Controller
         // }
         if (!empty($min_date)) {
             $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
-            $licenseQuery->where('licenses.expiry_date', '>=', $min_date);
+            $licenseQuery->where('licenses.created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
             $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
-            $licenseQuery->where('licenses.expiry_date', '<=', $max_date);
+            $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }
         if ($sort_by == '') {
             $sort_by = 'licenses.renewal_date';
