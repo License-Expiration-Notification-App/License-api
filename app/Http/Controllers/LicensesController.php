@@ -379,7 +379,7 @@ class LicensesController extends Controller
             $time_line->uploads = $renewals;
         }
         if ($type == 'Annual Report' || $type == 'Quarterly Report') {
-            $reports = Report::join('uploads', 'uploads.report_id', 'reports.id')
+            $reports = Report::join('report_uploads', 'report_uploads.report_id', 'reports.id')
             ->where('id', $time_line->uuid)->select('link', 'status')->get();
             $time_line->uploads = $reports;
         }
