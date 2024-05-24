@@ -34,7 +34,7 @@ class ClientsController extends Controller
         $status = Arr::get($searchParams, 'status', '');
         $min_date = Arr::get($searchParams, 'min_date', '');
         $max_date = Arr::get($searchParams, 'max_date', '');
-        $sort_by = Arr::get($searchParams, 'sort_by', 'company_name');
+        $sort_by = Arr::get($searchParams, 'sort_by', '');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
             $clientQuery->where(function ($q) use ($keyword) {
@@ -56,7 +56,7 @@ class ClientsController extends Controller
         if (!empty($status)) {
             $clientQuery->where('status',  $status);
         }
-        if ($sort_by == '') {
+        if ($sort_by == '' || $sort_by == 'license_no') {
             $sort_by = 'company_name';
         }
         if ($sort_direction == '') {
