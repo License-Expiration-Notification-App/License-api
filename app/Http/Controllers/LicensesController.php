@@ -167,7 +167,7 @@ class LicensesController extends Controller
             $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }
         if ($sort_by == '') {
-            $sort_by = 'licenses.created_at';
+            $sort_by = 'licenses.renewal_date';
         }
         if ($sort_direction == '') {
             $sort_direction = 'DESC';
