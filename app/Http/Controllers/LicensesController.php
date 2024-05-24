@@ -282,8 +282,8 @@ class LicensesController extends Controller
                     }
                     $license = License::where('license_no', $license_no)->first();
                     if ($license) {
-                        $issues_observed[] = "Duplicate License Number: $license_no on row #$line.";
-                        $unsaved_data[] = "Duplicate License Number: $license_no on row #$line.";
+                        $issues_observed[] = "Duplicate License Number: $license_no on row #$line. This license number has been registered already";
+                        $unsaved_data[] = "Duplicate License Number: $license_no on row #$line. This license number has been registered already";
                     }
 
                     $licence_no_array = explode(' ',$license_no);
