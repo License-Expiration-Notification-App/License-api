@@ -94,38 +94,28 @@ class LicensesController extends Controller
         $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
-            $licenseQuery->where(function ($q) use ($keyword) {
-                $q->where('license_no',  'LIKE', '%'.$keyword.'%')
-                ->orWhereHas('client', function ($q) use ($keyword) {
-                    $q->where('company_name', 'LIKE', '%' . $keyword . '%');
-                })
-                ->orWhereHas('subsidiary', function ($q) use ($keyword) {
-                    $q->where('name', 'LIKE', '%' . $keyword . '%');
-                })
-                ->orWhereHas('licenseType', function ($q) use ($keyword) {
-                    $q->where('name', 'LIKE', '%' . $keyword . '%');
-                    $q->orWhere('slug', 'LIKE', '%' . $keyword . '%');
-                })
-                ->orWhereHas('mineral', function ($q) use ($keyword) {
-                    $q->where('name', 'LIKE', '%' . $keyword . '%');
-                })
-                ->orWhereHas('state', function ($q) use ($keyword) {
-                    $q->where('name', 'LIKE', '%' . $keyword . '%');
-                })
-                ->orWhereHas('lga', function ($q) use ($keyword) {
-                    $q->where('name', 'LIKE', '%' . $keyword . '%');
-                });
-            });
-          
+            $request->page = 1;
+            $licenseQuery->search($request->search);
             // $licenseQuery->where(function ($q) use ($keyword) {
-            //     $q->where('name', 'LIKE', '%' . $keyword . '%');
-            //     $q->orWhere('email', 'LIKE', '%' . $keyword . '%');
-            //     $q->orWhere('phone', 'LIKE', '%' . $keyword . '%');
-            //     $q->orWhere('address', 'LIKE', '%' . $keyword . '%');
-            //     $q->orWhereIn('id', function ($query) use ($keyword) {
-            //         $query->select('user_id')->from('customers');
-            //         $query->where('type', 'LIKE', '%' . $keyword . '%');
-            //         $query->orWhere('team', 'LIKE', '%' . $keyword . '%');
+            //     $q->where('license_no',  'LIKE', '%'.$keyword.'%')
+            //     ->orWhereHas('client', function ($q) use ($keyword) {
+            //         $q->where('company_name', 'LIKE', '%' . $keyword . '%');
+            //     })
+            //     ->orWhereHas('subsidiary', function ($q) use ($keyword) {
+            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
+            //     })
+            //     ->orWhereHas('licenseType', function ($q) use ($keyword) {
+            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
+            //         $q->orWhere('slug', 'LIKE', '%' . $keyword . '%');
+            //     })
+            //     ->orWhereHas('mineral', function ($q) use ($keyword) {
+            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
+            //     })
+            //     ->orWhereHas('state', function ($q) use ($keyword) {
+            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
+            //     })
+            //     ->orWhereHas('lga', function ($q) use ($keyword) {
+            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
             //     });
             // });
         }
@@ -134,40 +124,51 @@ class LicensesController extends Controller
             $id = $this->getClient()->id;
             $licenseQuery->where('licenses.client_id',  $id);
         }else if (!empty($client_id)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.client_id',  $client_id);
         }
         if (!empty($subsidiary_id)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.subsidiary_id',  $subsidiary_id);
         }
         if (!empty($license_type_id)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.license_type_id',  $license_type_id);
         }
         if (!empty($mineral_id)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.mineral_id',  $mineral_id);
         }
         if (!empty($state_id)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.state_id',  $state_id);
         }
         if (!empty($lga_id)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.lga_id',  $lga_id);
         }
         if (!empty($status)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.status',  $status);
         }
         if (!empty($license_date)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.license_date',  'LIKE', '%' . date('Y-m-d',strtotime($license_date)) . '%');
         }
         if (!empty($expiry_date)) {
+            $request->page = 1;
             $licenseQuery->where('licenses.expiry_date',  'LIKE', '%' . date('Y-m-d',strtotime($expiry_date)) . '%');
         }
         // if (!empty($date_created)) {
         //     $licenseQuery->where('licenses.created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         // }
         if (!empty($min_date)) {
+            $request->page = 1;
             $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
             $licenseQuery->where('licenses.created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
+            $request->page = 1;
             $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
             $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }

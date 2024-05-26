@@ -15,6 +15,32 @@ class License extends Model
         'three_days_before_expiration',
         'expiry_alert_sent'
     ];
+    public function scopeSearch($query, $keyword)
+    {
+        // return $query->where('name', 'LIKE', "%$search%");
+        return $query->where(function ($q) use ($keyword) {
+            $q->where('license_no',  'LIKE', '%'.$keyword.'%')
+            ->orWhereHas('client', function ($q) use ($keyword) {
+                $q->where('company_name', 'LIKE', '%' . $keyword . '%');
+            })
+            ->orWhereHas('subsidiary', function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%');
+            })
+            ->orWhereHas('licenseType', function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%');
+                $q->orWhere('slug', 'LIKE', '%' . $keyword . '%');
+            })
+            ->orWhereHas('mineral', function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%');
+            })
+            ->orWhereHas('state', function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%');
+            })
+            ->orWhereHas('lga', function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%');
+            });
+        });
+    }
     public function certificates()
     {
         return $this->hasMany(Renewal::class, 'license_id', 'id');
