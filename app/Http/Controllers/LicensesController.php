@@ -94,7 +94,7 @@ class LicensesController extends Controller
         $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->search($request->search);
             // $licenseQuery->where(function ($q) use ($keyword) {
             //     $q->where('license_no',  'LIKE', '%'.$keyword.'%')
@@ -124,51 +124,51 @@ class LicensesController extends Controller
             $id = $this->getClient()->id;
             $licenseQuery->where('licenses.client_id',  $id);
         }else if (!empty($client_id)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.client_id',  $client_id);
         }
         if (!empty($subsidiary_id)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.subsidiary_id',  $subsidiary_id);
         }
         if (!empty($license_type_id)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.license_type_id',  $license_type_id);
         }
         if (!empty($mineral_id)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.mineral_id',  $mineral_id);
         }
         if (!empty($state_id)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.state_id',  $state_id);
         }
         if (!empty($lga_id)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.lga_id',  $lga_id);
         }
         if (!empty($status)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.status',  $status);
         }
         if (!empty($license_date)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.license_date',  'LIKE', '%' . date('Y-m-d',strtotime($license_date)) . '%');
         }
         if (!empty($expiry_date)) {
-            $request->page = 1;
+            unset($request->page);
             $licenseQuery->where('licenses.expiry_date',  'LIKE', '%' . date('Y-m-d',strtotime($expiry_date)) . '%');
         }
         // if (!empty($date_created)) {
         //     $licenseQuery->where('licenses.created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         // }
         if (!empty($min_date)) {
-            $request->page = 1;
+            unset($request->page);
             $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
             $licenseQuery->where('licenses.created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            $request->page = 1;
+            unset($request->page);
             $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
             $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }
@@ -180,7 +180,7 @@ class LicensesController extends Controller
         }
 
         $licenses =  $licenseQuery->select('licenses.*', 'clients.company_name as client','subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->orderBy($sort_by, $sort_direction)->paginate($limit);
-        $licenses->appends(['search' => $keyword]);
+
 
         // $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga')->where($condition)->paginate($limit);
         return response()->json(compact('licenses'), 200);
