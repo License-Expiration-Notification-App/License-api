@@ -94,7 +94,6 @@ class LicensesController extends Controller
         $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
-            unset($request->page);
             $licenseQuery->search($request->search);
             // $licenseQuery->where(function ($q) use ($keyword) {
             //     $q->where('license_no',  'LIKE', '%'.$keyword.'%')
@@ -148,27 +147,22 @@ class LicensesController extends Controller
             $licenseQuery->where('licenses.lga_id',  $lga_id);
         }
         if (!empty($status)) {
-            unset($request->page);
             $licenseQuery->where('licenses.status',  $status);
         }
         if (!empty($license_date)) {
-            unset($request->page);
             $licenseQuery->where('licenses.license_date',  'LIKE', '%' . date('Y-m-d',strtotime($license_date)) . '%');
         }
         if (!empty($expiry_date)) {
-            unset($request->page);
             $licenseQuery->where('licenses.expiry_date',  'LIKE', '%' . date('Y-m-d',strtotime($expiry_date)) . '%');
         }
         // if (!empty($date_created)) {
         //     $licenseQuery->where('licenses.created_at', 'LIKE', '%' . date('Y-m-d',strtotime($date_created)) . '%');
         // }
         if (!empty($min_date)) {
-            unset($request->page);
             $min_date = date('Y-m-d',strtotime($min_date)).' 00.00.00';
             $licenseQuery->where('licenses.created_at', '>=', $min_date);
         }
         if (!empty($max_date)) {
-            unset($request->page);
             $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
             $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }
