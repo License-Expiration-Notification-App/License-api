@@ -63,13 +63,16 @@ class LicenseActivityLog extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable)
     {
+        $title = $this->title;
+        $title = str_replace('<strong>', '', $title);
+        $title = str_replace('</strong>', '', $title);
         $body = $this->description;
         $body = str_replace('<strong>', '', $body);
         $body = str_replace('</strong>', '', $body);
 
         try {
             return (new MailMessage)
-                    ->line($this->title)
+                    ->line($title)
                     ->line($body)
                     // ->action('Notification Action', url('/'))
                     ->line('Kindly disregard this mail if it does not concern you!');
