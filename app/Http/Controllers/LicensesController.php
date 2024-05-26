@@ -180,7 +180,7 @@ class LicensesController extends Controller
         }
 
         $licenses =  $licenseQuery->select('licenses.*', 'clients.company_name as client','subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')->orderBy($sort_by, $sort_direction)->paginate($limit);
-
+        $licenses->appends(['search' => $keyword]);
 
         // $licenses =  $licenseQuery->with('client', 'subsidiary', 'licenseType', 'mineral', 'state', 'lga')->where($condition)->paginate($limit);
         return response()->json(compact('licenses'), 200);
