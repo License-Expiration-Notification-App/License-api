@@ -194,6 +194,7 @@ class LicensesController extends Controller
             'mineral_id' => 'required|string',
             'state_id' => 'required|integer',
             'lga_id' => 'required|integer',
+            'license_date' => 'required|string'
             
         ]);
         $actor = $this->getUser();
