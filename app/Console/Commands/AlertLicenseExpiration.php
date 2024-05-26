@@ -41,8 +41,10 @@ class AlertLicenseExpiration extends Command
         $today  = date('Y-m-d', strtotime('now'));
         License::with('client.users', 'subsidiary')
         ->where('one_month_before_expiration', $today)
-        ->where('expiry_alert_sent', 'NOT LIKE', '%one month%')
-        ->orWhere('expiry_alert_sent', NULL)
+        ->where(function ($q) {
+            $q->where('expiry_alert_sent', 'NOT LIKE', '%one month%')
+            ->orWhere('expiry_alert_sent', NULL);
+        })
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'one month,';
@@ -65,8 +67,10 @@ class AlertLicenseExpiration extends Command
         $today  = date('Y-m-d', strtotime('now'));
         License::with('client.users','subsidiary')
         ->where('two_weeks_before_expiration', $today)
-        ->where('expiry_alert_sent', 'NOT LIKE', '%two weeks%')
-        ->orWhere('expiry_alert_sent', NULL)
+        ->where(function ($q) {
+            $q->where('expiry_alert_sent', 'NOT LIKE', '%two weeks%')
+            ->orWhere('expiry_alert_sent', NULL);
+        })
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'two weeks,';
@@ -89,8 +93,10 @@ class AlertLicenseExpiration extends Command
         $today  = date('Y-m-d', strtotime('now'));
         License::with('client.users','subsidiary')
         ->where('three_days_before_expiration', $today)
-        ->where('expiry_alert_sent', 'NOT LIKE', '%three days%')
-        ->orWhere('expiry_alert_sent', NULL)
+        ->where(function ($q) {
+            $q->where('expiry_alert_sent', 'NOT LIKE', '%three days%')
+            ->orWhere('expiry_alert_sent', NULL);
+        })
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'three days,';
@@ -112,8 +118,10 @@ class AlertLicenseExpiration extends Command
         $today  = date('Y-m-d', strtotime('now'));
         License::with('client.users','subsidiary')
         ->where('renewal_date', '<=', $today)
-        ->where('expiry_alert_sent', 'NOT LIKE', '%renewal_due%')
-        ->orWhere('expiry_alert_sent', NULL)
+        ->where(function ($q) {
+            $q->where('expiry_alert_sent', 'NOT LIKE', '%renewal_due%')
+            ->orWhere('expiry_alert_sent', NULL);
+        })
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'renewal_due,';
@@ -135,8 +143,10 @@ class AlertLicenseExpiration extends Command
         $today  = date('Y-m-d', strtotime('now'));
         License::with('client.users','subsidiary')
         ->where('expiry_date', '<=', $today)
-        ->where('expiry_alert_sent', 'NOT LIKE', '%expired%')
-        ->orWhere('expiry_alert_sent', NULL)
+        ->where(function ($q) {
+            $q->where('expiry_alert_sent', 'NOT LIKE', '%expired%')
+            ->orWhere('expiry_alert_sent', NULL);
+        })
         ->chunkById(200, function ($licenses) {
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'expired,';
