@@ -95,19 +95,24 @@ class LicensesController extends Controller
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
         if (!empty($keyword)) {
             $licenseQuery->where(function ($q) use ($keyword) {
-                $q->where('licenses.license_no',  'LIKE', '%'.$keyword.'%')
+                $q->where('license_no',  'LIKE', '%'.$keyword.'%')
                 ->orWhereHas('client', function ($q) use ($keyword) {
                     $q->where('company_name', 'LIKE', '%' . $keyword . '%');
-                })->orWhereHas('subsidiary', function ($q) use ($keyword) {
+                })
+                ->orWhereHas('subsidiary', function ($q) use ($keyword) {
                     $q->where('name', 'LIKE', '%' . $keyword . '%');
-                })->orWhereHas('licenseType', function ($q) use ($keyword) {
+                })
+                ->orWhereHas('licenseType', function ($q) use ($keyword) {
                     $q->where('name', 'LIKE', '%' . $keyword . '%');
                     $q->orWhere('slug', 'LIKE', '%' . $keyword . '%');
-                })->orWhereHas('mineral', function ($q) use ($keyword) {
+                })
+                ->orWhereHas('mineral', function ($q) use ($keyword) {
                     $q->where('name', 'LIKE', '%' . $keyword . '%');
-                })->orWhereHas('state', function ($q) use ($keyword) {
+                })
+                ->orWhereHas('state', function ($q) use ($keyword) {
                     $q->where('name', 'LIKE', '%' . $keyword . '%');
-                })->orWhereHas('lga', function ($q) use ($keyword) {
+                })
+                ->orWhereHas('lga', function ($q) use ($keyword) {
                     $q->where('name', 'LIKE', '%' . $keyword . '%');
                 });
             });
