@@ -26,11 +26,13 @@ class UserResource extends JsonResource
         $main_admin = false;
         $client_id = '';
         $client_name = '';
+        $client_logo = '';
         if ($this->role === 'client') {
             $client_user = DB::table('client_user')->where('user_id', $this->id)->first();
             $client_id = $client_user->client_id;
             $client = Client::find($client_id);
             $client_name = $client->company_name;
+            $client_logo = $client->logo;
             if($client->main_admin === $this->id){
                 $main_admin = true;
             }
@@ -47,6 +49,7 @@ class UserResource extends JsonResource
             'role' => $this->role,
             'client_id' => $client_id,
             'client_name' => $client_name,
+            'client_logo' => $client_logo,
             // 'activity_logs' => $this->notifications()->orderBy('created_at', 'DESC')->get(),
             // 'roles' => array_map(
             //     function ($role) {
