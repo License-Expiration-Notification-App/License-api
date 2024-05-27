@@ -428,16 +428,16 @@ class LicensesController extends Controller
         }
         
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
-       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid')->paginate(10);
+       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed')->paginate(10);
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
         if ($type == 'License Renewal') {
-            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'link', 'status', 'to_be_reviewed')->get();
+            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'link', 'status')->get();
             $time_line->uploads = $renewals;
         }
         if ($type == 'Annual Report' || $type == 'Quarterly Report' || $type == 'Report Status') {
             $reports = Report::join('report_uploads', 'report_uploads.report_id', 'reports.id')
-            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as document_id', 'link', 'status', 'to_be_reviewed')->get();
+            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as document_id', 'link', 'status')->get();
             $time_line->uploads = $reports;
         }
        }
@@ -617,7 +617,7 @@ class LicensesController extends Controller
                     'due_date' => $license->expiry_date,
                     
                 ],
-                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal']
+                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal', 'to_be_reviewed' => $to_be_reviewed]
             );
         return 'success';
         }
@@ -628,13 +628,15 @@ class LicensesController extends Controller
     {
         $actor = $this->getUser();
         $report_id = $request->uuid;
+        $to_be_reviewed = $request->to_be_reviewed;
         if($report_id != NULL) {
             $entry_date = date('Y-m-d', strtotime('now'));
             $report = Report::find($report_id);
 
             $report->entry_date = $entry_date;
             $report->status = 'Submitted';
-            $report->submitted_by = $actor->id;            
+            $report->submitted_by = $actor->id;  
+            $report->to_be_reviewed = $to_be_reviewed;            
             $report->save();
             if($request->hasFile('report_file')){
                 
@@ -661,7 +663,7 @@ class LicensesController extends Controller
                     'title' => '<strong>'.$report->report_type.' Report</strong>',
                     'due_date' => $report->due_date,
                 ],
-                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status']
+                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed]
             );
         }
         return 'success';
