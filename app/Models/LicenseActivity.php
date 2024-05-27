@@ -17,6 +17,7 @@ class LicenseActivity extends Model
         'due_date',
         'color_code',
         'uuid',
-        'type'
+        'type',
+        'to_be_reviewed',
     ];
 }

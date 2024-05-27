@@ -445,8 +445,11 @@ class LicensesController extends Controller
     }
     public function licenseUpcomingActivities(Request $request, License $license)
     {
-        $upcoming_activities = LicenseActivity::where('license_id', $license->id)
-        ->where('status', 'Pending')->select('id', 'uuid', 'title', 'due_date', 'status', 'type', 'created_at')->paginate(10);
+        $upcoming_activities = LicenseActivity::
+        where('license_id', $license->id)
+        ->where('status', 'Pending')
+        ->orWhere('status', 'Rejected')
+        ->select('id', 'uuid', 'title', 'due_date', 'status', 'type', 'created_at')->paginate(10);
         return response()->json(compact('upcoming_activities'), 200);
     }
     /**
