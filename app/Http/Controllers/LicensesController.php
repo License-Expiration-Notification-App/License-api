@@ -591,7 +591,8 @@ class LicensesController extends Controller
             
             $files = $request->file('certificate_file');
             foreach ($files as $file) {
-                $name = $file->getClientOriginalName();
+                // $name = $file->getClientOriginalName();
+                $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $file_name = $name.'_'.time() . "." . $file->extension();
                 // $name = 'cert_'.time().'_'.$request->file('certificate')->hashName();
                 $link = $file->storeAs('certificate', $file_name, 'public');
@@ -652,7 +653,8 @@ class LicensesController extends Controller
                 
                 $files = $request->file('report_file');
                 foreach ($files as $file) {
-                    $name = $file->getClientOriginalName();
+                    // $name = $file->getClientOriginalName();
+                    $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $file_name = $name.'_'.time() . "." . $file->extension();
                     // $name = 'cert_'.time().'_'.$request->file('report_file')->hashName();
                     $link = $file->storeAs('report', $file_name, 'public');
