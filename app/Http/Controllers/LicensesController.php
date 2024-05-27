@@ -752,7 +752,7 @@ class LicensesController extends Controller
             Storage::disk('public')->delete(str_replace(env('APP_URL').'/storage/', '', $renewal->link));
         }
         $renewal->delete();
-        return response()->json([], 204);
+        return 'deleted';
     }
     public function deleteReportDocument(Request $request, ReportUpload $upload)
     {
@@ -761,6 +761,6 @@ class LicensesController extends Controller
             Storage::disk('public')->delete(str_replace(env('APP_URL').'/storage/', '', $upload->link));
         }
         $upload->delete();
-        return response()->json([], 204);
+        return 'deleted';
     }
 }
