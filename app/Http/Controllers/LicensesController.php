@@ -559,6 +559,7 @@ class LicensesController extends Controller
         $actor = $this->getUser();
         $license_id = $request->license_id;
         $is_renewal = $request->is_renewal; // true or false
+        $to_be_reviewed = $request->to_be_reviewed;
         $expiry_date = NULL;
         if(isset($request->expiry_date)) {
             
@@ -581,6 +582,7 @@ class LicensesController extends Controller
                 $renewal->expiry_date = $expiry_date;
                 $renewal->status = 'Submitted';
                 $renewal->submitted_by = $actor->id;      
+                $renewal->to_be_reviewed = $to_be_reviewed;
                 $renewal->save();
             }
         }        
