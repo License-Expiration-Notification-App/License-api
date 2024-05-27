@@ -432,12 +432,12 @@ class LicensesController extends Controller
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
         if ($type == 'License Renewal') {
-            $renewals = Renewal::where('license_id', $time_line->license_id)->select('link', 'status')->get();
+            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as doument_id', 'link', 'status')->get();
             $time_line->uploads = $renewals;
         }
         if ($type == 'Annual Report' || $type == 'Quarterly Report') {
             $reports = Report::join('report_uploads', 'report_uploads.report_id', 'reports.id')
-            ->where('reports.id', $time_line->uuid)->select('link', 'status')->get();
+            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as doument_id', 'link', 'status')->get();
             $time_line->uploads = $reports;
         }
        }
@@ -744,5 +744,23 @@ class LicensesController extends Controller
             ['status' => 'Rejected', 'description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'License Renewal']
         );
         return 'success';
+    }
+    public function deleteRenewalDocument(Request $request, Renewal $renewal)
+    {
+        if ($renewal->link !== NULL) {
+
+            Storage::disk('public')->delete(str_replace(env('APP_URL').'/storage/', '', $renewal->link));
+        }
+        $renewal->delete();
+        return response()->json([], 204);
+    }
+    public function deleteReportDocument(Request $request, ReportUpload $upload)
+    {
+        if ($upload->link !== NULL) {
+
+            Storage::disk('public')->delete(str_replace(env('APP_URL').'/storage/', '', $upload->link));
+        }
+        $upload->delete();
+        return response()->json([], 204);
     }
 }
