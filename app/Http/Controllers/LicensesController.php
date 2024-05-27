@@ -432,12 +432,12 @@ class LicensesController extends Controller
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
         if ($type == 'License Renewal') {
-            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as doument_id', 'link', 'status')->get();
+            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'link', 'status', 'to_be_reviewed')->get();
             $time_line->uploads = $renewals;
         }
-        if ($type == 'Annual Report' || $type == 'Quarterly Report') {
+        if ($type == 'Annual Report' || $type == 'Quarterly Report' || $type == 'Report Status') {
             $reports = Report::join('report_uploads', 'report_uploads.report_id', 'reports.id')
-            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as doument_id', 'link', 'status')->get();
+            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as document_id', 'link', 'status', 'to_be_reviewed')->get();
             $time_line->uploads = $reports;
         }
        }
@@ -558,15 +558,26 @@ class LicensesController extends Controller
     {
         $actor = $this->getUser();
         $license_id = $request->license_id;
-        $is_renewal = $request->is_renewal; // true or false
+        // $is_renewal = $request->is_renewal; // true or false
         $to_be_reviewed = $request->to_be_reviewed;
-        $expiry_date = NULL;
-        if(isset($request->expiry_date)) {
-            
-            $expiry_date = date('Y-m-d', strtotime($request->expiry_date));
-        }
         $license = License::find($license_id);
+        $no_of_renewals = $license->no_of_renewals;
+        $license_date = $license->license_date;
+        if ($no_of_renewals == 0) {
+            $next_expiry_date = date('Y-m-d', strtotime('+5 years -1 day', strtotime($license_date)));
+        }
+        if ($no_of_renewals == 1) {
+            $next_expiry_date = date('Y-m-d', strtotime('+7 years -1 day', strtotime($license_date)));
 
+            
+        }
+        $next_renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($next_expiry_date)));
+
+        $one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($next_renewal_date)));
+
+        $two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($next_renewal_date)));
+        
+        $three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($next_renewal_date)));
         if($request->hasFile('certificate_file')){
             
             $files = $request->file('certificate_file');
@@ -579,17 +590,22 @@ class LicensesController extends Controller
                 $renewal = new Renewal();
                 $renewal->license_id  = $license_id;
                 $renewal->link = env('APP_URL').'/storage/'.$link;
-                $renewal->expiry_date = $expiry_date;
+                // $renewal->expiry_date = $next_expiry_date;
                 $renewal->status = 'Submitted';
                 $renewal->submitted_by = $actor->id;      
                 $renewal->to_be_reviewed = $to_be_reviewed;
                 $renewal->save();
             }
-        }        
-
-        if($is_renewal == true) {
+        }  
+        if ($no_of_renewals < 2) {
             $actor = $this->getUser();
-            $license->expiry_date = $expiry_date;
+            $license->expiry_date = $next_expiry_date;
+            $license->renewal_date = $next_renewal_date;
+            $license->one_month_before_expiration = $one_month_before_expiration;
+            $license->two_weeks_before_expiration = $two_weeks_before_expiration;
+            $license->three_days_before_expiration = $three_days_before_expiration;
+            $license->no_of_renewals += 1;
+            $license->expiry_alert_sent = 'activity logged,';
             $license->save();
             // then since we are renewing, we need to log the activity
             LicenseActivity::firstOrCreate(
@@ -603,17 +619,9 @@ class LicensesController extends Controller
                 ],
                 ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal']
             );
-        }
         return 'success';
-        // if ($request->file('certificate') != null && $request->file('certificate')->isValid()) {
-        //     // remove previous upload
-        //     // if($license->certificate_link != NULL) {
-
-        //     //     Storage::disk('public')->delete(str_replace(env('APP_URL').'/storage/', '', $license->certificate_link));
-        //     // }
-        //     // upload new
-        // }
-        // return $this->show($license);
+        }
+        return response()->json(['error' => "Number of renewals exceeded for $license->license_no"], 500);
     }
 
     public function uploadReport(Request $request)
@@ -650,7 +658,7 @@ class LicensesController extends Controller
                     'uuid' => $report->id,
                     'client_id' => $report->client_id,
                     'license_id' => $report->license_id,
-                    'title' => 'strong>'.$report->report_type.' Report</strong>',
+                    'title' => '<strong>'.$report->report_type.' Report</strong>',
                     'due_date' => $report->due_date,
                 ],
                 ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status']
@@ -670,7 +678,7 @@ class LicensesController extends Controller
                 'uuid' => $report->id,
                 'client_id' => $report->client_id,
                 'license_id' => $report->license_id,
-                'title' => 'strong>'.$report->report_type.' Report</strong>',
+                'title' => '<strong>'.$report->report_type.' Report</strong>',
                 'status' => 'Approved',
                 'due_date' => $report->due_date,
             ],
@@ -690,7 +698,7 @@ class LicensesController extends Controller
                 'uuid' => $report->id,
                 'client_id' => $report->client_id,
                 'license_id' => $report->license_id,
-                'title' => 'strong>'.$report->report_type.' Report</strong>',
+                'title' => '<strong>'.$report->report_type.' Report</strong>',
                 'status' => 'Rejected',
                 'due_date' => $report->due_date,
             ],
