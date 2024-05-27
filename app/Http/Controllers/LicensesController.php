@@ -413,7 +413,13 @@ class LicensesController extends Controller
         $min_date = Arr::get($searchParams, 'min_date', '');
         $max_date = Arr::get($searchParams, 'max_date', '');
         if (!empty($submission_type)) {
-            $licenseActivityQuery->where('type', 'LIKE', '%'. $submission_type.'%');
+            if($submission_type == 'License Renewal') {
+                $licenseActivityQuery->where('type', 'LIKE', '%License Renewal');
+            }else {
+
+                $licenseActivityQuery->where('type', 'LIKE', '%'. $submission_type.'%')
+                ->orWhere('type', 'LIKE', '%Report Status%');
+            }
         }
         if (!empty($status)) {
             $licenseActivityQuery->where('status', $status);
