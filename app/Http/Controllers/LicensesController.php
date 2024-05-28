@@ -438,12 +438,12 @@ class LicensesController extends Controller
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
         if ($type == 'License Renewal') {
-            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'file_name', 'link', 'status')->get();
+            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'file_name', 'link', 'status', 'rejection_comment')->get();
             $time_line->uploads = $renewals;
         }
         if ($type == 'Annual Report' || $type == 'Quarterly Report' || $type == 'Report Status') {
             $reports = Report::join('report_uploads', 'report_uploads.report_id', 'reports.id')
-            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as document_id', 'file_name', 'link', 'status')->get();
+            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as document_id', 'file_name', 'link', 'status', 'rejection_comment')->get();
             $time_line->uploads = $reports;
         }
        }
