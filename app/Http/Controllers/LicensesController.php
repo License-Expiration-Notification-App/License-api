@@ -434,16 +434,16 @@ class LicensesController extends Controller
         }
         
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
-       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed')->paginate(10);
+       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed', 'rejection_comment')->paginate(10);
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
         if ($type == 'License Renewal') {
-            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'file_name', 'link', 'status', 'rejection_comment')->get();
+            $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'file_name', 'link', 'status')->get();
             $time_line->uploads = $renewals;
         }
         if ($type == 'Annual Report' || $type == 'Quarterly Report' || $type == 'Report Status') {
             $reports = Report::join('report_uploads', 'report_uploads.report_id', 'reports.id')
-            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as document_id', 'file_name', 'link', 'status', 'rejection_comment')->get();
+            ->where('reports.id', $time_line->uuid)->select('report_uploads.id as document_id', 'file_name', 'link', 'status')->get();
             $time_line->uploads = $reports;
         }
        }
@@ -719,7 +719,7 @@ class LicensesController extends Controller
                 'status' => 'Rejected',
                 'due_date' => $report->due_date,
             ],
-            ['description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Report Status']
+            ['description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Report Status','rejection_comment' => $request->rejection_comment]
         );
         return 'success';
     }
@@ -767,7 +767,7 @@ class LicensesController extends Controller
                 'status' => 'Rejected',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Rejected', 'description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'License Renewal']
+            ['status' => 'Rejected', 'description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'License Renewal', 'rejection_comment' => $request->rejection_comment]
         );
         return 'success';
     }
