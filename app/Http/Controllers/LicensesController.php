@@ -705,7 +705,9 @@ class LicensesController extends Controller
     {
         $actor = $this->getUser();
         $report->status = 'Rejected';
-        $report->rejected_by = $actor->id;            
+        $report->rejected_by = $actor->id;
+        $report->rejection_comment = $request->rejection_comment;
+        
         $report->save();
 
         LicenseActivity::firstOrCreate(
@@ -752,7 +754,8 @@ class LicensesController extends Controller
         $renewals = Renewal::where('license_id', $license->id)->get();
         foreach ($renewals as $renewal) {
             $renewal->status = 'Rejected';
-            $renewal->approved_by = $actor->id;            
+            $renewal->rejected_by = $actor->id;
+            $renewal->rejection_comment = $request->rejection_comment;         
             $renewal->save();
         }
         LicenseActivity::firstOrCreate(
