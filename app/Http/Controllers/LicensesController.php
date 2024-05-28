@@ -619,7 +619,7 @@ class LicensesController extends Controller
             $license->expiry_alert_sent = 'activity logged,';
             $license->save();
             // then since we are renewing, we need to log the activity
-            LicenseActivity::firstOrCreate(
+            LicenseActivity::updateOrCreate(
                 [
                     'license_id' => $license_id,
                     'client_id' => $license->client_id,
@@ -628,7 +628,8 @@ class LicensesController extends Controller
                     'due_date' => $license->expiry_date,
                     
                 ],
-                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal', 'to_be_reviewed' => $to_be_reviewed]
+                ['status' => 'Submitted', 
+                'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal', 'to_be_reviewed' => $to_be_reviewed]
             );
         return 'success';
         }
@@ -668,7 +669,7 @@ class LicensesController extends Controller
             }
 
             // log the activity
-            LicenseActivity::firstOrCreate(
+            LicenseActivity::updateOrCreate(
                 [
                     'uuid' => $report->id,
                     'client_id' => $report->client_id,
@@ -676,7 +677,8 @@ class LicensesController extends Controller
                     'title' => '<strong>'.$report->report_type.' Report</strong>',
                     'due_date' => $report->due_date,
                 ],
-                ['status' => 'Submitted', 'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed]
+                ['status' => 'Submitted', 
+                'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed]
             );
         }
         return 'success';

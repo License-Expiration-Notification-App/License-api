@@ -36,9 +36,9 @@ class CreateReportActivityLogs extends Command
                 $client = $report->client->company_name;
                 $subsidiary = $report->subsidiary->name;
 
-                $description = "<strong>$license->license_no</strong> annual report for <strong>$subsidiary($client)</strong> is due on <strong>$report->due_date</strong>";
                 $year = date('Y', strtotime($report->due_date));
-                $this->logLicenseActivity($report, "<strong>Annual Report for $year</strong>", $description, $report->due_date, 'Annual Report');
+                $description = "<strong>$license->license_no</strong> $year annual report for <strong>$subsidiary($client)</strong> is due on <strong>$report->due_date</strong>";
+                $this->logLicenseActivity($report, "<strong>Annual Report</strong>", $description, $report->due_date, 'Annual Report');
             }
         });
     }
@@ -52,9 +52,9 @@ class CreateReportActivityLogs extends Command
                 $client = $report->client->company_name;
                 $subsidiary = $report->subsidiary->name;
 
-                $description = "<strong>$license->license_no</strong> quarterly report for <strong>$subsidiary($client)</strong> is due on <strong>$report->due_date</strong>";
                 $month = date('F', strtotime($report->due_date));
-                $this->logLicenseActivity($report, "<strong>Quarterly Report for $month</strong>", $description, $report->due_date, 'Quarterly Report');
+                $description = "<strong>$license->license_no</strong> $month quarterly report for <strong>$subsidiary($client)</strong> is due on <strong>$report->due_date</strong>";
+                $this->logLicenseActivity($report, "<strong>Quarterly Report</strong>", $description, $report->due_date, 'Quarterly Report');
             }
         });
     }

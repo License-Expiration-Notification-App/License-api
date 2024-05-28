@@ -194,11 +194,10 @@ class AlertLicenseExpiration extends Command
                 'uuid' => $license->id,
                 'title' => "<strong>License Renewal</strong>",
                 'due_date' => $due_date,
-                'description' => $description,
             ], 
             [
             
-                 'status' => 'Pending', 'color_code' => $color_code, 'type' => 'License Renewal'
+                'description' => $description, 'status' => 'Pending', 'color_code' => $color_code, 'type' => 'License Renewal'
             ]
         );
     }
