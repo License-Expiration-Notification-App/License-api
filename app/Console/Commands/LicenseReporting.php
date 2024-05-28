@@ -28,7 +28,8 @@ class LicenseReporting extends Command
 
     private function createQuarterlyLicenseReporting()
     {
-        $due_date = Carbon::now()->endOfQuarter();
+        $date = Carbon::now()->endOfQuarter();
+        $due_date = date("Y-m-d", strtotime("-2 weeks", strtotime($date)));
         License::chunk(200, function ($licenses) use ($due_date) {
             foreach ($licenses as $license) {
                 Report::firstOrCreate(
@@ -45,7 +46,8 @@ class LicenseReporting extends Command
     }
     private function createYearlyLicenseReporting()
     {
-        $due_date = Carbon::now()->endOfYear();
+        $date = Carbon::now()->endOfYear();
+        $due_date = date("Y-m-d", strtotime("-2 weeks", strtotime($date)));
         License::chunk(200, function ($licenses) use ($due_date) {
             foreach ($licenses as $license) {
                 Report::firstOrCreate(

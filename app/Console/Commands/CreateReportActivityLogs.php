@@ -28,8 +28,10 @@ class CreateReportActivityLogs extends Command
 
     private function dueYearlyReport()
     {
+        $today = date("Y-m-d", strtotime('now'));
         Report::with('client', 'license', 'subsidiary')->where('report_type', 'Annual')
         ->where('entry_date', NULL)
+        ->where('due_date', '<=', $today)
         ->chunk(200, function ($reports) {
             foreach ($reports as $report) {
                 $license = $report->license;
@@ -44,8 +46,10 @@ class CreateReportActivityLogs extends Command
     }
     private function dueQuarterlyReport()
     {
+        $today = date("Y-m-d", strtotime('now'));
         Report::with('client', 'license', 'subsidiary')->where('report_type', 'Quarterly')
         ->where('entry_date', NULL)
+        ->where('due_date', '<=', $today)
         ->chunk(200, function ($reports) {
             foreach ($reports as $report) {          
                 $license = $report->license;
@@ -53,7 +57,9 @@ class CreateReportActivityLogs extends Command
                 $subsidiary = $report->subsidiary->name;
 
                 $month = date('F', strtotime($report->due_date));
+                
                 $description = "<strong>$license->license_no</strong> $month quarterly report for <strong>$subsidiary($client)</strong> is due on <strong>$report->due_date</strong>";
+
                 $this->logLicenseActivity($report, "<strong>Quarterly Report</strong>", $description, $report->due_date, 'Quarterly Report');
             }
         });
