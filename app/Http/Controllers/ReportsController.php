@@ -54,7 +54,9 @@ class ReportsController extends Controller
         ->where('title', 'LIKE', '%License Renewal%')
         ->where('license_activities.status', 'Pending')
         ->where('license_activities.due_date', '<=', $today)
+        ->orderBy('license_activities.due_date', 'DESC')
         ->select('license_activities.license_id', 'license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary', 'license_activities.color_code', 'license_activities.type')
+        ->take(4)
         ->get();
 
         $due_reports = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
@@ -66,7 +68,9 @@ class ReportsController extends Controller
         ->where('title', 'LIKE', '%Report%')
         ->where('license_activities.status', 'Pending')
         ->where('license_activities.due_date', '<=', $today)
+        ->orderBy('license_activities.due_date', 'DESC')
         ->select('license_activities.license_id','license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary', 'license_activities.color_code', 'license_activities.type')
+        ->take(4)
         ->get();
 
         
@@ -114,7 +118,9 @@ class ReportsController extends Controller
         ->where('title', 'LIKE', '%License Renewal%')
         ->where('license_activities.status', 'Pending')
         ->where('license_activities.due_date', '<=', $today)
+        ->orderBy('license_activities.due_date', 'DESC')
         ->select('license_activities.license_id','license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary', 'license_activities.color_code', 'license_activities.type')
+        ->take(4)
         ->get();
 
         $due_reports = LicenseActivity::join('licenses', 'license_activities.license_id', '=', 'licenses.id')
@@ -125,7 +131,9 @@ class ReportsController extends Controller
         ->where('title', 'LIKE', '%Report%')
         ->where('license_activities.status', 'Pending')
         ->where('license_activities.due_date', '<=', $today)
+        ->orderBy('license_activities.due_date', 'DESC')
         ->select('license_activities.license_id','license_activities.due_date', 'license_activities.title', 'clients.company_name as client', 'license_types.slug as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'subsidiaries.name as subsidiary', 'license_activities.color_code', 'license_activities.type')
+        ->take(4)
         ->get();
 
         
