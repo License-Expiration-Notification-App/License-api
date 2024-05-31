@@ -71,8 +71,16 @@ class LicensesController extends Controller
             $client_id = $request->client_id;
         }
         $renewal_date_passed = License::where('client_id', $client_id)->where('renewal_date', '<', $today)->count();
+        $date_passed_license = NULL;
+        $due_today_license = NULL;
+        if($renewal_date_passed == 1) {
+            $date_passed_license = License::where('client_id', $client_id)->where('renewal_date', '<', $today)->select('id', 'license_no')->first();
+        }
         $renewal_due_today = License::where('client_id', $client_id)->where('renewal_date', 'LIKE', '%'.$today.'%')->count();
-        return response()->json(compact('renewal_date_passed', 'renewal_due_today'), 200);
+        if($renewal_date_passed == 1) {
+            $due_today_license = License::where('client_id', $client_id)->where('renewal_date', 'LIKE', '%'.$today.'%')->select('id', 'license_no')->first();
+        }
+        return response()->json(compact('renewal_date_passed', 'date_passed_license','renewal_due_today', 'due_today_license'), 200);
     }
     /**
      * Display a listing of the resource.
@@ -476,6 +484,7 @@ class LicensesController extends Controller
      */
     public function show(License $license)
     {
+        $today = date('Y-m-d', strtotime('now'));
         $license = $license->join('clients', 'licenses.client_id', '=', 'clients.id')
         ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
         ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
@@ -484,6 +493,11 @@ class LicensesController extends Controller
         ->join('local_government_areas', 'licenses.lga_id', '=', 'local_government_areas.id')
         ->select('licenses.*', 'clients.company_name as client', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')
         ->find($license->id);
+        if($license->renewal_date <= $today) {
+            $license->is_due = 'true';
+        }else {
+            $license->is_due = 'false';
+        }
         return response()->json(compact('license'), 200);
     }
 
