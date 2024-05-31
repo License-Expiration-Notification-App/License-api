@@ -75,6 +75,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
     Route::group(['prefix' => 'licenses'], function () {
         Route::get('/', [LicensesController::class, 'index']);
+        Route::get('renewal-periods', [LicensesController::class, 'licenseRenewalPeriods']);
+        
         Route::get('show/{license}', [LicensesController::class, 'show']);
         Route::get('fetch-license-activity-timeline/{license}', [LicensesController::class, 'licenseActivityTimeLine']);
         Route::get('fetch-license-upcoming-activites/{license}', [LicensesController::class, 'licenseUpcomingActivities']);

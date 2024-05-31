@@ -61,6 +61,19 @@ class LicensesController extends Controller
 
         return $missing_headers;
     }
+    public function licenseRenewalPeriods(Request $request)
+    {
+        $today = date('Y-m-d', strtotime('now'));
+        $user = $this->getUser();
+        if ($user->hasRole('client')) {
+            $client_id = $this->getClient()->id;
+        }else {
+            $client_id = $request->client_id;
+        }
+        $renewal_date_passed = License::where('client_id', $client_id)->where('renewal_date', '<', $today)->count();
+        $renewal_due_today = License::where('client_id', $client_id)->where('renewal_date', 'LIKE', '%'.$today.'%')->count();
+        return response()->json(compact('renewal_date_passed', 'renewal_due_today'), 200);
+    }
     /**
      * Display a listing of the resource.
      */
