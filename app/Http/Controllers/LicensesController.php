@@ -494,9 +494,9 @@ class LicensesController extends Controller
         ->select('licenses.*', 'clients.company_name as client', 'subsidiaries.name as subsidiary', 'license_types.name as license_type', 'license_types.slug as license_type_slug', 'minerals.name as mineral', 'states.name as state', 'local_government_areas.name as lga')
         ->find($license->id);
         if($license->renewal_date <= $today) {
-            $license->is_due = 'true';
+            $license->is_due = true;
         }else {
-            $license->is_due = 'false';
+            $license->is_due = false;
         }
         return response()->json(compact('license'), 200);
     }
