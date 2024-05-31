@@ -65,20 +65,20 @@ class LicensesController extends Controller
     {
         $today = date('Y-m-d', strtotime('now'));
         $user = $this->getUser();
+        $condition = [];
         if ($user->hasRole('client')) {
             $client_id = $this->getClient()->id;
-        }else {
-            $client_id = $request->client_id;
+            $condition = ['client_id' => $client_id];
         }
-        $renewal_date_passed = License::where('client_id', $client_id)->where('renewal_date', '<', $today)->count();
+        $renewal_date_passed = License::where($condition)->where('renewal_date', '<', $today)->count();
         $date_passed_license = NULL;
         $due_today_license = NULL;
         if($renewal_date_passed == 1) {
-            $date_passed_license = License::where('client_id', $client_id)->where('renewal_date', '<', $today)->select('id', 'license_no')->first();
+            $date_passed_license = License::where($condition)->where('renewal_date', '<', $today)->select('id', 'license_no')->first();
         }
-        $renewal_due_today = License::where('client_id', $client_id)->where('renewal_date', '<=', $today)->count();
+        $renewal_due_today = License::where($condition)->where('renewal_date', '<=', $today)->count();
         if($renewal_date_passed == 1) {
-            $due_today_license = License::where('client_id', $client_id)->where('renewal_date', '<=', $today)->select('id', 'license_no')->first();
+            $due_today_license = License::where($condition)->where('renewal_date', '<=', $today)->select('id', 'license_no')->first();
         }
         return response()->json(compact('renewal_date_passed', 'date_passed_license','renewal_due_today', 'due_today_license'), 200);
     }
