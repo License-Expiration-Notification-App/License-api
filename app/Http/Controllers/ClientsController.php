@@ -123,7 +123,7 @@ class ClientsController extends Controller
                     $this->registerClientUser($request);
                     $title = "New Client Registered";
                     //log this event
-                    $description = "<strong>$actor->name</strong> added a new <strong>Client</client>($new_client->company_name)";
+                    $description = "<strong>$actor->name</strong> added a new&nbsp;<strong>Client</client>($new_client->company_name)";
                     $this->auditTrailEvent($title, $description, 'Client Management', 'add', [$actor]);
 
 
@@ -156,7 +156,7 @@ class ClientsController extends Controller
         $client->save();
         //log this event
         $title = "Client Details Updated";                    
-        $description = "<strong>($old_name, $old_email)</strong> were modified to <strong>($client->company_name, $client->company_email)</strong> by <strong>$actor->name</strong>";
+        $description = "<strong>($old_name, $old_email)</strong> were modified to&nbsp;<strong>($client->company_name, $client->company_email)</strong> by&nbsp;<strong>$actor->name</strong>";
         $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
 
         return response()->json(compact('client'), 200);
@@ -187,7 +187,7 @@ class ClientsController extends Controller
 
             // log this event
             $title = "Client Admin Registered";                    
-            $description = "<strong>$user->name</strong> was registered as an admin for <strong>$client->company_name</strong> by <strong>$actor->name</strong>";
+            $description = "<strong>$user->name</strong> was registered as an admin for&nbsp;<strong>$client->company_name</strong> by&nbsp;<strong>$actor->name</strong>";
             $this->auditTrailEvent($title, $description, 'Admin Management', 'add', [$actor]);
             
                 
@@ -206,7 +206,7 @@ class ClientsController extends Controller
         $user->save();
 
         $title = "Client Admin Updated";
-        $description = "<strong>($old_name, $old_email)</strong> were modified to <strong>($user->name, $user->email)</strong> by <strong>$actor->name</strong>";
+        $description = "<strong>($old_name, $old_email)</strong> were modified to&nbsp;<strong>($user->name, $user->email)</strong> by&nbsp;<strong>$actor->name</strong>";
         $this->auditTrailEvent($title, $description, 'Admin Management', 'edit', [$actor]);
         // $client->users()->sync($user->id);
         // $role = Role::where('name', 'client')->first();
@@ -223,7 +223,7 @@ class ClientsController extends Controller
         
             $title = "Client Admin Created";
             //log this event
-            $description = "<strong>$user->name</strong> was made main admin for <strong>$client->company_name</strong> by <strong>($user->name)</client>";
+            $description = "<strong>$user->name</strong> was made main admin for&nbsp;<strong>$client->company_name</strong> by&nbsp;<strong>($user->name)</client>";
             $this->auditTrailEvent($title, $description, 'Admin Management', 'edit', [$actor]);
 
             return 'success';
@@ -237,7 +237,7 @@ class ClientsController extends Controller
             $user->clients()->sync([]);
             $title = "Client User Deletion";
             //log this event
-            $description = "<strong>$user->name</strong> was deleted by <strong>$actor->name</strong>";
+            $description = "<strong>$user->name</strong> was deleted by&nbsp;<strong>$actor->name</strong>";
             $this->auditTrailEvent($title, $description, 'Admin Management', 'remove', [$actor]);
             $user->delete();
             return 'success';
@@ -259,7 +259,7 @@ class ClientsController extends Controller
             $client->status = $value;
             $client->save();
             $title = "Client Status Changed";
-            $description = "<strong>$client->company_name</strong> status was changed to <strong>$client->status</strong> by <strong>$actor->name</strong>";
+            $description = "<strong>$client->company_name</strong> status was changed to&nbsp;<strong>$client->status</strong> by&nbsp;<strong>$actor->name</strong>";
             $this->auditTrailEvent($title, $description, 'Client Management', 'edit', [$actor]);
             return response()->json('success');
         }

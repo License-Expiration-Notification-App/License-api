@@ -53,9 +53,9 @@ class AlertLicenseExpiration extends Command
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->company_name;
-                $title = "License requires renewal in <strong>one month</strong>";
+                $title = "License requires renewal in&nbsp;<strong>one month</strong>";
                 //log this event
-                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on <strong>$license->renewal_date.</strong>";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on&nbsp;<strong>$license->renewal_date.</strong>";
                 $this->logLicenseActivity($license, $license->renewal_date, $action);
                 
                 $status = 'Renewal required in one month';
@@ -81,9 +81,9 @@ class AlertLicenseExpiration extends Command
                 
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->company_name;
-                $title = "License requires renewal in <strong>two weeks</strong>";
+                $title = "License requires renewal in&nbsp;<strong>two weeks</strong>";
                 //log this event
-                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on <strong>$license->renewal_date.</strong>";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on&nbsp;<strong>$license->renewal_date.</strong>";
                 $this->logLicenseActivity($license, $license->renewal_date, $action);
                 $status = 'Renewal required in two weeks';
                 $this->licenseExpiration($title, $action, $status, $users);
@@ -107,9 +107,9 @@ class AlertLicenseExpiration extends Command
                 $users = $license->client->users;
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->company_name;
-                $title = "License requires renewal in <strong>three days</strong>";
+                $title = "License requires renewal in&nbsp;<strong>three days</strong>";
                 //log this event
-                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on <strong>$license->renewal_date.</strong>";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on&nbsp;<strong>$license->renewal_date.</strong>";
                 $this->logLicenseActivity($license, $license->renewal_date, $action);
                 $status = 'Renewal required in three days';
                 $this->licenseExpiration($title, $action, $status, $users);
@@ -135,7 +135,7 @@ class AlertLicenseExpiration extends Command
                 $client = $license->client->company_name;
                 $title = "License Renewal Due";
                 //log this event
-                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) is due today, <strong>$license->renewal_date.</strong>";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) is due today,&nbsp;<strong>$license->renewal_date.</strong>";
                 $this->logLicenseActivity($license, $license->renewal_date, $action, '#FEE4E2');
                 $status = 'Renewal Due';
                 $this->licenseExpiration($title, $action, $status, $users);
@@ -162,7 +162,7 @@ class AlertLicenseExpiration extends Command
                 $client = $license->client->company_name;
                 $title = "License Expired";
                 //log this event
-                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) has expired today, <strong>$license->expiry_date</strong>";
+                $action = "<strong>$license->license_no</strong> for $subsidiary ($client) has expired today,&nbsp;<strong>$license->expiry_date</strong>";
                 $this->logLicenseActivity($license, $license->expiry_date, $action, '#FEE4E2');
                 $status = 'Expired';
                 $this->licenseExpiration($title, $action, $status, $users);
@@ -186,7 +186,7 @@ class AlertLicenseExpiration extends Command
     private function logLicenseActivity($license, $due_date, $description, $color_code = '#EAECF0') {
         $client = $license->client->company_name;
         $subsidiary = $license->subsidiary->name;
-        $description = "<strong>$license->license_no</strong> for <strong>$subsidiary($client)</strong> requires renewal";
+        $description = "<strong>$license->license_no</strong> for&nbsp;<strong>$subsidiary($client)</strong> requires renewal";
         LicenseActivity::firstOrCreate(
             [
                 'client_id' => $license->client_id,

@@ -59,7 +59,7 @@ class AuthController extends Controller
             $token = $tokenResult->plainTextToken;
             $title = "New Registration";
             //log this event
-            $description = "<strong>$user->name</strong> was registered by <strong>$actor->name</strong>";
+            $description = "<strong>$user->name</strong> was registered by&nbsp;<strong>$actor->name</strong>";
             $this->auditTrailEvent($title, $description);
 
             return response()->json([

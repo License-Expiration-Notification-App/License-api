@@ -259,7 +259,7 @@ class LicensesController extends Controller
                 $title = "New License Added";
 
                 //log this event
-                $description = "New license ($license->license_no) was added for <strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by <strong>$actor->name</strong>";
+                $description = "New license ($license->license_no) was added for&nbsp;<strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by&nbsp;<strong>$actor->name</strong>";
                 $this->licenseEvent($title, $description, 'License Management', 'add', [$actor]);
 
                 return $this->show($license);
@@ -403,7 +403,7 @@ class LicensesController extends Controller
                             $title = "New License Added";
 
                             //log this event
-                            $description = "New license ($license->license_no) was added for <strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by <strong>$actor->name</strong>";
+                            $description = "New license ($license->license_no) was added for&nbsp;<strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by&nbsp;<strong>$actor->name</strong>";
                             $this->licenseEvent($title, $description, 'License Management', 'add', [$actor]);
 
                             // return $this->show($license);
@@ -536,7 +536,7 @@ class LicensesController extends Controller
         $license->save();
         $title = "License Updated";
         //log this event
-        $description = "<strong>$actor->name</strong> updated <strong>($license->license_no)</strong>";
+        $description = "<strong>$actor->name</strong> updated&nbsp;<strong>($license->license_no)</strong>";
         $this->licenseEvent($title, $description, 'License Management', 'edit', [$actor]);
         return $this->show($license);
     }
@@ -551,7 +551,7 @@ class LicensesController extends Controller
         //
         $title = "License Deleted";
         //log this event
-        $description = "<strong>$actor->name</strong> removed <strong>($license->license_no)</strong>";
+        $description = "<strong>$actor->name</strong> removed&nbsp;<strong>($license->license_no)</strong>";
         $this->licenseEvent($title, $description, 'License Management', 'remove', [$actor]);
         $license->delete();
         return response()->json([], 204);
@@ -656,7 +656,7 @@ class LicensesController extends Controller
                     
                 ],
                 ['status' => 'Submitted', 
-                'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal', 'to_be_reviewed' => $to_be_reviewed]
+                'description' => "submitted for approval by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal', 'to_be_reviewed' => $to_be_reviewed]
             );
         return 'success';
         }
@@ -705,7 +705,7 @@ class LicensesController extends Controller
                     'due_date' => $report->due_date,
                 ],
                 ['status' => 'Submitted', 
-                'description' => "submitted for approval by <strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed]
+                'description' => "submitted for approval by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed]
             );
         }
         return 'success';
@@ -726,7 +726,7 @@ class LicensesController extends Controller
                 'status' => 'Approved',
                 'due_date' => $report->due_date,
             ],
-            ['description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'Report Status']
+            ['description' => "approved by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'Report Status']
         );
         return 'success';
     }
@@ -748,7 +748,7 @@ class LicensesController extends Controller
                 'status' => 'Rejected',
                 'due_date' => $report->due_date,
             ],
-            ['description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Report Status','rejection_comment' => $request->rejection_comment]
+            ['description' => "rejected by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Report Status','rejection_comment' => $request->rejection_comment]
         );
         return 'success';
     }
@@ -772,7 +772,7 @@ class LicensesController extends Controller
                 'status' => 'Approved',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Approved', 'description' => "approved by <strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'License Renewal']
+            ['status' => 'Approved', 'description' => "approved by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'License Renewal']
         );
         return 'success';
     }
@@ -796,7 +796,7 @@ class LicensesController extends Controller
                 'status' => 'Rejected',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Rejected', 'description' => "rejected by <strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'License Renewal', 'rejection_comment' => $request->rejection_comment]
+            ['status' => 'Rejected', 'description' => "rejected by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'License Renewal', 'rejection_comment' => $request->rejection_comment]
         );
         return 'success';
     }
