@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    'Access Restricted';
+    return 'Access Restricted';
 });
