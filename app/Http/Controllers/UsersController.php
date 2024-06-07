@@ -161,27 +161,31 @@ class UsersController extends Controller
      */
     public function uploadPhoto(Request $request)
     {
-        $this->validate($request, [
-            'photo' => 'required|image|mimes:jpeg,png,jpg|max:1024',
-        ]);
-        $user_id = $request->user_id;
-        $user = User::find($user_id);
-        if ($request->file('photo') != null && $request->file('photo')->isValid()) {
-            if ($user->photo_path !== 'storage/photo/default.png') {
+        try {
+            $this->validate($request, [
+                'photo' => 'required|image|mimes:jpeg,png,jpg|max:1024',
+            ]);
+            $user_id = $request->user_id;
+            $user = User::find($user_id);
+            if ($request->file('photo') != null && $request->file('photo')->isValid()) {
+                if ($user->photo_path !== 'storage/photo/default.png') {
 
-                Storage::disk('public')->delete(str_replace('storage/', '', $user->photo_path));
+                    Storage::disk('public')->delete(str_replace('storage/', '', $user->photo_path));
+                }
+                $name = 'photo_'.$user_id.'_'.$request->file('photo')->getClientOriginalName();
+                // $name = 'photo_'.$user_id.'_'.$request->file('photo')->hashName();
+                $file_name = $name . "." . $request->file('photo')->extension();
+                $link = $request->file('photo')->storeAs('photo', $file_name, 'public');
+
+                $user->photo_path = 'storage/'.$link;
+                $user->photo = env('APP_URL').'/'.$user->photo_path;
+                $user->save();
+                return $this->show($user);
             }
-            $name = 'photo_'.$user_id.'_'.$request->file('photo')->getClientOriginalName();
-            // $name = 'photo_'.$user_id.'_'.$request->file('photo')->hashName();
-            $file_name = $name . "." . $request->file('photo')->extension();
-            $link = $request->file('photo')->storeAs('photo', $file_name, 'public');
-
-            $user->photo_path = 'storage/'.$link;
-            $user->photo = env('APP_URL').'/'.$user->photo_path;
-            $user->save();
-            return $this->show($user);
+            
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg or png. It must not be more than 1MB in size'], 500);
         }
-        return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg and png. It must not be more than 1MB in size'], 500);
     }
 
     /**

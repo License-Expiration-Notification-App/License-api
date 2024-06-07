@@ -236,10 +236,6 @@ function formatUniqNo($no)
         return $no;
     }
 }
-function mainDomainPublicPath($folder = null)
-{
-    return "https://edu-drive.com/" . $folder;
-}
 
 function portalPulicPath($folder = null)
 {
