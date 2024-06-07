@@ -268,30 +268,35 @@ class ClientsController extends Controller
 
     public function uploadClientLogo(Request $request)
     {
-        $this->validate($request, [
-            'logo' => 'required|image|mimes:jpeg,png,jpg|max:1024',
-        ]);
-        $client_id = $request->client_id;
-        $client = Client::find($client_id);
-        if ($client) {
-            if ($request->file('logo') != null && $request->file('logo')->isValid()) {
-                
-                if ($client->logo_path !== 'storage/client-logo/default.jpeg') {
-
-                    Storage::disk('public')->delete(str_replace('storage/', '', $client->logo_path));
+        try {
+            $this->validate($request, [
+                'logo' => 'required|image|mimes:jpeg,png,jpg|max:1024',
+            ]);
+            $client_id = $request->client_id;
+            $client = Client::find($client_id);
+            if ($client) {
+                if ($request->file('logo') != null && $request->file('logo')->isValid()) {
+                    
+                    if ($client->logo_path !== 'storage/client-logo/default.jpeg') {
+    
+                        Storage::disk('public')->delete(str_replace('storage/', '', $client->logo_path));
+                    }
+    
+                    $name = 'client_logo'.$client_id.'_'.$request->file('logo')->hashName();
+                    // $file_name = $name . "." . $request->file('file_uploaded')->extension();
+                    $link = $request->file('logo')->storeAs('client-logo', $name, 'public');
+    
+                    $client->logo_path = 'storage/'.$link;
+                    $client->logo = env('APP_URL').'/'.$client->logo_path;
+                    $client->save();
+                    return $this->show($client);
                 }
-
-                $name = 'client_logo'.$client_id.'_'.$request->file('logo')->hashName();
-                // $file_name = $name . "." . $request->file('file_uploaded')->extension();
-                $link = $request->file('logo')->storeAs('client-logo', $name, 'public');
-
-                $client->logo_path = 'storage/'.$link;
-                $client->logo = env('APP_URL').'/'.$client->logo_path;
-                $client->save();
-                return $this->show($client);
+                return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg and png. It must not be more than 1MB in size'], 500);
             }
-            return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg and png. It must not be more than 1MB in size'], 500);
+            return response()->json(['message' => 'Client does not exist'], 500);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Please provide a valid image. Image types should be: jpeg, jpg or png. It must not be more than 1MB in size'], 500);
         }
-        return response()->json(['message' => 'Client does not exist'], 500);
+        
     }
 }
