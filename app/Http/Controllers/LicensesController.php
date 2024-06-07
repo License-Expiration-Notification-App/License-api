@@ -76,10 +76,10 @@ class LicensesController extends Controller
         if($renewal_date_passed == 1) {
             $date_passed_license = License::where($condition)->where('renewal_date', '<', $today)->select('id', 'license_no')->first();
         }
-        $renewal_due_today = License::where($condition)->where('renewal_date', '<=', $today)->count();
-        
+        $renewal_due_today = License::where($condition)->where('renewal_date', 'LIKE', '%'.$today.'%')->count();
+
         if($renewal_date_passed == 1) {
-            $due_today_license = License::where($condition)->where('renewal_date', '<=', $today)->select('id', 'license_no')->first();
+            $due_today_license = License::where($condition)->where('renewal_date', 'LIKE', '%'.$today.'%')->select('id', 'license_no')->first();
         }
         return response()->json(compact('renewal_date_passed', 'date_passed_license','renewal_due_today', 'due_today_license'), 200);
     }
