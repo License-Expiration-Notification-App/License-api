@@ -77,7 +77,7 @@ class UsersController extends Controller
             $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
             $notificationQuery->where('created_at', '<=', $max_date);
         }
-        $notifications = $notificationQuery->orderBy('created_at', 'DESC')->paginate(50);
+        $notifications = $notificationQuery->orderBy('created_at', 'DESC')->paginate(100);
 
         $notifications = $notifications->setCollection($notifications->groupBy(['created_at' =>function($item){
             return Carbon::parse($item->created_at)->format('Y-m-d');
