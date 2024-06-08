@@ -42,8 +42,8 @@ class AlertLicenseExpiration extends Command
         })
         ->chunkById(200, function ($licenses) {
             $count = 0;
-            $title = "The following Licenses require renewal in&nbsp;<strong>one month</strong>";
-            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $title = "The following Licences require renewal in&nbsp;<strong>one month</strong>";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>Licence Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
             $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'one month,';
@@ -79,8 +79,8 @@ class AlertLicenseExpiration extends Command
         })
         ->chunkById(200, function ($licenses) {
             $count = 0;
-            $title = "The following Licenses require renewal in&nbsp;<strong>two weeks</strong>";
-            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $title = "The following Licences require renewal in&nbsp;<strong>two weeks</strong>";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>Licence Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
             $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'two weeks,';
@@ -117,8 +117,8 @@ class AlertLicenseExpiration extends Command
         })
         ->chunkById(200, function ($licenses) {
             $count = 0;
-            $title = "The following Licenses require renewal in&nbsp;<strong>three days</strong>";
-            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $title = "The following Licences require renewal in&nbsp;<strong>three days</strong>";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>Licence Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
             $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'three days,';
@@ -154,8 +154,8 @@ class AlertLicenseExpiration extends Command
         })
         ->chunkById(200, function ($licenses) {
             $count = 0;
-            $title = "The following Licenses are due for Renewal";
-            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $title = "The following Licences are due for Renewal";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>Licence Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
             $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'renewal_due,';
@@ -191,7 +191,7 @@ class AlertLicenseExpiration extends Command
         ->chunkById(200, function ($licenses) {
             $count = 0;
             $title = "License Expired";
-            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>Licence Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
             $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'expired,';
@@ -238,12 +238,12 @@ class AlertLicenseExpiration extends Command
                 'client_id' => $license->client_id,
                 'license_id' => $license->id,
                 'uuid' => $license->id,
-                'title' => "<strong>License Renewal</strong>",
+                'title' => "<strong>Licence Renewal</strong>",
                 
             ], 
             [
                 'due_date' => $due_date,
-                'description' => $description, 'status' => 'Pending', 'color_code' => $color_code, 'type' => 'License Renewal'
+                'description' => $description, 'status' => 'Pending', 'color_code' => $color_code, 'type' => 'Licence Renewal'
             ]
         );
     }

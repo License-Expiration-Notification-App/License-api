@@ -17,7 +17,7 @@ class LicenseActivityLog extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $description, $type='License Management', $action_type= 'add')
+    public function __construct($title, $description, $type='Licence Management', $action_type= 'add')
     {
         //
         $this->title = $title;
@@ -90,7 +90,7 @@ class LicenseActivityLog extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'tag' => 'License',
+            'tag' => 'Licence',
             'title' => $this->title,
             'description' => $this->description,
             'color_code' => $this->color_code,

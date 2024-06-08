@@ -260,14 +260,14 @@ class LicensesController extends Controller
 
                 //log this event
                 $description = "New license ($license->license_no) was added for&nbsp;<strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by&nbsp;<strong>$actor->name</strong>";
-                $this->licenseEvent($title, $description, 'License Management', 'add', [$actor]);
+                $this->licenseEvent($title, $description, 'Licence Management', 'add', [$actor]);
 
                 return $this->show($license);
                 // response()->json(compact('client'), 200);
             }
             return response()->json(['message' => 'Unable to add license'], 500);
         }
-        return response()->json(['message' => 'License Number already exists'], 401);
+        return response()->json(['message' => 'Licence Number already exists'], 401);
     }
 
     public function uploadBulkLicenses(Request $request)
@@ -348,6 +348,10 @@ class LicensesController extends Controller
 
                     $licence_no_array = explode(' ',$license_no);
                     $license_type_slug = strtoupper(end($licence_no_array));
+                    if(count($licence_no_array) <= 1) {
+                        $issues_observed[] = "The license number should be in the form of 123456 EL (that is: <number> <space> <license type>) on line #$line.";
+                        $unsaved_data[] = "The license number should be in the form of 123456 EL (that is: <number> <space> <license type>) on line #$line.";
+                    }
                     $status = trim($csvRow['STATUS']);
                     $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
                     $license_date = date('Y-m-d', strtotime($this->formatDate($lic_date)));
@@ -404,7 +408,7 @@ class LicensesController extends Controller
 
                             //log this event
                             $description = "New license ($license->license_no) was added for&nbsp;<strong>$subsidiary->name</strong> (". $subsidiary->client->name .") by&nbsp;<strong>$actor->name</strong>";
-                            $this->licenseEvent($title, $description, 'License Management', 'add', [$actor]);
+                            $this->licenseEvent($title, $description, 'Licence Management', 'add', [$actor]);
 
                             // return $this->show($license);
                             // response()->json(compact('client'), 200);
@@ -434,7 +438,7 @@ class LicensesController extends Controller
         $min_date = Arr::get($searchParams, 'min_date', '');
         $max_date = Arr::get($searchParams, 'max_date', '');
         if (!empty($submission_type)) {
-            if($submission_type == 'License Renewal') {
+            if($submission_type == 'Licence Renewal') {
                 $licenseActivityQuery->where('type', 'LIKE', '%License Renewal');
             }else {
 
@@ -458,7 +462,7 @@ class LicensesController extends Controller
        ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed', 'rejection_comment')->paginate(10);
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
-        if ($type == 'License Renewal') {
+        if ($type == 'Licence Renewal') {
             $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'file_name', 'link', 'status')->get();
             $time_line->uploads = $renewals;
         }
@@ -537,7 +541,7 @@ class LicensesController extends Controller
         $title = "License Updated";
         //log this event
         $description = "<strong>$actor->name</strong> updated&nbsp;<strong>($license->license_no)</strong>";
-        $this->licenseEvent($title, $description, 'License Management', 'edit', [$actor]);
+        $this->licenseEvent($title, $description, 'Licence Management', 'edit', [$actor]);
         return $this->show($license);
     }
     
@@ -552,7 +556,7 @@ class LicensesController extends Controller
         $title = "License Deleted";
         //log this event
         $description = "<strong>$actor->name</strong> removed&nbsp;<strong>($license->license_no)</strong>";
-        $this->licenseEvent($title, $description, 'License Management', 'remove', [$actor]);
+        $this->licenseEvent($title, $description, 'Licence Management', 'remove', [$actor]);
         $license->delete();
         return response()->json([], 204);
     }
@@ -651,12 +655,12 @@ class LicensesController extends Controller
                     'license_id' => $license_id,
                     'client_id' => $license->client_id,
                     'uuid' => $license_id,
-                    'title' => '<strong>License Renewal</strong>',
+                    'title' => '<strong>Licence Renewal</strong>',
                     'due_date' => $license->expiry_date,
                     
                 ],
                 ['status' => 'Submitted', 
-                'description' => "submitted for approval by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'License Renewal', 'to_be_reviewed' => $to_be_reviewed]
+                'description' => "submitted for approval by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Licence Renewal', 'to_be_reviewed' => $to_be_reviewed]
             );
         return 'success';
         }
@@ -768,11 +772,11 @@ class LicensesController extends Controller
                 'uuid' => $license->id,
                 'client_id' => $license->client_id,
                 'license_id' => $license->id,
-                'title' => '<strong>License Renewal</strong>',
+                'title' => '<strong>Licence Renewal</strong>',
                 'status' => 'Approved',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Approved', 'description' => "approved by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'License Renewal']
+            ['status' => 'Approved', 'description' => "approved by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'Licence Renewal']
         );
         return 'success';
     }
@@ -792,11 +796,11 @@ class LicensesController extends Controller
                 'uuid' => $license->id,
                 'client_id' => $license->client_id,
                 'license_id' => $license->id,
-                'title' => '<strong>License Renewal</strong>',
+                'title' => '<strong>Licence Renewal</strong>',
                 'status' => 'Rejected',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Rejected', 'description' => "rejected by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'License Renewal', 'rejection_comment' => $request->rejection_comment]
+            ['status' => 'Rejected', 'description' => "rejected by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Licence Renewal', 'rejection_comment' => $request->rejection_comment]
         );
         return 'success';
     }
