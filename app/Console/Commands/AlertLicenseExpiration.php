@@ -25,14 +25,8 @@ class AlertLicenseExpiration extends Command
     protected $description = 'This command alerts when license is to expire';
 
     
-    private function licenseExpiration($title, $action,$status = 'Expired', $clients = null)
+    private function licenseExpiration($title, $action,$status = 'Expired', $users)
     {
-
-        // $user = $this->getUser();
-        $users = User::where('role', 'staff')->get();
-        if ($clients != null) {
-            $users = $users->merge($clients);
-        }
         $notification = new LicenseExpiration($title, $action, $status);
         return Notification::send($users->unique(), $notification);
     }
@@ -47,20 +41,30 @@ class AlertLicenseExpiration extends Command
             ->orWhere('expiry_alert_sent', NULL);
         })
         ->chunkById(200, function ($licenses) {
+            $count = 0;
+            $title = "The following Licenses require renewal in&nbsp;<strong>one month</strong>";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'one month,';
-                $license->save();                
-                $users = $license->client->users;
+                $license->save();
+                $users = $users->merge($license->client->users);
                 $subsidiary = $license->subsidiary->name;
-                $client = $license->client->company_name;
-                $title = "License requires renewal in&nbsp;<strong>one month</strong>";
+                $client = $license->client->company_name;                
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on&nbsp;<strong>$license->renewal_date.</strong>";
                 $this->logLicenseActivity($license, $license->renewal_date, $action);
+
+                $table .= "<tr><td>$client</td><td>$subsidiary</td><td>$license->license_no</td><td>$license->renewal_date</td><td>$license->expiry_date</td><tr>";
+                $count++;
                 
-                $status = 'Renewal required in one month';
-                $this->licenseExpiration($title, $action, $status, $users);
             }
+            $table .= "</table>";
+            $status = 'Renewal required in one month';
+            if ($count > 0) {
+                $this->licenseExpiration($title, $table, $status, $users);
+            }
+            
         }, $column = 'id');
     }
     private function alertTwoWeeksToExpiration()
@@ -74,19 +78,30 @@ class AlertLicenseExpiration extends Command
             ->orWhere('expiry_alert_sent', NULL);
         })
         ->chunkById(200, function ($licenses) {
+            $count = 0;
+            $title = "The following Licenses require renewal in&nbsp;<strong>two weeks</strong>";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'two weeks,';
                 $license->save();                
-                $users = $license->client->users;
+                $users = $users->merge($license->client->users);
                 
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->company_name;
-                $title = "License requires renewal in&nbsp;<strong>two weeks</strong>";
+                
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on&nbsp;<strong>$license->renewal_date.</strong>";
                 $this->logLicenseActivity($license, $license->renewal_date, $action);
-                $status = 'Renewal required in two weeks';
-                $this->licenseExpiration($title, $action, $status, $users);
+
+                $table .= "<tr><td>$client</td><td>$subsidiary</td><td>$license->license_no</td><td>$license->renewal_date</td><td>$license->expiry_date</td><tr>";
+                $count++;
+                
+            }
+            $table .= "</table>";
+            $status = 'Renewal required in two weeks';
+            if ($count > 0) {
+                $this->licenseExpiration($title, $table, $status, $users);
             }
         }, $column = 'id');
     }
@@ -101,18 +116,29 @@ class AlertLicenseExpiration extends Command
             ->orWhere('expiry_alert_sent', NULL);
         })
         ->chunkById(200, function ($licenses) {
+            $count = 0;
+            $title = "The following Licenses require renewal in&nbsp;<strong>three days</strong>";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'three days,';
                 $license->save();
-                $users = $license->client->users;
+                $users = $users->merge($license->client->users);
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->company_name;
-                $title = "License requires renewal in&nbsp;<strong>three days</strong>";
+                
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) requires renewal on&nbsp;<strong>$license->renewal_date.</strong>";
                 $this->logLicenseActivity($license, $license->renewal_date, $action);
-                $status = 'Renewal required in three days';
-                $this->licenseExpiration($title, $action, $status, $users);
+
+                $table .= "<tr><td>$client</td><td>$subsidiary</td><td>$license->license_no</td><td>$license->renewal_date</td><td>$license->expiry_date</td><tr>";
+                $count++;
+
+            }
+            $table .= "</table>";
+            $status = 'Renewal required in three days';
+            if ($count > 0) {
+                $this->licenseExpiration($title, $table, $status, $users);
             }
         }, $column = 'id');
     }
@@ -127,18 +153,28 @@ class AlertLicenseExpiration extends Command
             ->orWhere('expiry_alert_sent', NULL);
         })
         ->chunkById(200, function ($licenses) {
+            $count = 0;
+            $title = "The following Licenses are due for Renewal";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'renewal_due,';
                 $license->save();
-                $users = $license->client->users;
+                $users = $users->merge($license->client->users);
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->company_name;
-                $title = "License Renewal Due";
+                
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) is due today,&nbsp;<strong>$license->renewal_date.</strong>";
                 $this->logLicenseActivity($license, $license->renewal_date, $action, '#FEE4E2');
-                $status = 'Renewal Due';
-                $this->licenseExpiration($title, $action, $status, $users);
+
+                $table .= "<tr><td>$client</td><td>$subsidiary</td><td>$license->license_no</td><td>$license->renewal_date</td><td>$license->expiry_date</td><tr>";
+                $count++;
+            }
+            $table .= "</table>";
+            $status = 'Renewal Due';
+            if ($count > 0) {
+                $this->licenseExpiration($title, $table, $status, $users);
             }
         }, $column = 'id');
     }
@@ -153,19 +189,29 @@ class AlertLicenseExpiration extends Command
             ->orWhere('expiry_alert_sent', NULL);
         })
         ->chunkById(200, function ($licenses) {
+            $count = 0;
+            $title = "License Expired";
+            $table = '<table border="1" cellpadding="2"><tr><td>Company</td><td>Subsidiary</td><td>License Number</td><td>Renewal Date</td><td>Expiry Date</td></tr>';
+            $users = User::where('role', 'staff')->get();
             foreach ($licenses as $license) {
                 $license->expiry_alert_sent .= 'expired,';
                 $license->status = 'Expired';
                 $license->save();
-                $users = $license->client->users;
+                $users = $users->merge($license->client->users);
                 $subsidiary = $license->subsidiary->name;
                 $client = $license->client->company_name;
-                $title = "License Expired";
+                
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) has expired today,&nbsp;<strong>$license->expiry_date</strong>";
                 $this->logLicenseActivity($license, $license->expiry_date, $action, '#FEE4E2');
-                $status = 'Expired';
-                $this->licenseExpiration($title, $action, $status, $users);
+
+                $table .= "<tr><td>$client</td><td>$subsidiary</td><td>$license->license_no</td><td>$license->renewal_date</td><td>$license->expiry_date</td><tr>";
+                $count++;
+            }
+            $table .= "</table>";
+            $status = 'Expired';
+            if ($count > 0) {
+                $this->licenseExpiration($title, $table, $status, $users);
             }
         }, $column = 'id');
     }
