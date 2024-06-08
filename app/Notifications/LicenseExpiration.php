@@ -17,7 +17,7 @@ class LicenseExpiration extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $description, $status, $type='License Renewal')
+    public function __construct($title, $description, $status, $type='Licence Renewal')
     {
         //
         $this->title = $title;
