@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\ActivatedModule;
 use App\Models\AvailableModule;
 use App\Models\Client;
+use App\Models\LicenseActivity;
 use App\Models\Partner;
 use App\Models\SSession;
 use App\Models\Term;
@@ -37,7 +38,8 @@ class UserResource extends JsonResource
                 $main_admin = true;
             }
         }
-        $notification_count = $this->unreadNotifications()->where('data', 'NOT LIKE', '%Audit Trail%')->count();
+         // $notification_count = $this->unreadNotifications()->where('data', 'NOT LIKE', '%Audit Trail%')->count();
+        $notification_count = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$this->id.'%')->count();
         return [
             'id' => $this->id,
             'name' => $this->name,
