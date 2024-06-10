@@ -159,7 +159,7 @@ class UsersController extends Controller
             $notification->save();
         }
         
-        $unread_notifications = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$user->id.'%')->count();
+        $unread_notifications = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$user->id.'%')->orWhere('read_by', NULL)->count();
         return response()->json(compact('unread_notifications'), 200);
     }
 
