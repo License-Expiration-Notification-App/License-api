@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class AuditTrail extends Notification implements ShouldQueue
 {
@@ -73,7 +74,7 @@ class AuditTrail extends Notification implements ShouldQueue
         try {
             return (new MailMessage)
                     ->line($title)
-                    ->line($body)
+                    ->line(new HtmlString($body))
                     // ->action('Notification Action', url('/'))
                     ->line('Kindly disregard this mail if it does not concern you!');
         } catch (\Throwable $th) {
