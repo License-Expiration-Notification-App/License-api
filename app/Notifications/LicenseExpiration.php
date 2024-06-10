@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class LicenseExpiration extends Notification implements ShouldQueue
 {
@@ -52,7 +53,8 @@ class LicenseExpiration extends Notification implements ShouldQueue
         $body = str_replace('</strong>', '', $body);
         return (new MailMessage)
                     ->line($title)
-                    ->line($body)
+                    ->line(new HtmlString($body))
+                    
                     // ->action('Notification Action', url('/'))
                     ->line('Kindly disregard this mail if it does not concern you!');
     }
