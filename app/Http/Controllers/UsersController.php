@@ -135,7 +135,7 @@ class UsersController extends Controller
             $client_id = $this->getClient()->id;
             $notificationQuery->where('client_id', $client_id);
         }
-        $notifications = $notificationQuery->orderBy('due_date', 'ASC')->select('id as notification_id', 'title', 'description', 'color_code', 'license_id as uuid', 'type', 'status', 'created_at')->paginate(10);
+        $notifications = $notificationQuery->orderBy('due_date', 'ASC')->select('id as notification_id', 'title', 'description', 'color_code', 'license_id as uuid', 'type', 'status', 'created_at', 'read_by')->paginate(10);
         foreach ($notifications as $notification) {
             $read_by = $notification->read_by;
             $readers_array = explode(',', $read_by);
@@ -143,6 +143,7 @@ class UsersController extends Controller
             if (in_array($user->id, $readers_array)) {
                 $notification->is_read = 1;
             }
+            unset($notification->read_by);
         }
         $unread_notifications = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$user->id.'%')->count();
         return response()->json(compact('notifications', 'unread_notifications'), 200);
