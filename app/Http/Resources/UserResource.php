@@ -39,7 +39,7 @@ class UserResource extends JsonResource
             }
         }
          // $notification_count = $this->unreadNotifications()->where('data', 'NOT LIKE', '%Audit Trail%')->count();
-        $notification_count = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$this->id.'%')->count();
+        $notification_count = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$this->id.'%')->orWhere('read_by', NULL)->count();
         return [
             'id' => $this->id,
             'name' => $this->name,

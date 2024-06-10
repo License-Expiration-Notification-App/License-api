@@ -145,7 +145,7 @@ class UsersController extends Controller
             }
             unset($notification->read_by);
         }
-        $unread_notifications = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$user->id.'%')->count();
+        $unread_notifications = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$user->id.'%')->orWhere('read_by', NULL)->count();
         return response()->json(compact('notifications', 'unread_notifications'), 200);
     }
     public function markNotificationAsRead(Request $request,LicenseActivity $notification)
@@ -159,7 +159,7 @@ class UsersController extends Controller
             $notification->save();
         }
         
-        $unread_notifications = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$user->id.'%')->count();
+        $unread_notifications = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$user->id.'%')->orWhere('read_by', NULL)->count();
         return response()->json(compact('unread_notifications'), 200);
     }
 
