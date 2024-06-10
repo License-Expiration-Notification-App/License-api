@@ -611,6 +611,11 @@ class LicensesController extends Controller
 
             
         }
+        if ($no_of_renewals > 1) {
+            return response()->json(['message' => 'You have exceeded the maximum number of renewals for this licence'], 500);
+
+            
+        }
         $next_renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($next_expiry_date)));
 
         $one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($next_renewal_date)));
