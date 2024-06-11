@@ -19,6 +19,7 @@ class LicenseActivity extends Model
         'uuid',
         'type',
         'to_be_reviewed',
-        'rejection_comment'
+        'rejection_comment',
+        'action_by',
     ];
 }
