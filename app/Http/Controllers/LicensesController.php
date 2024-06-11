@@ -13,6 +13,7 @@ use App\Models\Report;
 use App\Models\ReportUpload;
 use App\Models\State;
 use App\Models\Subsidiary;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -439,7 +440,7 @@ class LicensesController extends Controller
         $max_date = Arr::get($searchParams, 'max_date', '');
         if (!empty($submission_type)) {
             if($submission_type == 'Licence Renewal') {
-                $licenseActivityQuery->where('type', 'LIKE', '%License Renewal');
+                $licenseActivityQuery->where('type', 'LIKE', '%Licence Renewal');
             }else {
 
                 $licenseActivityQuery->where('type', 'LIKE', '%'. $submission_type.'%')
@@ -459,9 +460,19 @@ class LicensesController extends Controller
         }
         
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
-       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed', 'rejection_comment')->paginate(10);
+       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed', 'rejection_comment', 'action_by')->paginate(10);
+       
+       $actor = $this->getUser();
        foreach($activity_timeline as $time_line) {
         $type = $time_line->type;
+        $action_by = $time_line->action_by;
+        if ($actor->id == $action_by) {
+            $actor_name = "<strong>you</strong>";
+        }else {
+            $action_by = User::find($time_line->action_by);
+            $actor_name = ($action_by) ? "<strong>$action_by->name</strong>" : "";
+        }     
+        $time_line->description .= $actor_name;
         if ($type == 'Licence Renewal') {
             $renewals = Renewal::where('license_id', $time_line->license_id)->select('id as document_id', 'file_name', 'link', 'status')->get();
             $time_line->uploads = $renewals;
@@ -601,26 +612,7 @@ class LicensesController extends Controller
         // $is_renewal = $request->is_renewal; // true or false
         $to_be_reviewed = $request->to_be_reviewed;
         $license = License::find($license_id);
-        $no_of_renewals = $license->no_of_renewals;
-        $license_date = $license->license_date;
-        if ($no_of_renewals == 0) {
-            $next_expiry_date = date('Y-m-d', strtotime('+5 years -1 day', strtotime($license_date)));
-        }
-        if ($no_of_renewals == 1) {
-            $next_expiry_date = date('Y-m-d', strtotime('+7 years -1 day', strtotime($license_date)));
-
-            
-        }
-        if ($no_of_renewals > 1) {
-            return response()->json(['message' => 'You have exceeded the maximum number of renewals for this licence'], 500);            
-        }
-        $next_renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($next_expiry_date)));
-
-        $one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($next_renewal_date)));
-
-        $two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($next_renewal_date)));
         
-        $three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($next_renewal_date)));
         if($request->hasFile('certificate_file')){
             
             $files = $request->file('certificate_file');
@@ -641,18 +633,6 @@ class LicensesController extends Controller
                 $renewal->to_be_reviewed = $to_be_reviewed;
                 $renewal->save();
             }
-        }  
-        if ($no_of_renewals < 2) {
-            $actor = $this->getUser();
-            $license->expiry_date = $next_expiry_date;
-            $license->renewal_date = $next_renewal_date;
-            $license->one_month_before_expiration = $one_month_before_expiration;
-            $license->two_weeks_before_expiration = $two_weeks_before_expiration;
-            $license->three_days_before_expiration = $three_days_before_expiration;
-            $license->no_of_renewals += 1;
-            $license->expiry_alert_sent = 'activity logged,';
-            $license->save();
-            // then since we are renewing, we need to log the activity
             LicenseActivity::updateOrCreate(
                 [
                     'license_id' => $license_id,
@@ -660,14 +640,18 @@ class LicensesController extends Controller
                     'uuid' => $license_id,
                     'title' => '<strong>Licence Renewal</strong>',
                     'due_date' => $license->expiry_date,
+                    'status' => 'Submitted',
                     
                 ],
-                ['status' => 'Submitted', 
-                'description' => "submitted for approval by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Licence Renewal', 'to_be_reviewed' => $to_be_reviewed]
+                [ 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal']
             );
-        return 'success';
+            $title = "Licence Renewal Submitted";
+            //log this event
+            $description = "Licence Renewal evidence for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
+            $this->licenseNotification($title, $description);
+            return 'success';
         }
-        return response()->json(['error' => "Number of renewals exceeded for $license->license_no"], 500);
+        return response()->json(['error' => "Unable to upload file. Try again later"], 500);
     }
 
     public function uploadReport(Request $request)
@@ -714,6 +698,11 @@ class LicensesController extends Controller
                 ['status' => 'Submitted', 
                 'description' => "submitted for approval by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed]
             );
+            $license = License::find($report->license_id);
+            $title = "$report->report_type Report Submitted";
+            //log this event
+            $description = "$report->report_type Report for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
+            $this->licenseNotification($title, $description);
         }
         return 'success';
     }
@@ -735,6 +724,11 @@ class LicensesController extends Controller
             ],
             ['description' => "approved by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'Report Status']
         );
+        $license = License::find($report->license_id);
+        $title = "$report->report_type Report Approved";
+        //log this event
+        $description = "$report->report_type Report for <strong>$license->license_no</strong> was approved by&nbsp;<strong>$actor->name</strong>";
+        $this->licenseNotification($title, $description);
         return 'success';
     }
     public function rejectReport(Request $request, Report $report)
@@ -757,6 +751,11 @@ class LicensesController extends Controller
             ],
             ['description' => "rejected by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Report Status','rejection_comment' => $request->rejection_comment]
         );
+        $license = License::find($report->license_id);
+        $title = "$report->report_type Report Rejected";
+        //log this event
+        $description = "$report->report_type Report for <strong>$license->license_no</strong> was rejected by&nbsp;<strong>$actor->name</strong><p>Reason: $request->rejection_comment</p>";
+        $this->licenseNotification($title, $description);
         return 'success';
     }
 
@@ -770,6 +769,18 @@ class LicensesController extends Controller
             $renewal->approved_by = $actor->id;            
             $renewal->save();
         }
+        
+        LicenseActivity::firstOrCreate(
+            [
+                'uuid' => $license->id,
+                'client_id' => $license->client_id,
+                'license_id' => $license->id,
+                'title' => '<strong>Licence Renewal</strong>',
+                'status' => 'Submitted',
+                'due_date' => $license->expiry_date,
+            ],
+            ['status' => 'Approved']
+        );
         LicenseActivity::firstOrCreate(
             [
                 'uuid' => $license->id,
@@ -779,9 +790,56 @@ class LicensesController extends Controller
                 'status' => 'Approved',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Approved', 'description' => "approved by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'Licence Renewal']
+            ['status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Licence Renewal']
         );
-        return 'success';
+        $title = "Licence Renewal Approved";
+        //log this event
+        $description = "Renewal for <strong>$license->license_no</strong> was approved by&nbsp;<strong>$actor->name</strong>";
+        $this->licenseNotification($title, $description);
+        return $this->setNextRenewalDate($license);
+        
+    }
+    
+    private function setNextRenewalDate($license) 
+    {
+        $year = date('Y', strtotime('now'));
+        $no_of_renewals = $license->no_of_renewals;
+        $license_date = $license->license_date;
+        $renewal_year = date('Y', strtotime($license->renewal_date));
+        // We want to make sure the renewal is made on the same year of the renewal date
+        if($year == $renewal_year){
+       
+            if ($no_of_renewals == 0) {
+                $next_expiry_date = date('Y-m-d', strtotime('+5 years -1 day', strtotime($license_date)));
+            }
+            if ($no_of_renewals == 1) {
+                $next_expiry_date = date('Y-m-d', strtotime('+7 years -1 day', strtotime($license_date)));
+
+                
+            }
+            if ($no_of_renewals > 1) {
+                return response()->json(['message' => 'You have exceeded the maximum number of renewals for this licence'], 500);            
+            }
+            $next_renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($next_expiry_date)));
+
+            $one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($next_renewal_date)));
+
+            $two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($next_renewal_date)));
+            
+            $three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($next_renewal_date)));
+            if ($no_of_renewals < 2) {
+                $license->expiry_date = $next_expiry_date;
+                $license->renewal_date = $next_renewal_date;
+                $license->one_month_before_expiration = $one_month_before_expiration;
+                $license->two_weeks_before_expiration = $two_weeks_before_expiration;
+                $license->three_days_before_expiration = $three_days_before_expiration;
+                $license->no_of_renewals += 1;
+                $license->expiry_alert_sent = 'activity logged,';
+                $license->save();
+            }
+            return 'success';
+        }
+        return response()->json(['message' => "Sorry! You can only perform this action in $year"], 500);  
     }
     public function rejectLicenseRenewal(Request $request, License $license)
     {
@@ -803,8 +861,12 @@ class LicensesController extends Controller
                 'status' => 'Rejected',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Rejected', 'description' => "rejected by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Licence Renewal', 'rejection_comment' => $request->rejection_comment]
+            ['status' => 'Rejected', 'description' => "rejected by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#B42318', 'type' =>'Licence Renewal', 'rejection_comment' => $request->rejection_comment]
         );
+        $title = "Licence Renewal Rejected";
+        //log this event
+        $description = "Renewal for <strong>$license->license_no</strong> was rejected by&nbsp;<strong>$actor->name</strong><p>Reason: $request->rejection_comment</p>";
+        $this->licenseNotification($title, $description);
         return 'success';
     }
     public function deleteRenewalDocument(Request $request, Renewal $renewal)

@@ -6,28 +6,22 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
-class DueReport extends Notification implements ShouldQueue
+class LicenseNotification extends Notification implements ShouldQueue
 {
     use Queueable;
     protected $title;
     protected $description;
     protected $status;
-    protected $type;
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $description, $status, $type='Quarterly Report')
+    public function __construct($title, $description)
     {
         //
         $this->title = $title;
         $this->description = $description;
-        $this->status = $status;
-        $this->type = $type;
-    }
-    public function databaseType(object $notifiable): string
-    {
-        return $this->type;
     }
     /**
      * Get the notification's delivery channels.
@@ -52,7 +46,7 @@ class DueReport extends Notification implements ShouldQueue
         $body = str_replace('</strong>', '', $body);
         return (new MailMessage)
                     ->line($title)
-                    ->line($body)
+                    ->line(new HtmlString($body))
                     // ->action('Notification Action', url('/'))
                     ->line('Kindly disregard this mail if it does not concern you!');
     }
@@ -65,7 +59,6 @@ class DueReport extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'status' => $this->status,
             'title' => $this->title,
             'description' => $this->description,
         ];
