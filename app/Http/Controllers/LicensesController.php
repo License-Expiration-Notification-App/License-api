@@ -639,6 +639,7 @@ class LicensesController extends Controller
                     'client_id' => $license->client_id,
                     'uuid' => $license_id,
                     'title' => '<strong>Licence Renewal</strong>',
+                    'status' => 'Pending',
                     'due_date' => $license->expiry_date,
                     
                 ],
@@ -692,6 +693,7 @@ class LicensesController extends Controller
                     'client_id' => $report->client_id,
                     'license_id' => $report->license_id,
                     'title' => '<strong>'.$report->report_type.' Report</strong>',
+                    'status' => 'Pending',
                     'due_date' => $report->due_date,
                 ],
                 ['status' => 'Submitted', 
@@ -711,7 +713,7 @@ class LicensesController extends Controller
         $report->status = 'Approved';
         $report->approved_by = $actor->id;            
         $report->save();
-        LicenseActivity::firstOrCreate(
+        LicenseActivity::updateOrCreate(
             [
                 'uuid' => $report->id,
                 'client_id' => $report->client_id,
@@ -722,7 +724,7 @@ class LicensesController extends Controller
             ],
             ['status' => 'Approved']
         );
-        LicenseActivity::firstOrCreate(
+        LicenseActivity::updateOrCreate(
             [
                 'uuid' => $report->id,
                 'client_id' => $report->client_id,
@@ -749,7 +751,7 @@ class LicensesController extends Controller
         
         $report->save();
 
-        LicenseActivity::firstOrCreate(
+        LicenseActivity::updateOrCreate(
             [
                 'uuid' => $report->id,
                 'client_id' => $report->client_id,
@@ -779,7 +781,7 @@ class LicensesController extends Controller
             $renewal->save();
         }
         
-        LicenseActivity::firstOrCreate(
+        LicenseActivity::updateOrCreate(
             [
                 'uuid' => $license->id,
                 'client_id' => $license->client_id,
@@ -790,7 +792,7 @@ class LicensesController extends Controller
             ],
             ['status' => 'Approved']
         );
-        LicenseActivity::firstOrCreate(
+        LicenseActivity::updateOrCreate(
             [
                 'uuid' => $license->id,
                 'client_id' => $license->client_id,
@@ -861,7 +863,7 @@ class LicensesController extends Controller
             $renewal->rejection_comment = $request->rejection_comment;         
             $renewal->save();
         }
-        LicenseActivity::firstOrCreate(
+        LicenseActivity::updateOrCreate(
             [
                 'uuid' => $license->id,
                 'client_id' => $license->client_id,
