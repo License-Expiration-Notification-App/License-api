@@ -608,9 +608,13 @@ class LicensesController extends Controller
     public function uploadCertificate(Request $request)
     {
         $actor = $this->getUser();
+        
+        $to_be_reviewed = 1;
+        if($actor->role == 'staff'){            
+            $to_be_reviewed = 0;
+        }
         $license_id = $request->license_id;
         // $is_renewal = $request->is_renewal; // true or false
-        $to_be_reviewed = $request->to_be_reviewed;
         $license = License::find($license_id);
         
         if($request->hasFile('certificate_file')){
@@ -643,7 +647,7 @@ class LicensesController extends Controller
                     'due_date' => $license->expiry_date,
                     
                 ],
-                [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal']
+                [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal','to_be_reviewed' => $to_be_reviewed]
             );
             $title = "Licence Renewal Submitted";
             //log this event
@@ -658,7 +662,10 @@ class LicensesController extends Controller
     {
         $actor = $this->getUser();
         $report_id = $request->uuid;
-        $to_be_reviewed = $request->to_be_reviewed;
+        $to_be_reviewed = 1;
+        if($actor->role == 'staff'){            
+            $to_be_reviewed = 0;
+        }
         if($report_id != NULL) {
             $entry_date = date('Y-m-d', strtotime('now'));
             $report = Report::find($report_id);
@@ -722,7 +729,7 @@ class LicensesController extends Controller
                 'status' => 'Submitted',
                 'due_date' => $report->due_date,
             ],
-            ['status' => 'Approved']
+            ['status' => 'Approved','to_be_reviewed' => 0]
         );
         LicenseActivity::updateOrCreate(
             [
@@ -790,7 +797,7 @@ class LicensesController extends Controller
                 'status' => 'Submitted',
                 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Approved']
+            ['status' => 'Approved','to_be_reviewed' => 0]
         );
         LicenseActivity::updateOrCreate(
             [
