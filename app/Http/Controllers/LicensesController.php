@@ -640,10 +640,9 @@ class LicensesController extends Controller
                     'uuid' => $license_id,
                     'title' => '<strong>Licence Renewal</strong>',
                     'due_date' => $license->expiry_date,
-                    'status' => 'Submitted',
                     
                 ],
-                [ 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal']
+                [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal']
             );
             $title = "Licence Renewal Submitted";
             //log this event
@@ -712,7 +711,17 @@ class LicensesController extends Controller
         $report->status = 'Approved';
         $report->approved_by = $actor->id;            
         $report->save();
-
+        LicenseActivity::firstOrCreate(
+            [
+                'uuid' => $report->id,
+                'client_id' => $report->client_id,
+                'license_id' => $report->license_id,
+                'title' => '<strong>'.$report->report_type.' Report</strong>',
+                'status' => 'Submitted',
+                'due_date' => $report->due_date,
+            ],
+            ['status' => 'Approved']
+        );
         LicenseActivity::firstOrCreate(
             [
                 'uuid' => $report->id,
