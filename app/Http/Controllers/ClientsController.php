@@ -269,7 +269,7 @@ class ClientsController extends Controller
     public function uploadClientLogo(Request $request)
     {
         try {
-            $this->validate($request, [
+            $request->validate([
                 'logo' => 'required|image|mimes:jpeg,png,jpg|max:1024',
             ]);
             $client_id = $request->client_id;
