@@ -711,7 +711,7 @@ class LicensesController extends Controller
                     'due_date' => $report->due_date,
                 ],
                 ['status' => 'Submitted', 
-                'description' => "submitted for approval by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed]
+                'description' => "submitted for approval by&nbsp;", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed, 'action_by' => $actor->id,]
             );
             $license = License::find($report->license_id);
             $title = "$report->report_type Report Submitted";
@@ -747,7 +747,7 @@ class LicensesController extends Controller
                 'status' => 'Approved',
                 'due_date' => $report->due_date,
             ],
-            ['description' => "approved by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#D1FADF', 'type' =>'Report Status']
+            ['description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Report Status']
         );
         $license = License::find($report->license_id);
         $title = "$report->report_type Report Approved";
@@ -774,7 +774,7 @@ class LicensesController extends Controller
                 'status' => 'Rejected',
                 'due_date' => $report->due_date,
             ],
-            ['description' => "rejected by&nbsp;<strong>$actor->name</strong>", 'color_code' => '#B42318', 'type' =>'Report Status','rejection_comment' => $request->rejection_comment]
+            ['description' => "rejected by&nbsp;", 'action_by' => $actor->id,'color_code' => '#B42318', 'type' =>'Report Status','rejection_comment' => $request->rejection_comment]
         );
         $license = License::find($report->license_id);
         $title = "$report->report_type Report Rejected";
