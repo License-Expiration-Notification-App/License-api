@@ -74,8 +74,8 @@ class SubsidiariesController extends Controller
         $client = Client::find($client_id);
         $title = "New Subsidiary Registered";
         //log this event
-        $description = "<strong>$subsidiary->name</strong> was registered under $client->company_name by $actor->name";
-        $this->auditTrailEvent($title, $description, 'Subsidiary Management', 'add', [$actor]);
+        $description = "<strong>$subsidiary->name</strong> was registered under $client->company_name by&nbsp;";
+        $this->auditTrailEvent($title, $description, $actor->id, 'Subsidiary Management', 'add', [$actor]);
 
 
         return response()->json(compact('subsidiary'), 200);
@@ -95,8 +95,8 @@ class SubsidiariesController extends Controller
         $subsidiary->save();
         $title = "Subsidiary Updated";
                 //log this event
-                $description = "<strong>$old_name</strong> was updated to&nbsp;<strong>$subsidiary->name</strong> by&nbsp;<strong>$actor->name</strong>";
-                $this->auditTrailEvent($title, $description, 'Subsidiary Management', 'add', [$actor]);
+                $description = "<strong>$old_name</strong> was updated to&nbsp;<strong>$subsidiary->name</strong> by&nbsp;";
+                $this->auditTrailEvent($title, $description, $actor->id, 'Subsidiary Management', 'add', [$actor]);
 
         return $this->show($subsidiary);
     }

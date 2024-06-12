@@ -78,7 +78,23 @@ class UsersController extends Controller
             $notificationQuery->where('created_at', '<=', $max_date);
         }
         $notifications = $notificationQuery->orderBy('created_at', 'DESC')->paginate(100);
-
+        foreach ($notifications as $notification) {
+            if ($notification->type != 'Authentication') {
+                $data = $notification->data;
+                $description = $data['description'];
+                $actor = $data['actor'];
+    
+                if($actor == $user->id) {
+                    $description .= '<strong>you</strong>';
+                }else {
+                    $actor_name = User::withTrashed()->find($actor)->name;
+                    $description .= "<strong>$actor_name</strong>";
+                }
+                $data['description'] = $description;
+                $notification->data = $data;
+            }
+            
+        }
         $notifications = $notifications->setCollection($notifications->groupBy(['created_at' =>function($item){
             return Carbon::parse($item->created_at)->format('Y-m-d');
         }, 'type']));

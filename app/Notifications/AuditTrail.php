@@ -15,15 +15,17 @@ class AuditTrail extends Notification implements ShouldQueue
     protected $description;
     protected $type;
     protected $color_code;
+    protected $actor;
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $description, $type='Authentication', $action_type= 'add')
+    public function __construct($title, $description, $actor, $type='Authentication', $action_type= 'add')
     {
         //
         $this->title = $title;
         $this->description = $description;
         $this->type = $type;
+        $this->actor = $actor;
         $this->setColorCode($action_type);
     }
     private function setColorCode($type)
@@ -94,6 +96,7 @@ class AuditTrail extends Notification implements ShouldQueue
             'tag' => 'Audit Trail',
             'title' => $this->title,
             'description' => $this->description,
+            'actor' => $this->actor,
             'color_code' => $this->color_code,
         ];
     }
