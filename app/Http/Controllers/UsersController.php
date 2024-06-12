@@ -81,7 +81,7 @@ class UsersController extends Controller
         foreach ($notifications as $notification) {
             $data = $notification->data;
             $description = $data['description'];
-            $actor = $data->actor;
+            $actor = $data['actor'];
 
             if($actor == $user->id) {
                 $description .= '<strong>you</strong>';
