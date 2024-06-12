@@ -644,7 +644,6 @@ class LicensesController extends Controller
                     'uuid' => $license_id,
                     'title' => '<strong>Licence Renewal</strong>',
                     'status' => 'Pending',
-                    'due_date' => $license->expiry_date,
                     
                 ],
                 [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal','to_be_reviewed' => $to_be_reviewed]
@@ -795,7 +794,7 @@ class LicensesController extends Controller
                 'license_id' => $license->id,
                 'title' => '<strong>Licence Renewal</strong>',
                 'status' => 'Submitted',
-                'due_date' => $license->expiry_date,
+                // 'due_date' => $license->expiry_date,
             ],
             ['status' => 'Approved','to_be_reviewed' => 0]
         );
@@ -806,7 +805,7 @@ class LicensesController extends Controller
                 'license_id' => $license->id,
                 'title' => '<strong>Licence Renewal</strong>',
                 'status' => 'Approved',
-                'due_date' => $license->expiry_date,
+                // 'due_date' => $license->expiry_date,
             ],
             ['status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Licence Renewal']
         );
