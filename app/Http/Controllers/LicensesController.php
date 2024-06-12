@@ -539,14 +539,14 @@ class LicensesController extends Controller
         $license->mineral_id = $request->mineral_id;
         $license->state_id = $request->state_id;
         $license->lga_id = $request->lga_id;
-        $license->license_date = date('Y-m-d', strtotime($request->license_date));
-        $license->expiry_date = date('Y-m-d', strtotime('+3 years -1 day', strtotime($license->license_date)));
+        // $license->license_date = date('Y-m-d', strtotime($request->license_date));
+        // $license->expiry_date = date('Y-m-d', strtotime('+3 years -1 day', strtotime($license->license_date)));
             
-        $license->renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($license->expiry_date)));
+        // $license->renewal_date = date("Y-m-d", strtotime("-3 month", strtotime($license->expiry_date)));
 
-        $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->renewal_date)));
-        $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->renewal_date)));
-        $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->renewal_date)));
+        // $license->one_month_before_expiration = date("Y-m-d H:i:s", strtotime("-1 month", strtotime($license->renewal_date)));
+        // $license->two_weeks_before_expiration = date("Y-m-d H:i:s", strtotime("-2 weeks", strtotime($license->renewal_date)));
+        // $license->three_days_before_expiration = date("Y-m-d H:i:s", strtotime("-3 days", strtotime($license->renewal_date)));
 
         // $license->expiry_date = date('Y-m-d', strtotime($request->expiry_date));
         $license->size_of_tenement = $request->size_of_tenement;
