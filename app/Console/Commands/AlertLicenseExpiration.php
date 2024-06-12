@@ -203,7 +203,7 @@ class AlertLicenseExpiration extends Command
                 
                 //log this event
                 $action = "<strong>$license->license_no</strong> for $subsidiary ($client) has expired today,&nbsp;<strong>$license->expiry_date</strong>";
-                $this->logLicenseActivity($license, $license->expiry_date, $action, '#FEE4E2');
+                $this->logLicenseActivity($license, $license->renewal_date, $action, '#FEE4E2');
 
                 $table .= "<tr><td>$client</td><td>$subsidiary</td><td>$license->license_no</td><td>$license->renewal_date</td><td>$license->expiry_date</td><tr>";
                 $count++;
