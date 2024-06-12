@@ -260,10 +260,10 @@ class LicensesController extends Controller
             $license->added_by = $actor->id;
             if ($license->save()) {
                 $subsidiary = Subsidiary::with('client')->find($request->subsidiary_id);
-                $title = "New License Added";
+                $title = "New Licence Added";
 
                 //log this event
-                $description = "New license ($license->license_no) was added for&nbsp;<strong>$subsidiary->name</strong> (". $subsidiary->client->company_name .") by&nbsp;";
+                $description = "New licence ($license->license_no) was added for&nbsp;<strong>$subsidiary->name</strong> (". $subsidiary->client->company_name .") by&nbsp;";
                 $this->licenseEvent($title, $description, $actor->id, 'Licence Management', 'add', [$actor]);
 
                 return $this->show($license);
@@ -351,15 +351,15 @@ class LicensesController extends Controller
                     }
                     // $license = License::where('license_no', $license_no)->first();
                     // if ($license) {
-                    //     $issues_observed[] = "Duplicate License Number: $license_no on row #$line. This license number has been registered already";
-                    //     $unsaved_data[] = "Duplicate License Number: $license_no on row #$line. This license number has been registered already";
+                    //     $issues_observed[] = "Duplicate Licence Number: $license_no on row #$line. This licence number has been registered already";
+                    //     $unsaved_data[] = "Duplicate Licence Number: $license_no on row #$line. This licence number has been registered already";
                     // }
 
                     // $licence_no_array = explode(' ',$license_no);
                     $license_type_slug = $license_type; //strtoupper(end($licence_no_array));
                     // if(count($licence_no_array) <= 1) {
-                    //     $issues_observed[] = "The license number should be in the form of 123456 EL (that is: <number> <space> <license type>) on line #$line.";
-                    //     $unsaved_data[] = "The license number should be in the form of 123456 EL (that is: <number> <space> <license type>) on line #$line.";
+                    //     $issues_observed[] = "The licence number should be in the form of 123456 EL (that is: <number> <space> <license type>) on line #$line.";
+                    //     $unsaved_data[] = "The licence number should be in the form of 123456 EL (that is: <number> <space> <license type>) on line #$line.";
                     // }
                     $status = trim($csvRow['STATUS']);
                     $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
@@ -373,7 +373,7 @@ class LicensesController extends Controller
                     // all issues are picked out. Now let's populate the DB
                     // let's store the mineral incase it does not exist;
                     $db_mineral = Mineral::firstOrCreate(['name' => $mineral]);
-                    // let's fetch the license type from the slug;
+                    // let's fetch the licence type from the slug;
                     $license_type = LicenseType::where('slug', $license_type_slug)->first();
                     // create the subsidiary if it does not exist
                     $subsidiary = Subsidiary::firstOrCreate(['name' => $company, 'client_id' => $client_id]);
@@ -413,10 +413,10 @@ class LicensesController extends Controller
                         if ($license->save()) {
                             $saved_data[] = "Licence Number: $license_no on row #$line is successfully saved.";
                             $subsidiary = Subsidiary::with('client')->find($license->subsidiary_id);
-                            $title = "New License Added";
+                            $title = "New Licence Added";
 
                             //log this event
-                            $description = "New license ($license->license_no) was added for&nbsp;<strong>$subsidiary->name</strong> (". $subsidiary->client->company_name .") by&nbsp;";
+                            $description = "New licence ($license->license_no) was added for&nbsp;<strong>$subsidiary->name</strong> (". $subsidiary->client->company_name .") by&nbsp;";
                             $this->licenseEvent($title, $description, $actor->id, 'Licence Management', 'add', [$actor]);
 
                             // return $this->show($license);
@@ -438,7 +438,7 @@ class LicensesController extends Controller
             return response()->json(['error' =>'Please upload a valid, non-empty .csv file'], 500);
         }
     }
-    public function licenseActivityTimeLine(Request $request, License $license)
+    public function licenseActivityTimeLine(Request $request, Licence $license)
     {
         $searchParams = $request->all();
         $licenseActivityQuery = LicenseActivity::query();
@@ -493,7 +493,7 @@ class LicensesController extends Controller
        }
         return response()->json(compact('activity_timeline'), 200);
     }
-    public function licenseUpcomingActivities(Request $request, License $license)
+    public function licenseUpcomingActivities(Request $request, Licence $license)
     {
         $upcoming_activities = LicenseActivity::
         where('license_id', $license->id)
@@ -527,7 +527,7 @@ class LicensesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, License $license)
+    public function update(Request $request, Licence $license)
     {
         //
 
@@ -784,7 +784,7 @@ class LicensesController extends Controller
         return 'success';
     }
 
-    public function approveLicenseRenewal(Request $request, License $license)
+    public function approveLicenseRenewal(Request $request, Licence $license)
     {
         $actor = $this->getUser();
         
@@ -866,7 +866,7 @@ class LicensesController extends Controller
         }
         return response()->json(['message' => "Sorry! You can only perform this action in $year"], 500);  
     }
-    public function rejectLicenseRenewal(Request $request, License $license)
+    public function rejectLicenseRenewal(Request $request, Licence $license)
     {
         $actor = $this->getUser();
         
