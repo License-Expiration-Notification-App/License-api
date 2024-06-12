@@ -438,7 +438,7 @@ class LicensesController extends Controller
             return response()->json(['error' =>'Please upload a valid, non-empty .csv file'], 500);
         }
     }
-    public function licenseActivityTimeLine(Request $request, Licence $license)
+    public function licenseActivityTimeLine(Request $request, License $license)
     {
         $searchParams = $request->all();
         $licenseActivityQuery = LicenseActivity::query();
@@ -493,7 +493,7 @@ class LicensesController extends Controller
        }
         return response()->json(compact('activity_timeline'), 200);
     }
-    public function licenseUpcomingActivities(Request $request, Licence $license)
+    public function licenseUpcomingActivities(Request $request, License $license)
     {
         $upcoming_activities = LicenseActivity::
         where('license_id', $license->id)
@@ -527,7 +527,7 @@ class LicensesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Licence $license)
+    public function update(Request $request, License $license)
     {
         //
 
@@ -784,7 +784,7 @@ class LicensesController extends Controller
         return 'success';
     }
 
-    public function approveLicenseRenewal(Request $request, Licence $license)
+    public function approveLicenseRenewal(Request $request, License $license)
     {
         $actor = $this->getUser();
         
@@ -866,7 +866,7 @@ class LicensesController extends Controller
         }
         return response()->json(['message' => "Sorry! You can only perform this action in $year"], 500);  
     }
-    public function rejectLicenseRenewal(Request $request, Licence $license)
+    public function rejectLicenseRenewal(Request $request, License $license)
     {
         $actor = $this->getUser();
         
