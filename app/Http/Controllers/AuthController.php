@@ -59,8 +59,8 @@ class AuthController extends Controller
             $token = $tokenResult->plainTextToken;
             $title = "New Registration";
             //log this event
-            $description = "<strong>$user->name</strong> was registered by&nbsp;<strong>$actor->name</strong>";
-            $this->auditTrailEvent($title, $description);
+            $description = "<strong>$user->name</strong> was registered by&nbsp;";
+            $this->auditTrailEvent($title, $description, $actor->id);
 
             return response()->json([
                 'message' => 'Successfully created user!',
@@ -127,7 +127,7 @@ class AuthController extends Controller
         $title = "Log in action";
         //log this event
         $description = "<strong>$name</strong> logged in to the portal";
-        $this->auditTrailEvent($title, $description);
+        $this->auditTrailEvent($title, $description, $user->id);
 
         $user_resource = new UserResource($user);
         $tokenResult = $user->createToken('Personal Access Token');
@@ -172,7 +172,7 @@ class AuthController extends Controller
         // log this event
         $title = "Logout Action Registration";
         $description = "<strong>$actor->name</strong> logged out of the portal";
-        $this->auditTrailEvent($title, $description, 'Authentication', 'edit');
+        $this->auditTrailEvent($title, $description, $actor->id, 'Authentication', 'edit');
 
         $request->user()->currentAccessToken()->delete();
         return response()->json([
@@ -259,7 +259,7 @@ class AuthController extends Controller
             }
             $title = "Password updated";
             $description = "<strong>$user->name</strong> password was updated";
-            $this->auditTrailEvent($title, $description, 'Authentication', 'edit');
+            $this->auditTrailEvent($title, $description, $user->id, 'Authentication', 'edit');
             
             return 'success';
         }

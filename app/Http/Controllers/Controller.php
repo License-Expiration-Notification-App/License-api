@@ -157,7 +157,7 @@ class Controller extends BaseController
 
         return $folder . '/' . $file_name;
     }
-    public function auditTrailEvent($title, $action, $type='Authentication', $action_type= 'add', $clients = null)
+    public function auditTrailEvent($title, $action, $actor, $type='Authentication', $action_type= 'add', $clients = null)
     {
 
         // $user = $this->getUser();
@@ -165,11 +165,11 @@ class Controller extends BaseController
         if ($clients != null) {
             $users = $users->merge($clients);
         }
-        $notification = new AuditTrail($title, $action, $type, $action_type);
+        $notification = new AuditTrail($title, $action, $actor, $type, $action_type);
         return Notification::send($users->unique(), $notification);
     }
 
-    public function licenseEvent($title, $action, $type='Authentication', $action_type= 'add', $clients = null)
+    public function licenseEvent($title, $action, $actor, $type='Authentication', $action_type= 'add', $clients = null)
     {
 
         // $user = $this->getUser();
@@ -177,7 +177,7 @@ class Controller extends BaseController
         if ($clients != null) {
             $users = $users->merge($clients);
         }
-        $notification = new LicenseActivityLog($title, $action, $type, $action_type);
+        $notification = new LicenseActivityLog($title, $action, $actor, $type, $action_type);
         return Notification::send($users->unique(), $notification);
     }
 
