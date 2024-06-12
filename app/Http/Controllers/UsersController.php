@@ -80,7 +80,7 @@ class UsersController extends Controller
         $notifications = $notificationQuery->orderBy('created_at', 'DESC')->paginate(100);
         foreach ($notifications as $notification) {
             $data = $notification->data;
-            $description = $data->description;
+            $description = $data['description'];
             $actor = $data->actor;
 
             if($actor == $user->id) {
@@ -89,7 +89,7 @@ class UsersController extends Controller
                 $actor_name = User::withTrashed()->find($actor)->name;
                 $description .= "<strong>$actor_name</strong>";
             }
-            $data->description = $description;
+            $data['description'] = $description;
             $notification->data = $data;
         }
         $notifications = $notifications->setCollection($notifications->groupBy(['created_at' =>function($item){
