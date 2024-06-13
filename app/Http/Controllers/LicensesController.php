@@ -831,6 +831,7 @@ class LicensesController extends Controller
     
     private function setNextRenewalDate($license) 
     {
+        $today = date('Y-m-d', strtotime('now'));
         $year = date('Y', strtotime('now'));
         $no_of_renewals = $license->no_of_renewals;
         $license_date = $license->license_date;
@@ -863,6 +864,9 @@ class LicensesController extends Controller
                 $license->two_weeks_before_expiration = $two_weeks_before_expiration;
                 $license->three_days_before_expiration = $three_days_before_expiration;
                 $license->no_of_renewals += 1;
+                if( $license->expiry_date > $today) {
+                    $license->status = 'Active';
+                }
                 $license->expiry_alert_sent = 'activity logged,';
                 $license->save();
             }
