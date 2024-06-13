@@ -617,14 +617,14 @@ class LicensesController extends Controller
     {
         $actor = $this->getUser();
         
+        
+        $license_id = $request->license_id;
+        // $is_renewal = $request->is_renewal; // true or false
+        $license = License::find($license_id);
         $to_be_reviewed = 1;
         if($actor->role == 'staff'){            
             $to_be_reviewed = 0;
         }
-        $license_id = $request->license_id;
-        // $is_renewal = $request->is_renewal; // true or false
-        $license = License::find($license_id);
-        
         if($request->hasFile('certificate_file')){
             
             $files = $request->file('certificate_file');
@@ -660,6 +660,10 @@ class LicensesController extends Controller
             //log this event
             $description = "Licence Renewal evidence for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
             $this->licenseNotification($title, $description);
+            if($actor->role == 'staff'){            
+                $this->approveLicenseRenewal($request, $license);
+            }
+            
             return 'success';
         }
         return response()->json(['error' => "Unable to upload file. Try again later"], 500);
