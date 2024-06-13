@@ -11,7 +11,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Http\Request;
 
-class AuditTrailEvent implements ShouldBroadcast
+class LicenceNotificationEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -37,7 +37,7 @@ class AuditTrailEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         // return new Channel('audit-trail-channel');
-        return ['audit-trail-channel'];
+        return ['licence-notification'];
     }
 
     // public function broadcastOn()

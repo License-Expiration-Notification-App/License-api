@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\AuditTrailEvent;
+use App\Events\LicenceNotificationEvent;
 use App\Models\LocalGovernmentArea;
 use App\Models\State;
 use App\Notifications\AuditTrail;
@@ -167,7 +167,6 @@ class Controller extends BaseController
             $users = $users->merge($clients);
         }
         $notification = new AuditTrail($title, $action, $actor, $type, $action_type);
-        event(new AuditTrailEvent($title, $action));
         return Notification::send($users->unique(), $notification);
     }
 
@@ -180,7 +179,7 @@ class Controller extends BaseController
             $users = $users->merge($clients);
         }
         $notification = new LicenseActivityLog($title, $action, $actor, $type, $action_type);
-        new AuditTrailEvent($title, $action);
+        event(new LicenceNotificationEvent($title, $action));
         return Notification::send($users->unique(), $notification);
     }
 
@@ -191,7 +190,7 @@ class Controller extends BaseController
             $users = $users->merge($clients);
         }
         $notification = new LicenseNotification($title, $action);
-        new AuditTrailEvent($title, $action);
+        event(new LicenceNotificationEvent($title, $action));
         return Notification::send($users->unique(), $notification);
     }
 

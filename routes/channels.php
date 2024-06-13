@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\License;
+use App\Models\LicenseActivity;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -16,6 +18,6 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
-Broadcast::channel('audit-trail-channel', function ($user, $id) {
-    return true;
+Broadcast::channel('licence-notification', function ($user, $id) {
+    return $user->role === 'staff';
 });
