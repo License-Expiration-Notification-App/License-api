@@ -239,6 +239,7 @@ class AlertLicenseExpiration extends Command
                 'license_id' => $license->id,
                 'uuid' => $license->id,
                 'title' => "<strong>Licence Renewal</strong>",
+                'status' => 'Pending',
                 
             ], 
             [
