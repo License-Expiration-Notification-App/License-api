@@ -808,7 +808,7 @@ class LicensesController extends Controller
                 'status' => 'Submitted',
                 // 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Approved','to_be_reviewed' => 0]
+            ['to_be_reviewed' => 0]
         );
         LicenseActivity::updateOrCreate(
             [
@@ -819,7 +819,7 @@ class LicensesController extends Controller
                 'status' => 'Approved',
                 // 'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Licence Renewal']
+            ['status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Licence Renewal', 'to_be_reviewed' => 0]
         );
         $title = "Licence Renewal Approved";
         //log this event
