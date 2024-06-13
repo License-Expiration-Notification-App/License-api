@@ -832,7 +832,7 @@ class LicensesController extends Controller
         $license_date = $license->license_date;
         $renewal_year = date('Y', strtotime($license->renewal_date));
         // We want to make sure the renewal is made on the same year of the renewal date
-        if($year == $renewal_year){
+        // if($year == $renewal_year){
        
             if ($no_of_renewals == 0) {
                 $next_expiry_date = date('Y-m-d', strtotime('+5 years -1 day', strtotime($license_date)));
@@ -863,8 +863,8 @@ class LicensesController extends Controller
                 $license->save();
             }
             return 'success';
-        }
-        return response()->json(['message' => "Sorry! You can only perform this action in $year"], 500);  
+        // }
+        // return response()->json(['message' => "Sorry! You can only perform this action in $year"], 500);  
     }
     public function rejectLicenseRenewal(Request $request, License $license)
     {
