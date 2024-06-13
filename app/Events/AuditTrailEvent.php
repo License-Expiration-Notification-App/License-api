@@ -34,19 +34,19 @@ class AuditTrailEvent implements ShouldBroadcast
      *
      * @return Channel|array
      */
-    // public function broadcastOn()
-    // {
-    //     // return new Channel('audit-trail-channel');
-    //     return ['audit-trail-channel'];
-    // }
-
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        // return new Channel('audit-trail-channel');
+        return ['audit-trail-channel'];
     }
+
+    // public function broadcastOn()
+    // {
+    //     return new PrivateChannel('channel-name');
+    // }
 
     // public function broadcastAs()
     // {
-    //     return 'audit-trail';
+    //     return 'notification-log';
     // }
 }
