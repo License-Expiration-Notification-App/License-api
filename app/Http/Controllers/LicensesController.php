@@ -68,6 +68,7 @@ class LicensesController extends Controller
     public function licenseRenewalPeriods(Request $request)
     {
         $today = date('Y-m-d', strtotime('now'));
+        $max_renewal_date = date("Y-m-d", strtotime("+1 month", strtotime('now')));
         $user = $this->getUser();
         $condition = [];
         if ($user->hasRole('client')) {
@@ -80,11 +81,18 @@ class LicensesController extends Controller
         if($renewal_date_passed == 1) {
             $date_passed_license = License::where($condition)->where('renewal_date', '<', $today)->select('id', 'license_no')->first();
         }
-        $renewal_due_today = License::where($condition)->where('renewal_date', 'LIKE', '%'.$today.'%')->count();
-        if($renewal_date_passed == 1) {
-            $due_today_license = License::where($condition)->where('renewal_date', 'LIKE', '%'.$today.'%')->select('id', 'license_no')->first();
+        $renewal_due_today = License::where($condition)
+        ->where('renewal_date', '>=', $today)
+        ->where('renewal_date', '<=', $max_renewal_date)
+        ->count();
+        if($renewal_due_today == 1) {
+            $due_today_license = License::where($condition)
+            ->where('renewal_date', '>=', $today)
+            ->where('renewal_date', '<=', $max_renewal_date)
+            ->select('id', 'license_no')
+            ->first();
         }
-        return response()->json(compact('renewal_date_passed', 'date_passed_license','renewal_due_today', 'due_today_license'), 200);
+        return response()->json(compact('renewal_date_passed', 'date_passed_license','renewal_due_today', 'due_today_license', 'max_renewal_date'), 200);
     }
     /**
      * Display a listing of the resource.
@@ -113,6 +121,7 @@ class LicensesController extends Controller
         $status = Arr::get($searchParams, 'status', '');
         $license_date = Arr::get($searchParams, 'license_date', '');
         $license_date = Arr::get($searchParams, 'expiry_date', '');
+        $max_renewal_date = Arr::get($searchParams, 'max_renewal_date', '');
         // $date_created = Arr::get($searchParams, 'date_created', '');
         $min_date = Arr::get($searchParams, 'min_date', '');
         $max_date = Arr::get($searchParams, 'max_date', '');
@@ -191,8 +200,14 @@ class LicensesController extends Controller
             $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
             $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }
+        if (!empty($max_renewal_date)) {
+            $max_date = date('Y-m-d',strtotime($max_renewal_date));
+            $licenseQuery->where('licenses.renewal_date', '>=', date('Y-m-d', strtotime('now')))
+            ->where('licenses.renewal_date', '<=', $max_date);
+        }
+        
         if ($sort_by == '') {
-            $sort_by = 'licenses.renewal_date';
+            $sort_by = 'licenses.created_at';
         }
         if ($sort_direction == '') {
             $sort_direction = 'DESC';
