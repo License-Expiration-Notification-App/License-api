@@ -56,9 +56,9 @@ class LicensesController extends Controller
         if(!in_array('TENEMENT SIZE', $header)) {
             $missing_headers[] = 'A compulsory column header: TENEMENT SIZE is missing. Please add a column header name titled: TENEMENT SIZE to the csv file';
         }  
-        if(!in_array('EXPIRY DATE', $header)) {
-            $missing_headers[] = 'A compulsory column header: EXPIRY DATE is missing. Please add a column header name titled: EXPIRY DATE to the csv file';
-        }  
+        // if(!in_array('EXPIRY DATE', $header)) {
+        //     $missing_headers[] = 'A compulsory column header: EXPIRY DATE is missing. Please add a column header name titled: EXPIRY DATE to the csv file';
+        // }  
         if(!in_array('ISSUE DATE', $header)) {
             $missing_headers[] = 'A compulsory column header: ISSUE DATE is missing. Please add a column header name titled: ISSUE DATE to the csv file';
         }  
@@ -321,7 +321,7 @@ class LicensesController extends Controller
                     $mineral = ucwords(trim($csvRow['MINERAL'])); 
                     $license_no = trim($csvRow['LICENCE NUMBER']);
                     $license_type = trim($csvRow['LICENCE TYPE']);
-                    $exp_date = strtoupper(trim($csvRow['EXPIRY DATE']));                
+                    // $exp_date = strtoupper(trim($csvRow['EXPIRY DATE']));                
                     $lic_date = trim($csvRow['ISSUE DATE']);
                     $state = trim($csvRow['STATE']);
                     $lga = trim($csvRow['LGA']);                
@@ -332,10 +332,10 @@ class LicensesController extends Controller
                         // $line++;
                         continue;
                     }
-                    if($exp_date == 'LICENCE IN PROGRESS' || $exp_date == NULL) {
-                        $issues_observed[] = 'Invalid EXPIRY DATE on row #'.$line;
-                        $unsaved_data[] = 'Invalid EXPIRY DATE on row #'.$line;
-                    }
+                    // if($exp_date == 'LICENCE IN PROGRESS' || $lic_date == NULL) {
+                    //     $issues_observed[] = 'Invalid ISSUE DATE on row #'.$line;
+                    //     $unsaved_data[] = 'Invalid EXPIRY DATE on row #'.$line;
+                    // }
                     if($lic_date == 'LICENCE IN PROGRESS' || $lic_date == NULL) {
                         $issues_observed[] = 'Invalid ISSUE DATE on row #'.$line;
                         $unsaved_data[] = 'Invalid ISSUE DATE on row #'.$line;
@@ -377,7 +377,7 @@ class LicensesController extends Controller
                     //     $unsaved_data[] = "The licence number should be in the form of 123456 EL (that is: <number> <space> <license type>) on line #$line.";
                     // }
                     $status = trim($csvRow['STATUS']);
-                    $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
+                    // $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
                     $license_date = date('Y-m-d', strtotime($this->formatDate($lic_date)));
                     if(count($issues_observed) > 0) {
                         // $unsaved_data = $issues_observed;                    
