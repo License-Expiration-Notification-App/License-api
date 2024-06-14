@@ -720,25 +720,29 @@ class LicensesController extends Controller
                     $upload->save();
                 }
             }
-
-            // log the activity
-            LicenseActivity::updateOrCreate(
-                [
-                    'uuid' => $report->id,
-                    'client_id' => $report->client_id,
-                    'license_id' => $report->license_id,
-                    'title' => '<strong>'.$report->report_type.' Report</strong>',
-                    'status' => 'Pending',
-                    'due_date' => $report->due_date,
-                ],
-                ['status' => 'Submitted', 
-                'description' => "submitted for approval by&nbsp;", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed, 'action_by' => $actor->id,]
-            );
-            $license = License::find($report->license_id);
-            $title = "$report->report_type Report Submitted";
-            //log this event
-            $description = "$report->report_type Report for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
-            $this->licenseNotification($title, $description);
+            if($actor->role == 'staff'){            
+                $this->approveReport($request, $report);
+            }else {
+                // log the activity
+                LicenseActivity::updateOrCreate(
+                    [
+                        'uuid' => $report->id,
+                        'client_id' => $report->client_id,
+                        'license_id' => $report->license_id,
+                        'title' => '<strong>'.$report->report_type.' Report</strong>',
+                        'status' => 'Pending',
+                        'due_date' => $report->due_date,
+                    ],
+                    ['status' => 'Submitted', 
+                    'description' => "submitted for approval by&nbsp;", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed, 'action_by' => $actor->id,]
+                );
+                $license = License::find($report->license_id);
+                $title = "$report->report_type Report Submitted";
+                //log this event
+                $description = "$report->report_type Report for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
+                $this->licenseNotification($title, $description);
+            }
+            
         }
         return 'success';
     }
@@ -748,15 +752,14 @@ class LicensesController extends Controller
         $report->status = 'Approved';
         $report->approved_by = $actor->id;            
         $report->save();
-        LicenseActivity::updateOrCreate(
-            [
-                'uuid' => $report->id,
-                'client_id' => $report->client_id,
-                'license_id' => $report->license_id,
-                'title' => '<strong>'.$report->report_type.' Report</strong>',
-                'status' => 'Submitted',
-                'due_date' => $report->due_date,
-            ],
+        LicenseActivity::where([
+            'uuid' => $report->id,
+            'client_id' => $report->client_id,
+            'license_id' => $report->license_id,
+            'title' => '<strong>'.$report->report_type.' Report</strong>',
+            'status' => 'Submitted',
+            'due_date' => $report->due_date,
+        ])->update(
             ['to_be_reviewed' => 0]
         );
         LicenseActivity::updateOrCreate(
@@ -816,15 +819,14 @@ class LicensesController extends Controller
             $renewal->save();
         }
         
-        LicenseActivity::updateOrCreate(
-            [
-                'uuid' => $license->id,
-                'client_id' => $license->client_id,
-                'license_id' => $license->id,
-                'title' => '<strong>Licence Renewal</strong>',
-                'status' => 'Submitted',
-                // 'due_date' => $license->expiry_date,
-            ],
+        LicenseActivity::where([
+            'uuid' => $license->id,
+            'client_id' => $license->client_id,
+            'license_id' => $license->id,
+            'title' => '<strong>Licence Renewal</strong>',
+            'status' => 'Submitted',
+            // 'due_date' => $license->expiry_date,
+        ])->update(
             ['to_be_reviewed' => 0]
         );
         LicenseActivity::updateOrCreate(
@@ -834,7 +836,7 @@ class LicensesController extends Controller
                 'license_id' => $license->id,
                 'title' => '<strong>Licence Renewal</strong>',
                 'status' => 'Approved',
-                // 'due_date' => $license->expiry_date,
+                'due_date' => $license->expiry_date,
             ],
             ['status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Licence Renewal', 'to_be_reviewed' => 0]
         );
