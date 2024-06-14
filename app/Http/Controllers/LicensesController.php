@@ -468,7 +468,7 @@ class LicensesController extends Controller
         }
         
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
-       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed', 'rejection_comment', 'action_by')->paginate(10);
+       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'updated_at as created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed', 'rejection_comment', 'action_by')->paginate(10);
        
        $actor = $this->getUser();
        foreach($activity_timeline as $time_line) {
@@ -645,23 +645,25 @@ class LicensesController extends Controller
                 $renewal->to_be_reviewed = $to_be_reviewed;
                 $renewal->save();
             }
-            LicenseActivity::updateOrCreate(
-                [
-                    'license_id' => $license_id,
-                    'client_id' => $license->client_id,
-                    'uuid' => $license_id,
-                    'title' => '<strong>Licence Renewal</strong>',
-                    'status' => 'Pending',
-                    
-                ],
-                [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal','to_be_reviewed' => $to_be_reviewed]
-            );
-            $title = "Licence Renewal Submitted";
-            //log this event
-            $description = "Licence Renewal evidence for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
-            $this->licenseNotification($title, $description);
+            
             if($actor->role == 'staff'){            
                 $this->approveLicenseRenewal($request, $license);
+            }else {
+                LicenseActivity::updateOrCreate(
+                    [
+                        'license_id' => $license_id,
+                        'client_id' => $license->client_id,
+                        'uuid' => $license_id,
+                        'title' => '<strong>Licence Renewal</strong>',
+                        'status' => 'Pending',
+                        
+                    ],
+                    [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal','to_be_reviewed' => $to_be_reviewed]
+                );
+                $title = "Licence Renewal Submitted";
+                //log this event
+                $description = "Licence Renewal evidence for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
+                $this->licenseNotification($title, $description);
             }
             
             return 'success';
@@ -740,7 +742,7 @@ class LicensesController extends Controller
                 'status' => 'Submitted',
                 'due_date' => $report->due_date,
             ],
-            ['status' => 'Approved','to_be_reviewed' => 0]
+            ['to_be_reviewed' => 0]
         );
         LicenseActivity::updateOrCreate(
             [
