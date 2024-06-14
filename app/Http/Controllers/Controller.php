@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\LicenceNotificationEvent;
 use App\Models\LocalGovernmentArea;
 use App\Models\State;
 use App\Notifications\AuditTrail;
@@ -10,6 +11,7 @@ use App\Models\Partner;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\LicenceNotification;
 use App\Notifications\LicenseActivityLog;
 use App\Notifications\LicenseExpiration;
 use App\Notifications\LicenseNotification;
@@ -178,6 +180,7 @@ class Controller extends BaseController
             $users = $users->merge($clients);
         }
         $notification = new LicenseActivityLog($title, $action, $actor, $type, $action_type);
+        event(new LicenceNotificationEvent($title, $action));
         return Notification::send($users->unique(), $notification);
     }
 
@@ -187,7 +190,8 @@ class Controller extends BaseController
         if ($clients != null) {
             $users = $users->merge($clients);
         }
-        $notification = new LicenseNotification($title, $action);
+        $notification = new LicenceNotification($title, $action);
+        event(new LicenceNotificationEvent($title, $action));
         return Notification::send($users->unique(), $notification);
     }
 

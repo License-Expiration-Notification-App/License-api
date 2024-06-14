@@ -147,11 +147,12 @@ class UsersController extends Controller
             $max_date = date('Y-m-d',strtotime($max_date));//.' 23:59:59';
             $notificationQuery->where('due_date', '<=', $max_date);
         }
+        $condition = [];
         if ($user->role == 'client') {
             $client_id = $this->getClient()->id;
-            $notificationQuery->where('client_id', $client_id);
+            $condition = ['client_id' => $client_id];
         }
-        $notifications = $notificationQuery->orderBy('due_date', 'ASC')->select('id as notification_id', 'title', 'description', 'color_code', 'license_id as uuid', 'type', 'status', 'created_at', 'read_by', 'action_by')->paginate(10);
+        $notifications = $notificationQuery->where($condition)->orderBy('due_date', 'ASC')->select('id as notification_id', 'title', 'description', 'color_code', 'license_id as uuid', 'type', 'status', 'created_at', 'read_by', 'action_by')->paginate(10);
         foreach ($notifications as $notification) {
             $action_by = $notification->action_by;
             if ($user->id == $action_by) {
@@ -169,7 +170,7 @@ class UsersController extends Controller
             }
             unset($notification->read_by);
         }
-        $unread_notifications = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$user->id.'%')->orWhere('read_by', NULL)->count();
+        $unread_notifications = LicenseActivity::where($condition)->where('read_by', 'NOT LIKE', '%'.$user->id.'%')->orWhere('read_by', NULL)->count();
         return response()->json(compact('notifications', 'unread_notifications'), 200);
     }
     public function markNotificationAsRead(Request $request,LicenseActivity $notification)

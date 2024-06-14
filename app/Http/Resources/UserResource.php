@@ -28,6 +28,7 @@ class UserResource extends JsonResource
         $client_id = '';
         $client_name = '';
         $client_logo = '';
+        $condition = [];
         if ($this->role === 'client') {
             $client_user = DB::table('client_user')->where('user_id', $this->id)->first();
             $client_id = $client_user->client_id;
@@ -37,9 +38,10 @@ class UserResource extends JsonResource
             if($client->main_admin === $this->id){
                 $main_admin = true;
             }
+            $condition = ['client_id' => $client_id];
         }
          // $notification_count = $this->unreadNotifications()->where('data', 'NOT LIKE', '%Audit Trail%')->count();
-        $notification_count = LicenseActivity::where('read_by', 'NOT LIKE', '%'.$this->id.'%')->orWhere('read_by', NULL)->count();
+        $notification_count = LicenseActivity::where($condition)->where('read_by', 'NOT LIKE', '%'.$this->id.'%')->orWhere('read_by', NULL)->count();
         return [
             'id' => $this->id,
             'name' => $this->name,

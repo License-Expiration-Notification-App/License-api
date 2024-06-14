@@ -56,9 +56,9 @@ class LicensesController extends Controller
         if(!in_array('TENEMENT SIZE', $header)) {
             $missing_headers[] = 'A compulsory column header: TENEMENT SIZE is missing. Please add a column header name titled: TENEMENT SIZE to the csv file';
         }  
-        if(!in_array('EXPIRY DATE', $header)) {
-            $missing_headers[] = 'A compulsory column header: EXPIRY DATE is missing. Please add a column header name titled: EXPIRY DATE to the csv file';
-        }  
+        // if(!in_array('EXPIRY DATE', $header)) {
+        //     $missing_headers[] = 'A compulsory column header: EXPIRY DATE is missing. Please add a column header name titled: EXPIRY DATE to the csv file';
+        // }  
         if(!in_array('ISSUE DATE', $header)) {
             $missing_headers[] = 'A compulsory column header: ISSUE DATE is missing. Please add a column header name titled: ISSUE DATE to the csv file';
         }  
@@ -68,6 +68,7 @@ class LicensesController extends Controller
     public function licenseRenewalPeriods(Request $request)
     {
         $today = date('Y-m-d', strtotime('now'));
+        $max_renewal_date = date("Y-m-d", strtotime("+1 month", strtotime('now')));
         $user = $this->getUser();
         $condition = [];
         if ($user->hasRole('client')) {
@@ -80,11 +81,18 @@ class LicensesController extends Controller
         if($renewal_date_passed == 1) {
             $date_passed_license = License::where($condition)->where('renewal_date', '<', $today)->select('id', 'license_no')->first();
         }
-        $renewal_due_today = License::where($condition)->where('renewal_date', 'LIKE', '%'.$today.'%')->count();
-        if($renewal_date_passed == 1) {
-            $due_today_license = License::where($condition)->where('renewal_date', 'LIKE', '%'.$today.'%')->select('id', 'license_no')->first();
+        $renewal_due_today = License::where($condition)
+        ->where('renewal_date', '>=', $today)
+        ->where('renewal_date', '<=', $max_renewal_date)
+        ->count();
+        if($renewal_due_today == 1) {
+            $due_today_license = License::where($condition)
+            ->where('renewal_date', '>=', $today)
+            ->where('renewal_date', '<=', $max_renewal_date)
+            ->select('id', 'license_no')
+            ->first();
         }
-        return response()->json(compact('renewal_date_passed', 'date_passed_license','renewal_due_today', 'due_today_license'), 200);
+        return response()->json(compact('renewal_date_passed', 'date_passed_license','renewal_due_today', 'due_today_license', 'max_renewal_date'), 200);
     }
     /**
      * Display a listing of the resource.
@@ -113,6 +121,7 @@ class LicensesController extends Controller
         $status = Arr::get($searchParams, 'status', '');
         $license_date = Arr::get($searchParams, 'license_date', '');
         $license_date = Arr::get($searchParams, 'expiry_date', '');
+        $max_renewal_date = Arr::get($searchParams, 'max_renewal_date', '');
         // $date_created = Arr::get($searchParams, 'date_created', '');
         $min_date = Arr::get($searchParams, 'min_date', '');
         $max_date = Arr::get($searchParams, 'max_date', '');
@@ -191,8 +200,14 @@ class LicensesController extends Controller
             $max_date = date('Y-m-d',strtotime($max_date)).' 23:59:59';
             $licenseQuery->where('licenses.created_at', '<=', $max_date);
         }
+        if (!empty($max_renewal_date)) {
+            $max_date = date('Y-m-d',strtotime($max_renewal_date));
+            $licenseQuery->where('licenses.renewal_date', '>=', date('Y-m-d', strtotime('now')))
+            ->where('licenses.renewal_date', '<=', $max_date);
+        }
+        
         if ($sort_by == '') {
-            $sort_by = 'licenses.renewal_date';
+            $sort_by = 'licenses.created_at';
         }
         if ($sort_direction == '') {
             $sort_direction = 'DESC';
@@ -306,7 +321,7 @@ class LicensesController extends Controller
                     $mineral = ucwords(trim($csvRow['MINERAL'])); 
                     $license_no = trim($csvRow['LICENCE NUMBER']);
                     $license_type = trim($csvRow['LICENCE TYPE']);
-                    $exp_date = strtoupper(trim($csvRow['EXPIRY DATE']));                
+                    // $exp_date = strtoupper(trim($csvRow['EXPIRY DATE']));                
                     $lic_date = trim($csvRow['ISSUE DATE']);
                     $state = trim($csvRow['STATE']);
                     $lga = trim($csvRow['LGA']);                
@@ -317,10 +332,10 @@ class LicensesController extends Controller
                         // $line++;
                         continue;
                     }
-                    if($exp_date == 'LICENCE IN PROGRESS' || $exp_date == NULL) {
-                        $issues_observed[] = 'Invalid EXPIRY DATE on row #'.$line;
-                        $unsaved_data[] = 'Invalid EXPIRY DATE on row #'.$line;
-                    }
+                    // if($exp_date == 'LICENCE IN PROGRESS' || $lic_date == NULL) {
+                    //     $issues_observed[] = 'Invalid ISSUE DATE on row #'.$line;
+                    //     $unsaved_data[] = 'Invalid EXPIRY DATE on row #'.$line;
+                    // }
                     if($lic_date == 'LICENCE IN PROGRESS' || $lic_date == NULL) {
                         $issues_observed[] = 'Invalid ISSUE DATE on row #'.$line;
                         $unsaved_data[] = 'Invalid ISSUE DATE on row #'.$line;
@@ -362,7 +377,7 @@ class LicensesController extends Controller
                     //     $unsaved_data[] = "The licence number should be in the form of 123456 EL (that is: <number> <space> <license type>) on line #$line.";
                     // }
                     $status = trim($csvRow['STATUS']);
-                    $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
+                    // $expiry_date = date('Y-m-d', strtotime($this->formatDate($exp_date)));
                     $license_date = date('Y-m-d', strtotime($this->formatDate($lic_date)));
                     if(count($issues_observed) > 0) {
                         // $unsaved_data = $issues_observed;                    
@@ -468,7 +483,7 @@ class LicensesController extends Controller
         }
         
        $activity_timeline = $licenseActivityQuery->where('license_id', $license->id)
-       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed', 'rejection_comment', 'action_by')->paginate(10);
+       ->where('status', '!=', 'Pending')->select('license_id', 'title', 'description', 'updated_at as created_at', 'status', 'type', 'color_code', 'due_date', 'uuid', 'to_be_reviewed', 'rejection_comment', 'action_by')->paginate(10);
        
        $actor = $this->getUser();
        foreach($activity_timeline as $time_line) {
@@ -617,14 +632,14 @@ class LicensesController extends Controller
     {
         $actor = $this->getUser();
         
+        
+        $license_id = $request->license_id;
+        // $is_renewal = $request->is_renewal; // true or false
+        $license = License::find($license_id);
         $to_be_reviewed = 1;
         if($actor->role == 'staff'){            
             $to_be_reviewed = 0;
         }
-        $license_id = $request->license_id;
-        // $is_renewal = $request->is_renewal; // true or false
-        $license = License::find($license_id);
-        
         if($request->hasFile('certificate_file')){
             
             $files = $request->file('certificate_file');
@@ -645,21 +660,27 @@ class LicensesController extends Controller
                 $renewal->to_be_reviewed = $to_be_reviewed;
                 $renewal->save();
             }
-            LicenseActivity::updateOrCreate(
-                [
-                    'license_id' => $license_id,
-                    'client_id' => $license->client_id,
-                    'uuid' => $license_id,
-                    'title' => '<strong>Licence Renewal</strong>',
-                    'status' => 'Pending',
-                    
-                ],
-                [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal','to_be_reviewed' => $to_be_reviewed]
-            );
-            $title = "Licence Renewal Submitted";
-            //log this event
-            $description = "Licence Renewal evidence for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
-            $this->licenseNotification($title, $description);
+            
+            if($actor->role == 'staff'){            
+                $this->approveLicenseRenewal($request, $license);
+            }else {
+                LicenseActivity::updateOrCreate(
+                    [
+                        'license_id' => $license_id,
+                        'client_id' => $license->client_id,
+                        'uuid' => $license_id,
+                        'title' => '<strong>Licence Renewal</strong>',
+                        'status' => 'Pending',
+                        
+                    ],
+                    [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal','to_be_reviewed' => $to_be_reviewed]
+                );
+                $title = "Licence Renewal Submitted";
+                //log this event
+                $description = "Licence Renewal evidence for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
+                $this->licenseNotification($title, $description);
+            }
+            
             return 'success';
         }
         return response()->json(['error' => "Unable to upload file. Try again later"], 500);
@@ -699,25 +720,29 @@ class LicensesController extends Controller
                     $upload->save();
                 }
             }
-
-            // log the activity
-            LicenseActivity::updateOrCreate(
-                [
-                    'uuid' => $report->id,
-                    'client_id' => $report->client_id,
-                    'license_id' => $report->license_id,
-                    'title' => '<strong>'.$report->report_type.' Report</strong>',
-                    'status' => 'Pending',
-                    'due_date' => $report->due_date,
-                ],
-                ['status' => 'Submitted', 
-                'description' => "submitted for approval by&nbsp;", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed, 'action_by' => $actor->id,]
-            );
-            $license = License::find($report->license_id);
-            $title = "$report->report_type Report Submitted";
-            //log this event
-            $description = "$report->report_type Report for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
-            $this->licenseNotification($title, $description);
+            if($actor->role == 'staff'){            
+                $this->approveReport($request, $report);
+            }else {
+                // log the activity
+                LicenseActivity::updateOrCreate(
+                    [
+                        'uuid' => $report->id,
+                        'client_id' => $report->client_id,
+                        'license_id' => $report->license_id,
+                        'title' => '<strong>'.$report->report_type.' Report</strong>',
+                        'status' => 'Pending',
+                        'due_date' => $report->due_date,
+                    ],
+                    ['status' => 'Submitted', 
+                    'description' => "submitted for approval by&nbsp;", 'color_code' => '#475467', 'type' =>'Report Status', 'to_be_reviewed' => $to_be_reviewed, 'action_by' => $actor->id,]
+                );
+                $license = License::find($report->license_id);
+                $title = "$report->report_type Report Submitted";
+                //log this event
+                $description = "$report->report_type Report for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
+                $this->licenseNotification($title, $description);
+            }
+            
         }
         return 'success';
     }
@@ -727,16 +752,15 @@ class LicensesController extends Controller
         $report->status = 'Approved';
         $report->approved_by = $actor->id;            
         $report->save();
-        LicenseActivity::updateOrCreate(
-            [
-                'uuid' => $report->id,
-                'client_id' => $report->client_id,
-                'license_id' => $report->license_id,
-                'title' => '<strong>'.$report->report_type.' Report</strong>',
-                'status' => 'Submitted',
-                'due_date' => $report->due_date,
-            ],
-            ['status' => 'Approved','to_be_reviewed' => 0]
+        LicenseActivity::where([
+            'uuid' => $report->id,
+            'client_id' => $report->client_id,
+            'license_id' => $report->license_id,
+            'title' => '<strong>'.$report->report_type.' Report</strong>',
+            'status' => 'Submitted',
+            'due_date' => $report->due_date,
+        ])->update(
+            ['to_be_reviewed' => 0]
         );
         LicenseActivity::updateOrCreate(
             [
@@ -795,16 +819,15 @@ class LicensesController extends Controller
             $renewal->save();
         }
         
-        LicenseActivity::updateOrCreate(
-            [
-                'uuid' => $license->id,
-                'client_id' => $license->client_id,
-                'license_id' => $license->id,
-                'title' => '<strong>Licence Renewal</strong>',
-                'status' => 'Submitted',
-                // 'due_date' => $license->expiry_date,
-            ],
-            ['status' => 'Approved','to_be_reviewed' => 0]
+        LicenseActivity::where([
+            'uuid' => $license->id,
+            'client_id' => $license->client_id,
+            'license_id' => $license->id,
+            'title' => '<strong>Licence Renewal</strong>',
+            'status' => 'Submitted',
+            // 'due_date' => $license->expiry_date,
+        ])->update(
+            ['to_be_reviewed' => 0]
         );
         LicenseActivity::updateOrCreate(
             [
@@ -813,9 +836,9 @@ class LicensesController extends Controller
                 'license_id' => $license->id,
                 'title' => '<strong>Licence Renewal</strong>',
                 'status' => 'Approved',
-                // 'due_date' => $license->expiry_date,
+                'due_date' => $license->expiry_date,
             ],
-            ['status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Licence Renewal']
+            ['status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Licence Renewal', 'to_be_reviewed' => 0]
         );
         $title = "Licence Renewal Approved";
         //log this event
@@ -827,12 +850,13 @@ class LicensesController extends Controller
     
     private function setNextRenewalDate($license) 
     {
+        $today = date('Y-m-d', strtotime('now'));
         $year = date('Y', strtotime('now'));
         $no_of_renewals = $license->no_of_renewals;
         $license_date = $license->license_date;
         $renewal_year = date('Y', strtotime($license->renewal_date));
         // We want to make sure the renewal is made on the same year of the renewal date
-        if($year == $renewal_year){
+        // if($year == $renewal_year){
        
             if ($no_of_renewals == 0) {
                 $next_expiry_date = date('Y-m-d', strtotime('+5 years -1 day', strtotime($license_date)));
@@ -859,12 +883,15 @@ class LicensesController extends Controller
                 $license->two_weeks_before_expiration = $two_weeks_before_expiration;
                 $license->three_days_before_expiration = $three_days_before_expiration;
                 $license->no_of_renewals += 1;
+                if( $license->expiry_date > $today) {
+                    $license->status = 'Active';
+                }
                 $license->expiry_alert_sent = 'activity logged,';
                 $license->save();
             }
             return 'success';
-        }
-        return response()->json(['message' => "Sorry! You can only perform this action in $year"], 500);  
+        // }
+        // return response()->json(['message' => "Sorry! You can only perform this action in $year"], 500);  
     }
     public function rejectLicenseRenewal(Request $request, License $license)
     {
