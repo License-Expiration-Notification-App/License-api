@@ -11,6 +11,7 @@ use App\Models\Partner;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\LicenceNotification;
 use App\Notifications\LicenseActivityLog;
 use App\Notifications\LicenseExpiration;
 use App\Notifications\LicenseNotification;
@@ -189,7 +190,7 @@ class Controller extends BaseController
         if ($clients != null) {
             $users = $users->merge($clients);
         }
-        $notification = new LicenseNotification($title, $action);
+        $notification = new LicenceNotification($title, $action);
         event(new LicenceNotificationEvent($title, $action));
         return Notification::send($users->unique(), $notification);
     }

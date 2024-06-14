@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 
-class LicenseNotification extends Notification implements ShouldQueue
+class LicenceNotification extends Notification implements ShouldQueue
 {
     use Queueable;
     protected $title;
