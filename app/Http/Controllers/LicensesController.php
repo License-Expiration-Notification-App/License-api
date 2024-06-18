@@ -630,11 +630,11 @@ class LicensesController extends Controller
     }
     public function uploadCertificate(Request $request)
     {
-        if($request->hasFile('certificate_file')){
-            $request->validate([
-                'certificate_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
-            ]);
-        }
+       
+        $request->validate([
+            'certificate_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
+        ]);
+        
         $actor = $this->getUser();
         
         
@@ -693,11 +693,11 @@ class LicensesController extends Controller
 
     public function uploadReport(Request $request)
     {
-        if($request->hasFile('report_file')){
-            $request->validate([
-                'report_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
-            ]);
-        }
+        
+        $request->validate([
+            'report_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
+        ]);
+        
         $actor = $this->getUser();
         $report_id = $request->uuid;
         $to_be_reviewed = 1;
