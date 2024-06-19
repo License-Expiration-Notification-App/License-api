@@ -121,7 +121,16 @@ class LicensesController extends Controller
         $max_date = Arr::get($searchParams, 'max_date', '');
         $sort_by = Arr::get($searchParams, 'sort_by', 'license_no');
         $sort_direction = Arr::get($searchParams, 'sort_direction', 'ASC');
+        $licenseQuery->join('clients', 'licenses.client_id', '=', 'clients.id')
+        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
+        ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
+        ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
+        ->join('states', 'licenses.state_id', '=', 'states.id')
+        ->join('local_government_areas', 'licenses.lga_id', '=', 'local_government_areas.id');
+        
+        
         if (!empty($keyword)) {
+            unset($request->page);
             $licenseQuery->where(function ($q) use ($keyword) {
                 $q->where('license_no',  'LIKE', '%'.$keyword.'%')
                 ->orWhereHas('client', function ($q) use ($keyword) {
@@ -144,37 +153,7 @@ class LicensesController extends Controller
                     $q->where('name', 'LIKE', '%' . $keyword . '%');
                 });
             });
-            // $licenseQuery->search($keyword);
-            // $licenseQuery->where(function ($q) use ($keyword) {
-            //     $q->where('license_no',  'LIKE', '%'.$keyword.'%')
-            //     ->orWhereHas('client', function ($q) use ($keyword) {
-            //         $q->where('company_name', 'LIKE', '%' . $keyword . '%');
-            //     })
-            //     ->orWhereHas('subsidiary', function ($q) use ($keyword) {
-            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
-            //     })
-            //     ->orWhereHas('licenseType', function ($q) use ($keyword) {
-            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
-            //         $q->orWhere('slug', 'LIKE', '%' . $keyword . '%');
-            //     })
-            //     ->orWhereHas('mineral', function ($q) use ($keyword) {
-            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
-            //     })
-            //     ->orWhereHas('state', function ($q) use ($keyword) {
-            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
-            //     })
-            //     ->orWhereHas('lga', function ($q) use ($keyword) {
-            //         $q->where('name', 'LIKE', '%' . $keyword . '%');
-            //     });
-            // });
         }
-        
-        $licenseQuery->leftJoin('clients', 'licenses.client_id', '=', 'clients.id')
-        ->leftJoin('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
-        ->leftJoin('license_types', 'licenses.license_type_id', '=', 'license_types.id')
-        ->leftJoin('minerals', 'licenses.mineral_id', '=', 'minerals.id')
-        ->leftJoin('states', 'licenses.state_id', '=', 'states.id')
-        ->leftJoin('local_government_areas', 'licenses.lga_id', '=', 'local_government_areas.id');
         
         if ($user->hasRole('client')) {
             $id = $this->getClient()->id;

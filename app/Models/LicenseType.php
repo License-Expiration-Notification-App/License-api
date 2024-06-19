@@ -9,4 +9,8 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class LicenseType extends Model
 {
     use HasUuids, HasFactory, SoftDeletes;
+    public function licenses()
+    {
+        return $this->hasMany(License::class);
+    }
 }
