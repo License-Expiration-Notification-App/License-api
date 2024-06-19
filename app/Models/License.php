@@ -27,7 +27,7 @@ class License extends Model
                 $q->where('name', 'LIKE', '%' . $keyword . '%');
             })
             ->orWhereHas('licenseType', function ($q) use ($keyword) {
-                $q->where('name', 'LIKE', '%' . $keyword . '%');
+                // $q->where('name', 'LIKE', '%' . $keyword . '%');
                 $q->orWhere('slug', 'LIKE', '%' . $keyword . '%');
             })
             ->orWhereHas('mineral', function ($q) use ($keyword) {
