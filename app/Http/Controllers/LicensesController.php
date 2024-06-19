@@ -690,7 +690,7 @@ class LicensesController extends Controller
                 return 'success';
             }
         } catch (\Throwable $th) {
-            return response()->json(['message' => 'Uploaded file must not be more than 1MB in size'], 413);
+            return response()->json(['message' => $th], 500);
         }
         
     }
@@ -764,7 +764,7 @@ class LicensesController extends Controller
             }
             return 'success';
         } catch (\Throwable $th) {
-            return response()->json(['message' => 'Uploaded file must not be more than 1MB in size'], 413);
+            return response()->json(['message' => $th], 500);
         }
     }
     public function approveReport(Request $request, Report $report)
