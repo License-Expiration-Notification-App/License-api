@@ -631,79 +631,71 @@ class LicensesController extends Controller
     public function uploadCertificate(Request $request)
     {
        
+        $request->validate([
+            'certificate_file' => 'required|max:1024',
+        ]);
+        $actor = $this->getUser();
         
-        try {
-            $request->validate([
-                'certificate_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
-            ]);
-            $actor = $this->getUser();
-            
-            
-            $license_id = $request->license_id;
-            // $is_renewal = $request->is_renewal; // true or false
-            $license = License::find($license_id);
-            $to_be_reviewed = 1;
-            if($actor->role == 'staff'){            
-                $to_be_reviewed = 0;
-            }
-            if($request->hasFile('certificate_file')){
-                
-                $files = $request->file('certificate_file');
-                foreach ($files as $file) {
-                    // $name = $file->getClientOriginalName();
-                    $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $file_name = $name.'_'.time() . "." . $file->extension();
-                    // $name = 'cert_'.time().'_'.$request->file('certificate')->hashName();
-                    $link = $file->storeAs('certificate', $file_name, 'public');
-
-                    $renewal = new Renewal();
-                    $renewal->license_id  = $license_id;
-                    $renewal->file_name  = $name;
-                    $renewal->link = env('APP_URL').'/storage/'.$link;
-                    // $renewal->expiry_date = $next_expiry_date;
-                    $renewal->status = 'Submitted';
-                    $renewal->submitted_by = $actor->id;      
-                    $renewal->to_be_reviewed = $to_be_reviewed;
-                    $renewal->save();
-                }
-                
-                if($actor->role == 'staff'){            
-                    $this->approveLicenseRenewal($request, $license);
-                }else {
-                    LicenseActivity::updateOrCreate(
-                        [
-                            'license_id' => $license_id,
-                            'client_id' => $license->client_id,
-                            'uuid' => $license_id,
-                            'title' => '<strong>Licence Renewal</strong>',
-                            'status' => 'Pending',
-                            
-                        ],
-                        [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal','to_be_reviewed' => $to_be_reviewed]
-                    );
-                    $title = "Licence Renewal Submitted";
-                    //log this event
-                    $description = "Licence Renewal evidence for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
-                    $this->licenseNotification($title, $description);
-                }
-                
-                return 'success';
-            }
-        } catch (\Throwable $th) {
-            return response()->json(['message' => $th], 500);
+        
+        $license_id = $request->license_id;
+        // $is_renewal = $request->is_renewal; // true or false
+        $license = License::find($license_id);
+        $to_be_reviewed = 1;
+        if($actor->role == 'staff'){            
+            $to_be_reviewed = 0;
         }
+        if($request->hasFile('certificate_file')){
+            
+            $files = $request->file('certificate_file');
+            foreach ($files as $file) {
+                // $name = $file->getClientOriginalName();
+                $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $file_name = $name.'_'.time() . "." . $file->extension();
+                // $name = 'cert_'.time().'_'.$request->file('certificate')->hashName();
+                $link = $file->storeAs('certificate', $file_name, 'public');
+
+                $renewal = new Renewal();
+                $renewal->license_id  = $license_id;
+                $renewal->file_name  = $name;
+                $renewal->link = env('APP_URL').'/storage/'.$link;
+                // $renewal->expiry_date = $next_expiry_date;
+                $renewal->status = 'Submitted';
+                $renewal->submitted_by = $actor->id;      
+                $renewal->to_be_reviewed = $to_be_reviewed;
+                $renewal->save();
+            }
+            
+            if($actor->role == 'staff'){            
+                $this->approveLicenseRenewal($request, $license);
+            }else {
+                LicenseActivity::updateOrCreate(
+                    [
+                        'license_id' => $license_id,
+                        'client_id' => $license->client_id,
+                        'uuid' => $license_id,
+                        'title' => '<strong>Licence Renewal</strong>',
+                        'status' => 'Pending',
+                        
+                    ],
+                    [ 'status' => 'Submitted', 'description' => "submitted for approval by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#475467', 'type' =>'Licence Renewal','to_be_reviewed' => $to_be_reviewed]
+                );
+                $title = "Licence Renewal Submitted";
+                //log this event
+                $description = "Licence Renewal evidence for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
+                $this->licenseNotification($title, $description);
+            }
+            
+            return 'success';
+        }
+        return response()->json(['message' => 'Please upload a file not more than 1MB in size'], 500);
         
     }
 
     public function uploadReport(Request $request)
     {
         
-        // $request->validate([
-        //     'report_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
-        // ]);
-        try {
              $request->validate([
-                'report_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
+                'report_file' => 'required|max:1024',
             ]);
             
             $actor = $this->getUser();
@@ -760,12 +752,11 @@ class LicensesController extends Controller
                     $description = "$report->report_type Report for <strong>$license->license_no</strong> was submitted for approval by&nbsp;<strong>$actor->name</strong>";
                     $this->licenseNotification($title, $description);
                 }
-                
+                return 'success';
             }
-            return 'success';
-        } catch (\Throwable $th) {
-            return response()->json(['message' => $th], 500);
-        }
+            
+            return response()->json(['message' => 'Invalid Request'], 500);
+        
     }
     public function approveReport(Request $request, Report $report)
     {
