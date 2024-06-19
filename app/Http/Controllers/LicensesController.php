@@ -665,8 +665,19 @@ class LicensesController extends Controller
                 $renewal->save();
             }
             
-            if($actor->role == 'staff'){            
+            if($actor->role == 'staff'){
+                LicenseActivity::where(
+                    [
+                        'license_id' => $license_id,
+                        'client_id' => $license->client_id,
+                        'uuid' => $license_id,
+                        'title' => '<strong>Licence Renewal</strong>',
+                        'status' => 'Pending',
+                        
+                    ])
+                    ->update([ 'status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Licence Renewal','to_be_reviewed' => 0]);   
                 $this->approveLicenseRenewal($request, $license);
+                
             }else {
                 LicenseActivity::updateOrCreate(
                     [
@@ -730,7 +741,18 @@ class LicensesController extends Controller
                         $upload->save();
                     }
                 }
-                if($actor->role == 'staff'){            
+                if($actor->role == 'staff'){
+                    LicenseActivity::where(
+                        [
+                            'uuid' => $report->id,
+                            'client_id' => $report->client_id,
+                            'license_id' => $report->license_id,
+                            'title' => '<strong>'.$report->report_type.' Report</strong>',
+                            'status' => 'Pending',
+                            'due_date' => $report->due_date,
+                        ])
+                        ->update(
+                        ['status' => 'Approved', 'description' => "approved by&nbsp;", 'action_by' => $actor->id, 'color_code' => '#D1FADF', 'type' =>'Report Status']);          
                     $this->approveReport($request, $report);
                 }else {
                     // log the activity
@@ -764,6 +786,7 @@ class LicensesController extends Controller
         $report->status = 'Approved';
         $report->approved_by = $actor->id;            
         $report->save();
+        
         LicenseActivity::where([
             'uuid' => $report->id,
             'client_id' => $report->client_id,
