@@ -631,15 +631,11 @@ class LicensesController extends Controller
     public function uploadCertificate(Request $request)
     {
        
-        // $request->validate([
-        //     'certificate_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
-        // ]);
+        
         try {
-            if($request->hasFile('certificate_file')){
-                if ( $request->file->getSize() > 1000000) {
-                    return response()->json(['message' => 'Uploaded file must not be more than 1MB in size'], 413);
-                }
-            }
+            $request->validate([
+                'certificate_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
+            ]);
             $actor = $this->getUser();
             
             
@@ -706,11 +702,9 @@ class LicensesController extends Controller
         //     'report_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
         // ]);
         try {
-            if($request->hasFile('report_file')){
-                if ( $request->file->getSize() > 1000000) {
-                    return response()->json(['message' => 'Uploaded file must not be more than 1MB in size'], 413);
-                }
-            }
+             $request->validate([
+                'report_file' => 'mimes:jpeg,png,jpg,pdf|max:1024',
+            ]);
             
             $actor = $this->getUser();
             $report_id = $request->uuid;
