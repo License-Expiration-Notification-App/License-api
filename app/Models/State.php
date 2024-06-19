@@ -14,4 +14,8 @@ class State extends Model
     {
         return $this->hasMany(LocalGovernmentArea::class);
     }
+    public function licenses()
+    {
+        return $this->hasMany(License::class);
+    }
 }

@@ -15,4 +15,8 @@ class LocalGovernmentArea extends Model
     {
         return $this->belongsTo(State::class);
     }
+    public function licenses()
+    {
+        return $this->hasMany(License::class);
+    }
 }

@@ -10,4 +10,8 @@ class Mineral extends Model
 {
     use HasUuids, HasFactory, SoftDeletes;
     protected $fillable = ['name'];
+    public function licenses()
+    {
+        return $this->hasMany(License::class);
+    }
 }
