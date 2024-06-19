@@ -102,12 +102,6 @@ class LicensesController extends Controller
         $user = $this->getUser();
         $searchParams = $request->all();
         $licenseQuery = License::query();
-        $licenseQuery->join('clients', 'licenses.client_id', '=', 'clients.id')
-        ->join('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
-        ->join('license_types', 'licenses.license_type_id', '=', 'license_types.id')
-        ->join('minerals', 'licenses.mineral_id', '=', 'minerals.id')
-        ->join('states', 'licenses.state_id', '=', 'states.id')
-        ->join('local_government_areas', 'licenses.lga_id', '=', 'local_government_areas.id');
 
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         $keyword = Arr::get($searchParams, 'search', '');
@@ -152,6 +146,13 @@ class LicensesController extends Controller
             //     });
             // });
         }
+        
+        $licenseQuery->leftJoin('clients', 'licenses.client_id', '=', 'clients.id')
+        ->leftJoin('subsidiaries', 'licenses.subsidiary_id', '=', 'subsidiaries.id')
+        ->leftJoin('license_types', 'licenses.license_type_id', '=', 'license_types.id')
+        ->leftJoin('minerals', 'licenses.mineral_id', '=', 'minerals.id')
+        ->leftJoin('states', 'licenses.state_id', '=', 'states.id')
+        ->leftJoin('local_government_areas', 'licenses.lga_id', '=', 'local_government_areas.id');
         
         if ($user->hasRole('client')) {
             $id = $this->getClient()->id;
