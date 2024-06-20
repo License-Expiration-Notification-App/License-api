@@ -152,7 +152,7 @@ class UsersController extends Controller
             $client_id = $this->getClient()->id;
             $condition = ['client_id' => $client_id];
         }
-        $notifications = $notificationQuery->where($condition)->orderBy('due_date', 'ASC')->select('id as notification_id', 'title', 'description', 'color_code', 'license_id as uuid', 'type', 'status', 'created_at', 'read_by', 'action_by')->paginate(10);
+        $notifications = $notificationQuery->where($condition)->orderBy('created_at', 'DESC')->select('id as notification_id', 'title', 'description', 'color_code', 'license_id as uuid', 'type', 'status', 'created_at', 'read_by', 'action_by')->paginate(10);
         foreach ($notifications as $notification) {
             $action_by = $notification->action_by;
             if ($user->id == $action_by) {
