@@ -25,6 +25,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Notification;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendMail;
 
 class Controller extends BaseController
 {
@@ -168,6 +170,10 @@ class Controller extends BaseController
             $users = $users->merge($clients);
         }
         $notification = new AuditTrail($title, $action, $actor, $type, $action_type);
+        foreach ($users as $recipient) {
+
+            Mail::to($recipient)->send(new SendMail($title, $action, $recipient));
+        }
         return Notification::send($users->unique(), $notification);
     }
 
@@ -189,6 +195,10 @@ class Controller extends BaseController
         $users = User::where('role', 'staff')->get();
         if ($clients != null) {
             $users = $users->merge($clients);
+        }
+        foreach ($users as $recipient) {
+
+            Mail::to($recipient)->send(new SendMail($title, $action, $recipient));
         }
         $notification = new LicenceNotification($title, $action);
         event(new LicenceNotificationEvent($title, $action));
