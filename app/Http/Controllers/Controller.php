@@ -161,7 +161,7 @@ class Controller extends BaseController
 
         return $folder . '/' . $file_name;
     }
-    public function auditTrailEvent($title, $action, $actor, $type='Authentication', $action_type= 'add', $clients = null)
+    public function auditTrailEvent($title, $action, $actor, $type='Authentication', $action_type= 'add', $clients = null, $sendMail = true)
     {
 
         // $user = $this->getUser();
@@ -170,9 +170,12 @@ class Controller extends BaseController
             $users = $users->merge($clients);
         }
         $notification = new AuditTrail($title, $action, $actor, $type, $action_type);
-        foreach ($users as $recipient) {
+        if($sendMail) {
+            foreach ($users as $recipient) {
+    
+                Mail::to($recipient)->send(new SendMail($title, $action, $recipient));
+            }
 
-            Mail::to($recipient)->send(new SendMail($title, $action, $recipient));
         }
         return Notification::send($users->unique(), $notification);
     }
