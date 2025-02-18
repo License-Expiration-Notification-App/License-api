@@ -588,6 +588,9 @@ class LicensesController extends Controller
     public function destroy(License $license)
     {
         $actor = $this->getUser();
+        if (!$actor->hasRole('super')) {
+            return response()->json(['message' => 'You are not permitted to delete licences'], 403);
+        }
         //
         $title = "Licence Deleted";
         //log this event
